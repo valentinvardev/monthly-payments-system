@@ -65,6 +65,7 @@ export const paymentsRouter = createTRPCRouter({
         method: z.enum(["BANK_TRANSFER", "CRYPTO"]),
         paymentMethodConfigId: z.string(),
         notes: z.string().optional(),
+        proofFileName: z.string().optional(),
       }),
     )
     .mutation(({ ctx, input }) => {
@@ -73,13 +74,16 @@ export const paymentsRouter = createTRPCRouter({
       if (!invoice) throw new Error("Factura no encontrada");
       if (invoice.clientId !== ctx.clientId) throw new Error("FORBIDDEN");
 
+      const safeName = (input.proofFileName ?? `${input.paymentMethodConfigId}-${Date.now()}.png`)
+        .replace(/[^a-zA-Z0-9._-]+/g, "_");
+
       const payment = {
         id: nextId("pay"),
         invoiceId: invoice.id,
         method: input.method,
         status: "PENDING_REVIEW" as const,
         amountUsd: invoice.amountUsd,
-        proofUrl: `https://demo.invalid/proofs/${input.paymentMethodConfigId}-${Date.now()}.png`,
+        proofUrl: `https://demo.invalid/proofs/${safeName}`,
         notes: input.notes,
         createdAt: new Date(),
       };

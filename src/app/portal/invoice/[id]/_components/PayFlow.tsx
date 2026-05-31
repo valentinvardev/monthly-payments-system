@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { trpc } from "@/trpc/react";
 import type { PaymentMethodConfig } from "@/lib/demo/types";
 import {
@@ -11,6 +18,7 @@ import {
   MercadoPagoLogo,
 } from "@/components/icons/PaymentMethodIcons";
 import { CryptoAssetIcon } from "@/components/icons/CryptoAssetIcons";
+import { ProofUpload } from "./ProofUpload";
 
 type Method = "MERCADOPAGO" | "BANK_TRANSFER" | "CRYPTO";
 
@@ -23,8 +31,6 @@ export function PayFlow({
 }) {
   const router = useRouter();
   const [chosen, setChosen] = useState<Method | null>(null);
-  const [chosenConfigId, setChosenConfigId] = useState<string | null>(null);
-  const [notes, setNotes] = useState("");
   const [done, setDone] = useState<string | null>(null);
 
   const banks = methods.filter((m) => m.kind === "BANK_ACCOUNT");
@@ -33,15 +39,6 @@ export function PayFlow({
   const mp = trpc.payments.simulateMercadoPago.useMutation({
     onSuccess: () => {
       setDone("¡Pago acreditado! La factura quedó marcada como pagada.");
-      router.refresh();
-    },
-  });
-
-  const manual = trpc.payments.submitManualPayment.useMutation({
-    onSuccess: () => {
-      setDone(
-        "Recibimos tu comprobante. Vas a ver el pago como 'pagada' una vez que el admin lo confirme.",
-      );
       router.refresh();
     },
   });
@@ -91,10 +88,7 @@ export function PayFlow({
                 className="text-foreground/95 transition-transform group-hover/method:scale-[1.02]"
               />
             }
-            onClick={() => {
-              setChosen("MERCADOPAGO");
-              setChosenConfigId(null);
-            }}
+            onClick={() => setChosen("MERCADOPAGO")}
           />
           <MethodCard
             label="Transferencia"
@@ -102,10 +96,7 @@ export function PayFlow({
             tag="1–2 días"
             active={chosen === "BANK_TRANSFER"}
             icon={<BankTransferIcon size={22} />}
-            onClick={() => {
-              setChosen("BANK_TRANSFER");
-              setChosenConfigId(banks[0]?.id ?? null);
-            }}
+            onClick={() => setChosen("BANK_TRANSFER")}
           />
           <MethodCard
             label="Crypto"
@@ -114,10 +105,7 @@ export function PayFlow({
             active={chosen === "CRYPTO"}
             icon={<CryptoIcon size={22} />}
             iconBare
-            onClick={() => {
-              setChosen("CRYPTO");
-              setChosenConfigId(cryptos[0]?.id ?? null);
-            }}
+            onClick={() => setChosen("CRYPTO")}
           />
         </div>
 
@@ -137,50 +125,349 @@ export function PayFlow({
         )}
 
         {chosen === "BANK_TRANSFER" && (
-          <ManualFlow
+          <BankTransferFlow
+            invoiceId={invoiceId}
             options={banks}
-            selectedId={chosenConfigId}
-            onSelect={setChosenConfigId}
-            notes={notes}
-            onNotes={setNotes}
-            isPending={manual.isPending}
-            error={manual.error?.message}
-            onSubmit={() => {
-              if (!chosenConfigId) return;
-              manual.mutate({
-                invoiceId,
-                method: "BANK_TRANSFER",
-                paymentMethodConfigId: chosenConfigId,
-                notes: notes || undefined,
-              });
-            }}
-            ctaLabel="Marcar como transferido + adjuntar comprobante"
+            onDone={(msg) => setDone(msg)}
           />
         )}
 
         {chosen === "CRYPTO" && (
-          <ManualFlow
+          <CryptoFlow
+            invoiceId={invoiceId}
             options={cryptos}
-            selectedId={chosenConfigId}
-            onSelect={setChosenConfigId}
-            notes={notes}
-            onNotes={setNotes}
-            isPending={manual.isPending}
-            error={manual.error?.message}
-            onSubmit={() => {
-              if (!chosenConfigId) return;
-              manual.mutate({
-                invoiceId,
-                method: "CRYPTO",
-                paymentMethodConfigId: chosenConfigId,
-                notes: notes || undefined,
-              });
-            }}
-            ctaLabel="Marcar como enviado + adjuntar hash"
+            onDone={(msg) => setDone(msg)}
           />
         )}
       </CardContent>
     </Card>
+  );
+}
+
+// -----------------------------------------------------------------------
+// Bank transfer flow — radio list of accounts + proof upload + notes
+// -----------------------------------------------------------------------
+
+function BankTransferFlow({
+  invoiceId,
+  options,
+  onDone,
+}: {
+  invoiceId: string;
+  options: PaymentMethodConfig[];
+  onDone: (msg: string) => void;
+}) {
+  const router = useRouter();
+  const [selectedId, setSelectedId] = useState<string | null>(options[0]?.id ?? null);
+  const [proof, setProof] = useState<File | null>(null);
+  const [notes, setNotes] = useState("");
+
+  const mutation = trpc.payments.submitManualPayment.useMutation({
+    onSuccess: () => {
+      onDone("Recibimos tu comprobante. Vas a ver el pago como 'pagada' una vez que el admin lo confirme.");
+      router.refresh();
+    },
+  });
+
+  if (options.length === 0) {
+    return (
+      <p className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 text-sm text-muted-foreground">
+        No hay cuentas bancarias configuradas todavía.
+      </p>
+    );
+  }
+
+  const canSubmit = !!selectedId && !!proof;
+
+  return (
+    <div className="space-y-4 rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+      <div className="space-y-2">
+        {options.map((o) => {
+          if (o.kind !== "BANK_ACCOUNT") return null;
+          const isSel = o.id === selectedId;
+          return (
+            <label
+              key={o.id}
+              className={[
+                "group/opt flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm transition",
+                isSel
+                  ? "border-white/22 bg-white/[0.05]"
+                  : "border-white/8 bg-white/[0.02] hover:border-white/14 hover:bg-white/[0.035]",
+              ].join(" ")}
+            >
+              <input
+                type="radio"
+                name="bank-option"
+                checked={isSel}
+                onChange={() => setSelectedId(o.id)}
+                className="sr-only"
+              />
+              <CustomRadio checked={isSel} />
+              <div className="min-w-0 flex-1">
+                <div className="font-medium text-foreground/95">{o.label}</div>
+                <div className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+                  <div>
+                    <span className="text-foreground/55">CBU</span>{" "}
+                    <span className="font-mono text-foreground/85">{o.details.cbu}</span>
+                    {o.details.alias && (
+                      <>
+                        {" · "}
+                        <span className="text-foreground/55">alias</span>{" "}
+                        <span className="font-mono text-foreground/85">{o.details.alias}</span>
+                      </>
+                    )}
+                  </div>
+                  <div>
+                    <span className="text-foreground/55">Titular</span>{" "}
+                    <span className="text-foreground/85">{o.details.accountHolder}</span>
+                    {o.details.taxId && (
+                      <>
+                        {" · "}
+                        <span className="text-foreground/55">CUIT</span>{" "}
+                        <span className="font-mono text-foreground/85">{o.details.taxId}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                {o.instructions && (
+                  <p className="mt-2 text-[11px] italic text-muted-foreground/70">
+                    {o.instructions}
+                  </p>
+                )}
+              </div>
+            </label>
+          );
+        })}
+      </div>
+
+      <ProofUpload value={proof} onChange={setProof} hint="Captura de la transferencia (imagen o PDF)" />
+
+      <NotesArea value={notes} onChange={setNotes} />
+
+      <PrimaryButton
+        disabled={!canSubmit || mutation.isPending}
+        onClick={() => {
+          if (!selectedId || !proof) return;
+          mutation.mutate({
+            invoiceId,
+            method: "BANK_TRANSFER",
+            paymentMethodConfigId: selectedId,
+            notes: notes || undefined,
+            proofFileName: proof.name,
+          });
+        }}
+        label={mutation.isPending ? "Enviando..." : "Marcar como transferido"}
+      />
+      {!proof && (
+        <p className="text-[11px] text-muted-foreground/70">
+          Adjuntá el comprobante para poder enviar.
+        </p>
+      )}
+      {mutation.error && <p className="text-sm text-rose-200/85">{mutation.error.message}</p>}
+    </div>
+  );
+}
+
+// -----------------------------------------------------------------------
+// Crypto flow — dropdown picker; address card reveals only after select
+// -----------------------------------------------------------------------
+
+function CryptoFlow({
+  invoiceId,
+  options,
+  onDone,
+}: {
+  invoiceId: string;
+  options: PaymentMethodConfig[];
+  onDone: (msg: string) => void;
+}) {
+  const router = useRouter();
+  const [selectedId, setSelectedId] = useState<string>("");
+  const [proof, setProof] = useState<File | null>(null);
+  const [notes, setNotes] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const mutation = trpc.payments.submitManualPayment.useMutation({
+    onSuccess: () => {
+      onDone("Recibimos tu comprobante. Vas a ver el pago como 'pagada' una vez que el admin lo confirme.");
+      router.refresh();
+    },
+  });
+
+  if (options.length === 0) {
+    return (
+      <p className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 text-sm text-muted-foreground">
+        No hay wallets crypto configuradas todavía.
+      </p>
+    );
+  }
+
+  const selected = options.find((o) => o.id === selectedId);
+  const canSubmit = !!selected && !!proof;
+
+  async function copyAddress() {
+    if (!selected || selected.kind !== "CRYPTO_WALLET") return;
+    try {
+      await navigator.clipboard.writeText(selected.details.address);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  return (
+    <div className="space-y-4 rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+      <div className="space-y-1.5">
+        <label className="block text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">
+          Wallet de destino
+        </label>
+        <Select value={selectedId} onValueChange={(v) => setSelectedId(v ?? "")}>
+          <SelectTrigger className="!h-12 w-full justify-between rounded-xl border-white/12 bg-white/[0.03] px-3 text-left text-sm text-foreground/95 hover:border-white/22 hover:bg-white/[0.05] data-[popup-open]:border-white/30">
+            <SelectValue placeholder="Elegí una red y activo">
+              {selected && selected.kind === "CRYPTO_WALLET" && (
+                <span className="flex items-center gap-2">
+                  <CryptoAssetIcon
+                    asset={selected.details.asset}
+                    network={selected.details.network}
+                    size={22}
+                  />
+                  <span className="font-medium text-foreground/95">
+                    {selected.details.asset}
+                  </span>
+                  <span className="rounded-full border border-white/8 bg-white/[0.03] px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground/85">
+                    {selected.details.network}
+                  </span>
+                </span>
+              )}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent className="glass-strong border-white/12 !bg-transparent">
+            {options.map((o) => {
+              if (o.kind !== "CRYPTO_WALLET") return null;
+              return (
+                <SelectItem
+                  key={o.id}
+                  value={o.id}
+                  className="!gap-3 !rounded-md !py-2 !pl-2 hover:!bg-white/[0.06] focus:!bg-white/[0.08]"
+                >
+                  <CryptoAssetIcon
+                    asset={o.details.asset}
+                    network={o.details.network}
+                    size={22}
+                  />
+                  <span className="flex flex-col">
+                    <span className="text-sm font-medium text-foreground/95">
+                      {o.details.asset}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+                      {o.details.network}
+                    </span>
+                  </span>
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {selected && selected.kind === "CRYPTO_WALLET" && (
+        <div className="reveal space-y-4">
+          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+            <div className="flex items-center gap-3">
+              <CryptoAssetIcon
+                asset={selected.details.asset}
+                network={selected.details.network}
+                size={38}
+              />
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-foreground/95">{selected.label}</p>
+                <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground/85">
+                  {selected.details.network} · {selected.details.asset}
+                </p>
+              </div>
+            </div>
+            <div className="mt-3 space-y-1">
+              <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/80">
+                Dirección
+              </p>
+              <div className="flex items-center gap-2 rounded-lg border border-white/8 bg-white/[0.02] p-2">
+                <code className="min-w-0 flex-1 break-all font-mono text-[11px] text-foreground/90">
+                  {selected.details.address}
+                </code>
+                <button
+                  type="button"
+                  onClick={copyAddress}
+                  className="shrink-0 rounded-full border border-white/12 bg-white/[0.04] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground/95 hover:border-white/22 transition"
+                >
+                  {copied ? "Copiado" : "Copiar"}
+                </button>
+              </div>
+            </div>
+            {selected.instructions && (
+              <p className="mt-3 text-[11px] italic text-muted-foreground/75">
+                {selected.instructions}
+              </p>
+            )}
+          </div>
+
+          <ProofUpload
+            value={proof}
+            onChange={setProof}
+            hint="Captura del envío o hash de la transacción"
+          />
+
+          <NotesArea value={notes} onChange={setNotes} placeholder="Notas opcionales (hash, exchange origen…)" />
+
+          <PrimaryButton
+            disabled={!canSubmit || mutation.isPending}
+            onClick={() => {
+              if (!selected || !proof) return;
+              mutation.mutate({
+                invoiceId,
+                method: "CRYPTO",
+                paymentMethodConfigId: selected.id,
+                notes: notes || undefined,
+                proofFileName: proof.name,
+              });
+            }}
+            label={mutation.isPending ? "Enviando..." : "Confirmar envío"}
+          />
+          {!proof && (
+            <p className="text-[11px] text-muted-foreground/70">
+              Adjuntá el comprobante o el hash en captura para poder confirmar.
+            </p>
+          )}
+          {mutation.error && (
+            <p className="text-sm text-rose-200/85">{mutation.error.message}</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// -----------------------------------------------------------------------
+// Small shared bits
+// -----------------------------------------------------------------------
+
+function NotesArea({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <textarea
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder ?? "Notas opcionales (banco origen, hash de envío…)"}
+      className="glass-input focus:glass-input-focus w-full rounded-xl px-3 py-2.5 text-sm placeholder:text-muted-foreground/55"
+      rows={2}
+    />
   );
 }
 
@@ -198,7 +485,7 @@ function PrimaryButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="w-full rounded-full border border-white/18 bg-white/[0.07] px-4 py-2.5 text-sm font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-50"
+      className="w-full rounded-full border border-white/18 bg-white/[0.07] px-4 py-2.5 text-sm font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-40 disabled:hover:bg-white/[0.07] disabled:hover:border-white/18"
     >
       {label}
     </button>
@@ -284,139 +571,5 @@ function MethodCard({
         {sub}
       </p>
     </button>
-  );
-}
-
-function ManualFlow({
-  options,
-  selectedId,
-  onSelect,
-  notes,
-  onNotes,
-  isPending,
-  error,
-  onSubmit,
-  ctaLabel,
-}: {
-  options: PaymentMethodConfig[];
-  selectedId: string | null;
-  onSelect: (id: string) => void;
-  notes: string;
-  onNotes: (v: string) => void;
-  isPending: boolean;
-  error?: string;
-  onSubmit: () => void;
-  ctaLabel: string;
-}) {
-  if (options.length === 0) {
-    return (
-      <p className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 text-sm text-muted-foreground">
-        No hay opciones configuradas para este método todavía.
-      </p>
-    );
-  }
-
-  const selected = options.find((o) => o.id === selectedId) ?? options[0];
-
-  return (
-    <div className="space-y-4 rounded-2xl border border-white/8 bg-white/[0.02] p-5">
-      <div className="space-y-2">
-        {options.map((o) => {
-          const isSel = o.id === selected.id;
-          return (
-            <label
-              key={o.id}
-              className={[
-                "group/opt relative flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm transition",
-                isSel
-                  ? "border-white/22 bg-white/[0.05]"
-                  : "border-white/8 bg-white/[0.02] hover:border-white/14 hover:bg-white/[0.035]",
-              ].join(" ")}
-            >
-              <input
-                type="radio"
-                name="manual-option"
-                checked={isSel}
-                onChange={() => onSelect(o.id)}
-                className="sr-only"
-              />
-              <CustomRadio checked={isSel} />
-              {o.kind === "CRYPTO_WALLET" && (
-                <div className="mt-0.5 shrink-0">
-                  <CryptoAssetIcon
-                    asset={o.details.asset}
-                    network={o.details.network}
-                    size={32}
-                  />
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium text-foreground/95">{o.label}</span>
-                  {o.kind === "CRYPTO_WALLET" && (
-                    <span className="rounded-full border border-white/8 bg-white/[0.03] px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground/85">
-                      {o.details.network}
-                    </span>
-                  )}
-                </div>
-                {o.kind === "BANK_ACCOUNT" ? (
-                  <div className="mt-1 space-y-0.5 text-xs text-muted-foreground">
-                    <div>
-                      <span className="text-foreground/55">CBU</span>{" "}
-                      <span className="font-mono text-foreground/85">{o.details.cbu}</span>
-                      {o.details.alias && (
-                        <>
-                          {" · "}
-                          <span className="text-foreground/55">alias</span>{" "}
-                          <span className="font-mono text-foreground/85">{o.details.alias}</span>
-                        </>
-                      )}
-                    </div>
-                    <div>
-                      <span className="text-foreground/55">Titular</span>{" "}
-                      <span className="text-foreground/85">{o.details.accountHolder}</span>
-                      {o.details.taxId && (
-                        <>
-                          {" · "}
-                          <span className="text-foreground/55">CUIT</span>{" "}
-                          <span className="font-mono text-foreground/85">{o.details.taxId}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="mt-1 break-all font-mono text-[11px] text-foreground/85">
-                    {o.details.address}
-                  </div>
-                )}
-                {o.instructions && (
-                  <p className="mt-2 text-[11px] italic text-muted-foreground/70">
-                    {o.instructions}
-                  </p>
-                )}
-              </div>
-            </label>
-          );
-        })}
-      </div>
-
-      <textarea
-        value={notes}
-        onChange={(e) => onNotes(e.target.value)}
-        placeholder="Notas opcionales (banco origen, hash de envío…)"
-        className="glass-input focus:glass-input-focus w-full rounded-xl px-3 py-2.5 text-sm placeholder:text-muted-foreground/55"
-        rows={2}
-      />
-
-      <button
-        type="button"
-        disabled={isPending}
-        onClick={onSubmit}
-        className="w-full rounded-full border border-white/18 bg-white/[0.07] px-4 py-2.5 text-sm font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-50"
-      >
-        {isPending ? "Enviando..." : ctaLabel}
-      </button>
-      {error && <p className="text-sm text-rose-200/85">{error}</p>}
-    </div>
   );
 }
