@@ -115,11 +115,13 @@ export function PayFlow({
               En modo real serías redirigido al checkout de MercadoPago y al confirmar el pago la
               factura quedaría marcada como pagada vía webhook.
             </p>
-            <PrimaryButton
-              disabled={mp.isPending}
-              onClick={() => mp.mutate({ invoiceId })}
-              label={mp.isPending ? "Procesando..." : "Simular pago con MercadoPago"}
-            />
+            <div className="flex justify-end">
+              <PrimaryButton
+                disabled={mp.isPending}
+                onClick={() => mp.mutate({ invoiceId })}
+                label={mp.isPending ? "Procesando..." : "Simular pago con MercadoPago"}
+              />
+            </div>
             {mp.error && <p className="text-sm text-rose-200/85">{mp.error.message}</p>}
           </div>
         )}
@@ -177,7 +179,7 @@ function BankTransferFlow({
     );
   }
 
-  const canSubmit = !!selectedId && !!proof;
+  const canSubmit = !!selectedId;
 
   return (
     <div className="space-y-4 rounded-2xl border border-white/8 bg-white/[0.02] p-5">
@@ -244,25 +246,22 @@ function BankTransferFlow({
 
       <NotesArea value={notes} onChange={setNotes} />
 
-      <PrimaryButton
-        disabled={!canSubmit || mutation.isPending}
-        onClick={() => {
-          if (!selectedId || !proof) return;
-          mutation.mutate({
-            invoiceId,
-            method: "BANK_TRANSFER",
-            paymentMethodConfigId: selectedId,
-            notes: notes || undefined,
-            proofFileName: proof.name,
-          });
-        }}
-        label={mutation.isPending ? "Enviando..." : "Marcar como transferido"}
-      />
-      {!proof && (
-        <p className="text-[11px] text-muted-foreground/70">
-          Adjuntá el comprobante para poder enviar.
-        </p>
-      )}
+      <div className="flex justify-end">
+        <PrimaryButton
+          disabled={!canSubmit || mutation.isPending}
+          onClick={() => {
+            if (!selectedId) return;
+            mutation.mutate({
+              invoiceId,
+              method: "BANK_TRANSFER",
+              paymentMethodConfigId: selectedId,
+              notes: notes || undefined,
+              proofFileName: proof?.name,
+            });
+          }}
+          label={mutation.isPending ? "Enviando..." : "Marcar como transferido"}
+        />
+      </div>
       {mutation.error && <p className="text-sm text-rose-200/85">{mutation.error.message}</p>}
     </div>
   );
@@ -303,7 +302,7 @@ function CryptoFlow({
   }
 
   const selected = options.find((o) => o.id === selectedId);
-  const canSubmit = !!selected && !!proof;
+  const canSubmit = !!selected;
 
   async function copyAddress() {
     if (!selected || selected.kind !== "CRYPTO_WALLET") return;
@@ -419,25 +418,22 @@ function CryptoFlow({
 
           <NotesArea value={notes} onChange={setNotes} placeholder="Notas opcionales (hash, exchange origen…)" />
 
-          <PrimaryButton
-            disabled={!canSubmit || mutation.isPending}
-            onClick={() => {
-              if (!selected || !proof) return;
-              mutation.mutate({
-                invoiceId,
-                method: "CRYPTO",
-                paymentMethodConfigId: selected.id,
-                notes: notes || undefined,
-                proofFileName: proof.name,
-              });
-            }}
-            label={mutation.isPending ? "Enviando..." : "Confirmar envío"}
-          />
-          {!proof && (
-            <p className="text-[11px] text-muted-foreground/70">
-              Adjuntá el comprobante o el hash en captura para poder confirmar.
-            </p>
-          )}
+          <div className="flex justify-end">
+            <PrimaryButton
+              disabled={!canSubmit || mutation.isPending}
+              onClick={() => {
+                if (!selected) return;
+                mutation.mutate({
+                  invoiceId,
+                  method: "CRYPTO",
+                  paymentMethodConfigId: selected.id,
+                  notes: notes || undefined,
+                  proofFileName: proof?.name,
+                });
+              }}
+              label={mutation.isPending ? "Enviando..." : "Confirmar envío"}
+            />
+          </div>
           {mutation.error && (
             <p className="text-sm text-rose-200/85">{mutation.error.message}</p>
           )}
@@ -485,7 +481,7 @@ function PrimaryButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="w-full rounded-full border border-white/18 bg-white/[0.07] px-4 py-2.5 text-sm font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-40 disabled:hover:bg-white/[0.07] disabled:hover:border-white/18"
+      className="rounded-full border border-white/18 bg-white/[0.07] px-5 py-2.5 text-sm font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-40 disabled:hover:bg-white/[0.07] disabled:hover:border-white/18"
     >
       {label}
     </button>

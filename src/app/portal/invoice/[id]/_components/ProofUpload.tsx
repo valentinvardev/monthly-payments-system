@@ -54,8 +54,13 @@ export function ProofUpload({ value, onChange, hint }: Props) {
             </svg>
           </span>
           <span className="flex-1">
-            <span className="block text-sm text-foreground/90">Adjuntar comprobante</span>
-            <span className="block text-[11px] text-muted-foreground">
+            <span className="flex items-center gap-2">
+              <span className="text-sm text-foreground/90">Adjuntar comprobante</span>
+              <span className="rounded-full border border-white/10 bg-white/[0.03] px-1.5 py-0.5 text-[9px] uppercase tracking-[0.18em] text-muted-foreground/80">
+                Opcional
+              </span>
+            </span>
+            <span className="mt-0.5 block text-[11px] text-muted-foreground">
               {hint ?? "Imagen o PDF · captura del pago o hash de la transacción"}
             </span>
           </span>
