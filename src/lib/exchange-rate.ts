@@ -1,5 +1,5 @@
-import { Prisma } from "@/generated/prisma/client";
-import { prisma } from "@/lib/prisma";
+// In-memory USD→ARS exchange rate (demo mode). Replace with DB-cached version
+// when Supabase is wired (see prisma/schema.prisma → ExchangeRate model).
 
 const SOURCE = "dolarapi:cripto";
 const PAIR = "USD/ARS";
@@ -16,57 +16,47 @@ type DolarApiResponse = {
 };
 
 export type UsdToArsRate = {
-  rate: Prisma.Decimal;
+  source: string;
+  pair: string;
+  rate: number;
   fetchedAt: Date;
   cached: boolean;
 };
 
-async function readLatestFromDb() {
-  return prisma.exchangeRate.findFirst({
-    where: { source: SOURCE, pair: PAIR },
-    orderBy: { fetchedAt: "desc" },
-  });
-}
+const globalForRate = globalThis as unknown as { __rateCache?: UsdToArsRate };
 
-async function fetchFromDolarApi(): Promise<{ rate: Prisma.Decimal; fetchedAt: Date }> {
+async function fetchFromDolarApi(): Promise<UsdToArsRate> {
   const res = await fetch(DOLARAPI_URL, { cache: "no-store" });
-  if (!res.ok) {
-    throw new Error(`dolarapi responded ${res.status}`);
-  }
+  if (!res.ok) throw new Error(`dolarapi responded ${res.status}`);
   const data = (await res.json()) as DolarApiResponse;
-  if (typeof data.venta !== "number") {
-    throw new Error("dolarapi returned an unexpected payload");
-  }
+  if (typeof data.venta !== "number") throw new Error("dolarapi returned an unexpected payload");
   return {
-    rate: new Prisma.Decimal(data.venta.toFixed(4)),
+    source: SOURCE,
+    pair: PAIR,
+    rate: Number(data.venta.toFixed(4)),
     fetchedAt: new Date(),
+    cached: false,
   };
 }
 
 export async function getUsdToArsRate(): Promise<UsdToArsRate> {
-  const latest = await readLatestFromDb();
-  const now = Date.now();
-
-  if (latest && now - latest.fetchedAt.getTime() < CACHE_TTL_MS) {
-    return { rate: latest.rate, fetchedAt: latest.fetchedAt, cached: true };
+  const cached = globalForRate.__rateCache;
+  if (cached && Date.now() - cached.fetchedAt.getTime() < CACHE_TTL_MS) {
+    return { ...cached, cached: true };
   }
-
   try {
     const fresh = await fetchFromDolarApi();
-    const saved = await prisma.exchangeRate.create({
-      data: { source: SOURCE, pair: PAIR, rate: fresh.rate, fetchedAt: fresh.fetchedAt },
-    });
-    return { rate: saved.rate, fetchedAt: saved.fetchedAt, cached: false };
+    globalForRate.__rateCache = fresh;
+    return fresh;
   } catch (err) {
-    if (latest) {
-      console.warn("[exchange-rate] dolarapi failed, falling back to last cached rate:", err);
-      return { rate: latest.rate, fetchedAt: latest.fetchedAt, cached: true };
+    if (cached) {
+      console.warn("[exchange-rate] dolarapi failed, using stale cache:", err);
+      return { ...cached, cached: true };
     }
     throw err;
   }
 }
 
-export function convertUsdToArs(amountUsd: Prisma.Decimal | number | string, rate: Prisma.Decimal) {
-  const usd = amountUsd instanceof Prisma.Decimal ? amountUsd : new Prisma.Decimal(amountUsd);
-  return usd.mul(rate);
+export function convertUsdToArs(amountUsd: number, rate: number) {
+  return Math.round(amountUsd * rate * 100) / 100;
 }

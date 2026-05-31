@@ -1,26 +1,11 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
+import { getUserFromCookieHeader } from "@/lib/auth";
 
 export async function createTRPCContext(opts: { headers: Headers }) {
-  const supabase = await createClient();
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
-
-  const dbUser = authUser
-    ? await prisma.user.findUnique({ where: { authUserId: authUser.id } })
-    : null;
-
-  return {
-    headers: opts.headers,
-    supabase,
-    authUser,
-    dbUser,
-    prisma,
-  };
+  const user = getUserFromCookieHeader(opts.headers.get("cookie"));
+  return { headers: opts.headers, user };
 }
 
 export type Context = Awaited<ReturnType<typeof createTRPCContext>>;
@@ -44,17 +29,18 @@ export const createCallerFactory = t.createCallerFactory;
 export const publicProcedure = t.procedure;
 
 export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
-  if (!ctx.authUser || !ctx.dbUser) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
-  }
-  return next({
-    ctx: { ...ctx, authUser: ctx.authUser, dbUser: ctx.dbUser },
-  });
+  if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
+  return next({ ctx: { ...ctx, user: ctx.user } });
 });
 
 export const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
-  if (ctx.dbUser.role !== "ADMIN") {
+  if (ctx.user.role !== "ADMIN") throw new TRPCError({ code: "FORBIDDEN" });
+  return next({ ctx });
+});
+
+export const clientProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  if (ctx.user.role !== "CLIENT" || !ctx.user.clientId) {
     throw new TRPCError({ code: "FORBIDDEN" });
   }
-  return next({ ctx });
+  return next({ ctx: { ...ctx, user: ctx.user, clientId: ctx.user.clientId } });
 });
