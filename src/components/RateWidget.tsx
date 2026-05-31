@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { getUsdToArsRate } from "@/lib/exchange-rate";
 import { formatArs, formatDateTime } from "@/lib/format";
 
@@ -8,10 +8,14 @@ export async function RateWidget() {
     const r = await getUsdToArsRate();
     body = (
       <>
-        <p className="text-3xl font-semibold tabular-nums">{formatArs(r.rate)}</p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          1 USD · {r.source} · {r.cached ? "cache" : "fresco"} ·{" "}
-          {formatDateTime(r.fetchedAt)}
+        <div className="flex items-baseline gap-2">
+          <span className="font-display text-4xl font-light tabular-nums text-frost">
+            {formatArs(r.rate)}
+          </span>
+          <span className="text-xs text-muted-foreground/80">/ USD</span>
+        </div>
+        <p className="mt-2 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/70">
+          cripto · dolarapi · {r.cached ? "cache" : "live"} · {formatDateTime(r.fetchedAt)}
         </p>
       </>
     );
@@ -25,12 +29,12 @@ export async function RateWidget() {
 
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          Cotización USD → ARS (cripto)
-        </CardTitle>
-      </CardHeader>
-      <CardContent>{body}</CardContent>
+      <CardContent>
+        <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">
+          Cotización USD → ARS
+        </p>
+        {body}
+      </CardContent>
     </Card>
   );
 }

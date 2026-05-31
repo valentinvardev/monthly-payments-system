@@ -2,9 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/trpc/react";
 import type { PaymentMethodConfig } from "@/lib/demo/types";
+import {
+  BankTransferIcon,
+  CryptoIcon,
+  MercadoPagoIcon,
+} from "@/components/icons/PaymentMethodIcons";
 
 type Method = "MERCADOPAGO" | "BANK_TRANSFER" | "CRYPTO";
 
@@ -43,11 +48,20 @@ export function PayFlow({
   if (done) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Listo</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm">{done}</p>
+        <CardContent className="py-6 text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border border-emerald-200/25 bg-emerald-200/[0.06]">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5 text-emerald-100/90"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <p className="font-display text-lg text-foreground/95">Listo</p>
+          <p className="mt-1 text-sm text-muted-foreground">{done}</p>
         </CardContent>
       </Card>
     );
@@ -55,24 +69,35 @@ export function PayFlow({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Elegí cómo pagar</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid gap-2 sm:grid-cols-3">
+      <CardContent className="space-y-5 py-5">
+        <div>
+          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/80">
+            Elegí cómo pagar
+          </p>
+          <h2 className="mt-1 font-display text-base font-medium tracking-tight text-foreground/95">
+            Tres caminos hacia el sur.
+          </h2>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3">
           <MethodCard
             label="MercadoPago"
-            sub="Pago automatizado (demo)"
+            sub="Pago automatizado"
+            tag="instantáneo"
             active={chosen === "MERCADOPAGO"}
+            icon={<MercadoPagoIcon size={26} />}
+            iconBare
             onClick={() => {
               setChosen("MERCADOPAGO");
               setChosenConfigId(null);
             }}
           />
           <MethodCard
-            label="Transferencia bancaria"
-            sub={`${banks.length} cuenta${banks.length === 1 ? "" : "s"}`}
+            label="Transferencia"
+            sub={`${banks.length} cuenta${banks.length === 1 ? "" : "s"} · USD`}
+            tag="1–2 días"
             active={chosen === "BANK_TRANSFER"}
+            icon={<BankTransferIcon size={22} />}
             onClick={() => {
               setChosen("BANK_TRANSFER");
               setChosenConfigId(banks[0]?.id ?? null);
@@ -81,7 +106,10 @@ export function PayFlow({
           <MethodCard
             label="Crypto"
             sub={`${cryptos.length} wallet${cryptos.length === 1 ? "" : "s"}`}
+            tag="minutos"
             active={chosen === "CRYPTO"}
+            icon={<CryptoIcon size={22} />}
+            iconBare
             onClick={() => {
               setChosen("CRYPTO");
               setChosenConfigId(cryptos[0]?.id ?? null);
@@ -90,20 +118,17 @@ export function PayFlow({
         </div>
 
         {chosen === "MERCADOPAGO" && (
-          <div className="space-y-3 rounded-lg border bg-muted/30 p-4">
-            <p className="text-sm">
+          <div className="space-y-3 rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+            <p className="text-sm text-muted-foreground">
               En modo real serías redirigido al checkout de MercadoPago y al confirmar el pago la
-              factura quedaría marcada como pagada automáticamente vía webhook.
+              factura quedaría marcada como pagada vía webhook.
             </p>
-            <button
-              type="button"
+            <PrimaryButton
               disabled={mp.isPending}
               onClick={() => mp.mutate({ invoiceId })}
-              className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/80 disabled:opacity-50"
-            >
-              {mp.isPending ? "Procesando..." : "Simular pago con MercadoPago"}
-            </button>
-            {mp.error && <p className="text-sm text-red-600">{mp.error.message}</p>}
+              label={mp.isPending ? "Procesando..." : "Simular pago con MercadoPago"}
+            />
+            {mp.error && <p className="text-sm text-rose-200/85">{mp.error.message}</p>}
           </div>
         )}
 
@@ -125,7 +150,7 @@ export function PayFlow({
                 notes: notes || undefined,
               });
             }}
-            ctaLabel="Marcar como transferido + subir comprobante (demo)"
+            ctaLabel="Marcar como transferido + adjuntar comprobante"
           />
         )}
 
@@ -147,7 +172,7 @@ export function PayFlow({
                 notes: notes || undefined,
               });
             }}
-            ctaLabel="Marcar como enviado + subir hash (demo)"
+            ctaLabel="Marcar como enviado + adjuntar hash"
           />
         )}
       </CardContent>
@@ -155,27 +180,78 @@ export function PayFlow({
   );
 }
 
+function PrimaryButton({
+  label,
+  onClick,
+  disabled,
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="w-full rounded-full border border-white/18 bg-white/[0.07] px-4 py-2.5 text-sm font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-50"
+    >
+      {label}
+    </button>
+  );
+}
+
 function MethodCard({
   label,
   sub,
+  tag,
   active,
+  icon,
+  iconBare,
   onClick,
 }: {
   label: string;
   sub: string;
+  tag: string;
   active: boolean;
+  icon: React.ReactNode;
+  iconBare?: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-lg border p-3 text-left text-sm transition ${
-        active ? "border-primary bg-primary/5" : "hover:bg-muted/50"
-      }`}
+      className={[
+        "group/method relative overflow-hidden rounded-2xl border p-4 text-left transition-all",
+        active
+          ? "border-white/22 bg-white/[0.07]"
+          : "border-white/8 bg-white/[0.02] hover:border-white/14 hover:bg-white/[0.04]",
+      ].join(" ")}
     >
-      <div className="font-medium">{label}</div>
-      <div className="text-xs text-muted-foreground">{sub}</div>
+      <div className="flex items-start justify-between">
+        {iconBare ? (
+          <div className="flex h-9 w-9 items-center justify-center text-foreground/85">
+            {icon}
+          </div>
+        ) : (
+          <div
+            className={[
+              "flex h-9 w-9 items-center justify-center rounded-xl border transition-colors",
+              active
+                ? "border-white/15 bg-white/[0.08] text-foreground/95"
+                : "border-white/6 bg-white/[0.03] text-foreground/70",
+            ].join(" ")}
+          >
+            {icon}
+          </div>
+        )}
+        <span className="rounded-full border border-white/8 bg-white/[0.03] px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-muted-foreground/85">
+          {tag}
+        </span>
+      </div>
+      <p className="mt-3 font-medium text-foreground/95">{label}</p>
+      <p className="text-xs text-muted-foreground">{sub}</p>
     </button>
   );
 }
@@ -203,7 +279,7 @@ function ManualFlow({
 }) {
   if (options.length === 0) {
     return (
-      <p className="rounded-lg border p-4 text-sm text-muted-foreground">
+      <p className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 text-sm text-muted-foreground">
         No hay opciones configuradas para este método todavía.
       </p>
     );
@@ -212,52 +288,81 @@ function ManualFlow({
   const selected = options.find((o) => o.id === selectedId) ?? options[0];
 
   return (
-    <div className="space-y-3 rounded-lg border bg-muted/30 p-4">
+    <div className="space-y-4 rounded-2xl border border-white/8 bg-white/[0.02] p-5">
       <div className="space-y-2">
-        {options.map((o) => (
-          <label
-            key={o.id}
-            className={`flex cursor-pointer items-start gap-3 rounded-md border bg-background p-3 text-sm ${
-              o.id === selected.id ? "border-primary" : ""
-            }`}
-          >
-            <input
-              type="radio"
-              name="manual-option"
-              checked={o.id === selected.id}
-              onChange={() => onSelect(o.id)}
-              className="mt-1"
-            />
-            <div className="flex-1">
-              <div className="font-medium">{o.label}</div>
-              {o.kind === "BANK_ACCOUNT" ? (
-                <div className="mt-1 text-xs text-muted-foreground">
-                  CBU {o.details.cbu}
-                  {o.details.alias && ` · alias ${o.details.alias}`}
-                  <br />
-                  Titular {o.details.accountHolder}
-                  {o.details.taxId && ` · CUIT ${o.details.taxId}`}
-                </div>
-              ) : (
-                <div className="mt-1 text-xs text-muted-foreground">
-                  {o.details.network} · {o.details.asset}
-                  <br />
-                  <span className="break-all font-mono">{o.details.address}</span>
-                </div>
-              )}
-              {o.instructions && (
-                <p className="mt-1 text-xs italic text-muted-foreground">{o.instructions}</p>
-              )}
-            </div>
-          </label>
-        ))}
+        {options.map((o) => {
+          const isSel = o.id === selected.id;
+          return (
+            <label
+              key={o.id}
+              className={[
+                "flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm transition",
+                isSel
+                  ? "border-white/22 bg-white/[0.05]"
+                  : "border-white/8 bg-white/[0.02] hover:border-white/14",
+              ].join(" ")}
+            >
+              <input
+                type="radio"
+                name="manual-option"
+                checked={isSel}
+                onChange={() => onSelect(o.id)}
+                className="mt-1 accent-foreground/70"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="font-medium text-foreground/95">{o.label}</div>
+                {o.kind === "BANK_ACCOUNT" ? (
+                  <div className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+                    <div>
+                      <span className="text-foreground/55">CBU</span>{" "}
+                      <span className="font-mono text-foreground/85">{o.details.cbu}</span>
+                      {o.details.alias && (
+                        <>
+                          {" · "}
+                          <span className="text-foreground/55">alias</span>{" "}
+                          <span className="font-mono text-foreground/85">{o.details.alias}</span>
+                        </>
+                      )}
+                    </div>
+                    <div>
+                      <span className="text-foreground/55">Titular</span>{" "}
+                      <span className="text-foreground/85">{o.details.accountHolder}</span>
+                      {o.details.taxId && (
+                        <>
+                          {" · "}
+                          <span className="text-foreground/55">CUIT</span>{" "}
+                          <span className="font-mono text-foreground/85">{o.details.taxId}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    <div>
+                      <span className="text-foreground/55">{o.details.network}</span>{" "}
+                      <span className="text-foreground/85">· {o.details.asset}</span>
+                    </div>
+                    <div className="mt-1 break-all font-mono text-[11px] text-foreground/85">
+                      {o.details.address}
+                    </div>
+                  </div>
+                )}
+                {o.instructions && (
+                  <p className="mt-2 text-[11px] italic text-muted-foreground/70">
+                    {o.instructions}
+                  </p>
+                )}
+              </div>
+            </label>
+          );
+        })}
       </div>
 
       <textarea
         value={notes}
         onChange={(e) => onNotes(e.target.value)}
-        placeholder="Notas opcionales (ej. desde qué banco transferiste, hash del envío...)"
-        className="w-full rounded-md border bg-background p-2 text-sm"
+        placeholder="Notas opcionales (banco origen, hash de envío…)"
+        className="glass-input focus:glass-input-focus w-full rounded-xl px-3 py-2.5 text-sm placeholder:text-muted-foreground/55"
         rows={2}
       />
 
@@ -265,11 +370,11 @@ function ManualFlow({
         type="button"
         disabled={isPending}
         onClick={onSubmit}
-        className="w-full rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:bg-primary/80 disabled:opacity-50"
+        className="w-full rounded-full border border-white/18 bg-white/[0.07] px-4 py-2.5 text-sm font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-50"
       >
         {isPending ? "Enviando..." : ctaLabel}
       </button>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-rose-200/85">{error}</p>}
     </div>
   );
 }

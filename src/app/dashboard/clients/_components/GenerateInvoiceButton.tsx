@@ -16,15 +16,17 @@ export function GenerateInvoiceButton({
   const [error, setError] = useState<string | null>(null);
 
   const gen = trpc.invoices.generateNextMonth.useMutation({
-    onSuccess: () => {
-      router.refresh();
-    },
+    onSuccess: () => router.refresh(),
     onError: (e) => setError(e.message),
     onSettled: () => setBusy(false),
   });
 
   if (!hasPlan) {
-    return <span className="text-xs text-muted-foreground">Sin plan</span>;
+    return (
+      <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/60">
+        Sin plan
+      </span>
+    );
   }
 
   return (
@@ -37,11 +39,11 @@ export function GenerateInvoiceButton({
           setError(null);
           gen.mutate({ clientId });
         }}
-        className="rounded-md border bg-background px-2 py-1 text-xs hover:bg-muted disabled:opacity-50"
+        className="rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium text-foreground/85 transition hover:bg-white/[0.08] hover:border-white/22 hover:text-foreground disabled:opacity-50"
       >
-        {busy ? "..." : "Generar factura del próximo mes"}
+        {busy ? "Generando..." : "+ Próxima factura"}
       </button>
-      {error && <span className="text-xs text-red-600">{error}</span>}
+      {error && <span className="text-[11px] text-rose-200/85">{error}</span>}
     </div>
   );
 }
