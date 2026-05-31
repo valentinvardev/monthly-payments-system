@@ -15,7 +15,7 @@ export async function RateWidget() {
           <span className="text-xs text-muted-foreground/80">/ USD</span>
         </div>
         <p className="mt-2 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/70">
-          oficial · dolarapi · {r.cached ? "cache" : "live"} · {formatDateTime(r.fetchedAt)}
+          {formatDateTime(r.fetchedAt)}
         </p>
       </>
     );
