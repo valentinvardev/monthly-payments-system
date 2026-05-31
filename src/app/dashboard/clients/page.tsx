@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { api } from "@/trpc/server";
 import { formatDate, formatUsd } from "@/lib/format";
 import { GenerateInvoiceButton } from "./_components/GenerateInvoiceButton";
+import { InviteLinkButton } from "./_components/InviteLinkButton";
 
 export default async function ClientsPage() {
   const clients = await api.clients.list();
@@ -36,6 +37,7 @@ export default async function ClientsPage() {
                 <th className="px-5 py-3 text-left font-medium">Día vto.</th>
                 <th className="px-5 py-3 text-right font-medium">Facturas</th>
                 <th className="px-5 py-3 text-left font-medium">Alta</th>
+                <th className="px-5 py-3 text-right font-medium">Invite</th>
                 <th className="px-5 py-3 text-right font-medium">Acciones</th>
               </tr>
             </thead>
@@ -59,6 +61,9 @@ export default async function ClientsPage() {
                     {c.invoiceCount}
                   </td>
                   <td className="px-5 py-4 text-muted-foreground">{formatDate(c.createdAt)}</td>
+                  <td className="px-5 py-4 text-right">
+                    <InviteLinkButton clientId={c.id} hasLogin={c.hasLogin} />
+                  </td>
                   <td className="px-5 py-4 text-right">
                     <GenerateInvoiceButton clientId={c.id} hasPlan={!!c.plan} />
                   </td>
