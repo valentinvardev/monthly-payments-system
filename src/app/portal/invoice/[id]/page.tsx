@@ -64,14 +64,29 @@ export default async function InvoiceDetailPage({
             <p className="mt-1 font-display text-6xl font-light tabular-nums text-frost">
               {formatUsd(invoice.amountUsd)}
             </p>
-            {arsPreview !== null && rate && (
-              <p className="mt-2 text-sm text-muted-foreground">
-                ≈{" "}
-                <span className="font-display text-foreground/90 tabular-nums">
-                  {formatArs(arsPreview)}
-                </span>{" "}
-                a la cotización cripto · 1 USD ={" "}
-                <span className="tabular-nums">{formatArs(rate.rate)}</span>
+
+            {arsPreview !== null && rate ? (
+              <div className="mt-5 border-t border-white/8 pt-4">
+                <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/80">
+                  Equivalente en pesos
+                </p>
+                <p className="mt-1 flex items-baseline gap-2">
+                  <span className="text-muted-foreground/70 text-base">≈</span>
+                  <span className="font-display text-3xl font-light tabular-nums text-foreground/95">
+                    {formatArs(arsPreview)}
+                  </span>
+                </p>
+                <p className="mt-2 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/70">
+                  cotización dólar cripto · 1 USD ={" "}
+                  <span className="tabular-nums text-foreground/80">
+                    {formatArs(rate.rate)}
+                  </span>{" "}
+                  · {rate.cached ? "cache" : "live"}
+                </p>
+              </div>
+            ) : (
+              <p className="mt-4 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/60">
+                No se pudo obtener la cotización en ARS.
               </p>
             )}
           </div>
