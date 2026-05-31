@@ -252,6 +252,45 @@ function seed(): State {
       active: true,
       sortOrder: 2,
     },
+    {
+      id: "pm_crypto_usdt_bep20",
+      kind: "CRYPTO_WALLET",
+      label: "USDT (red BNB Chain / BEP20)",
+      details: {
+        network: "BNB Chain (BEP20)",
+        asset: "USDT",
+        address: "0xDemoBep20000000000000000000000BEEF",
+      },
+      instructions: "Enviá únicamente USDT en red BEP20. Otras redes pueden generar pérdida de fondos.",
+      active: true,
+      sortOrder: 3,
+    },
+    {
+      id: "pm_crypto_btc",
+      kind: "CRYPTO_WALLET",
+      label: "Bitcoin (red BTC nativa)",
+      details: {
+        network: "Bitcoin",
+        asset: "BTC",
+        address: "bc1qdem0btcaddress0000000000000000000000xy",
+      },
+      instructions: "Enviá BTC a esta dirección nativa. Cotización al spot del momento de confirmación.",
+      active: true,
+      sortOrder: 4,
+    },
+    {
+      id: "pm_crypto_ltc",
+      kind: "CRYPTO_WALLET",
+      label: "Litecoin (red LTC nativa)",
+      details: {
+        network: "Litecoin",
+        asset: "LTC",
+        address: "ltc1qdem0ltcaddress00000000000000000000xyzz",
+      },
+      instructions: "Enviá LTC a esta dirección nativa.",
+      active: true,
+      sortOrder: 5,
+    },
   ];
 
   const emailLogs: EmailLog[] = [

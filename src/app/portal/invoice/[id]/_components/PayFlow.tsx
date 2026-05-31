@@ -10,6 +10,7 @@ import {
   CryptoIcon,
   MercadoPagoIcon,
 } from "@/components/icons/PaymentMethodIcons";
+import { CryptoAssetIcon } from "@/components/icons/CryptoAssetIcons";
 
 type Method = "MERCADOPAGO" | "BANK_TRANSFER" | "CRYPTO";
 
@@ -309,8 +310,20 @@ function ManualFlow({
                 onChange={() => onSelect(o.id)}
                 className="mt-1 accent-foreground/70"
               />
+              {o.kind === "CRYPTO_WALLET" && (
+                <div className="mt-0.5 shrink-0">
+                  <CryptoAssetIcon asset={o.details.asset} size={28} />
+                </div>
+              )}
               <div className="min-w-0 flex-1">
-                <div className="font-medium text-foreground/95">{o.label}</div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-medium text-foreground/95">{o.label}</span>
+                  {o.kind === "CRYPTO_WALLET" && (
+                    <span className="rounded-full border border-white/8 bg-white/[0.03] px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground/85">
+                      {o.details.network}
+                    </span>
+                  )}
+                </div>
                 {o.kind === "BANK_ACCOUNT" ? (
                   <div className="mt-1 space-y-0.5 text-xs text-muted-foreground">
                     <div>
@@ -337,14 +350,8 @@ function ManualFlow({
                     </div>
                   </div>
                 ) : (
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    <div>
-                      <span className="text-foreground/55">{o.details.network}</span>{" "}
-                      <span className="text-foreground/85">· {o.details.asset}</span>
-                    </div>
-                    <div className="mt-1 break-all font-mono text-[11px] text-foreground/85">
-                      {o.details.address}
-                    </div>
+                  <div className="mt-1 break-all font-mono text-[11px] text-foreground/85">
+                    {o.details.address}
                   </div>
                 )}
                 {o.instructions && (
