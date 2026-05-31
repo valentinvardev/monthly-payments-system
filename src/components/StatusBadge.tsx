@@ -1,65 +1,153 @@
 import type { InvoiceStatus, PaymentStatus } from "@/lib/demo/types";
 
-const invoiceLabel: Record<InvoiceStatus, string> = {
-  DRAFT: "Borrador",
-  PENDING: "Pendiente",
-  PENDING_REVIEW: "Revisión",
-  PAID: "Pagada",
-  OVERDUE: "Vencida",
-  CANCELLED: "Cancelada",
+type Variant = {
+  label: string;
+  bg: string;
+  ring: string;
+  dot: string;
+  text: string;
+  glow?: string;
+  pulse?: boolean;
 };
 
-const invoiceTint: Record<InvoiceStatus, string> = {
-  DRAFT: "border-white/8 bg-white/[0.03] text-muted-foreground",
-  PENDING: "border-white/10 bg-white/[0.04] text-foreground/85",
-  PENDING_REVIEW: "border-amber-200/20 bg-amber-200/[0.06] text-amber-100/90",
-  PAID: "border-emerald-200/20 bg-emerald-200/[0.06] text-emerald-100/90",
-  OVERDUE: "border-rose-300/25 bg-rose-300/[0.08] text-rose-100/90",
-  CANCELLED: "border-white/8 bg-white/[0.02] text-muted-foreground/60",
-};
-
-const dotTint: Record<InvoiceStatus, string> = {
-  DRAFT: "bg-foreground/30",
-  PENDING: "bg-foreground/55",
-  PENDING_REVIEW: "bg-amber-200/80",
-  PAID: "bg-emerald-200/85",
-  OVERDUE: "bg-rose-300/85",
-  CANCELLED: "bg-foreground/25",
+const invoiceVariants: Record<InvoiceStatus, Variant> = {
+  DRAFT: {
+    label: "Borrador",
+    bg: "bg-white/[0.04]",
+    ring: "ring-white/8",
+    dot: "bg-foreground/40",
+    text: "text-muted-foreground",
+  },
+  PENDING: {
+    label: "Pendiente",
+    bg: "bg-gradient-to-b from-white/[0.07] to-white/[0.02]",
+    ring: "ring-white/10",
+    dot: "bg-foreground/65",
+    text: "text-foreground/90",
+  },
+  PENDING_REVIEW: {
+    label: "Esperando revisión",
+    bg: "bg-gradient-to-b from-amber-200/[0.10] to-amber-200/[0.03]",
+    ring: "ring-amber-200/20",
+    dot: "bg-amber-200",
+    text: "text-amber-100/95",
+    glow: "shadow-[0_0_14px_-4px_oklch(0.85_0.15_85/0.45)]",
+    pulse: true,
+  },
+  PAID: {
+    label: "Pagada",
+    bg: "bg-gradient-to-b from-emerald-200/[0.10] to-emerald-200/[0.03]",
+    ring: "ring-emerald-200/20",
+    dot: "bg-emerald-200",
+    text: "text-emerald-100/95",
+    glow: "shadow-[0_0_14px_-4px_oklch(0.85_0.15_155/0.40)]",
+  },
+  OVERDUE: {
+    label: "Vencida",
+    bg: "bg-gradient-to-b from-rose-300/[0.12] to-rose-300/[0.04]",
+    ring: "ring-rose-300/25",
+    dot: "bg-rose-300",
+    text: "text-rose-100/95",
+    glow: "shadow-[0_0_14px_-4px_oklch(0.75_0.18_25/0.45)]",
+    pulse: true,
+  },
+  CANCELLED: {
+    label: "Cancelada",
+    bg: "bg-white/[0.03]",
+    ring: "ring-white/8",
+    dot: "bg-foreground/25",
+    text: "text-muted-foreground/60",
+  },
 };
 
 export function InvoiceStatusBadge({ status }: { status: InvoiceStatus }) {
+  const v = invoiceVariants[status];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em] ${invoiceTint[status]}`}
+      className={[
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] ring-1 ring-inset backdrop-blur-sm",
+        v.bg,
+        v.ring,
+        v.text,
+        v.glow ?? "",
+      ].join(" ")}
     >
-      <span className={`h-1.5 w-1.5 rounded-full ${dotTint[status]}`} />
-      {invoiceLabel[status]}
+      <span className="relative flex h-1.5 w-1.5">
+        {v.pulse && (
+          <span
+            className={`absolute inset-0 inline-flex h-full w-full animate-ping rounded-full opacity-60 ${v.dot}`}
+          />
+        )}
+        <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${v.dot}`} />
+      </span>
+      {v.label}
     </span>
   );
 }
 
-const paymentLabel: Record<PaymentStatus, string> = {
-  INITIATED: "Iniciado",
-  PENDING_REVIEW: "Esperando revisión",
-  CONFIRMED: "Confirmado",
-  REJECTED: "Rechazado",
-  REFUNDED: "Reembolsado",
-};
-
-const paymentTint: Record<PaymentStatus, string> = {
-  INITIATED: "border-white/8 bg-white/[0.03] text-muted-foreground",
-  PENDING_REVIEW: "border-amber-200/20 bg-amber-200/[0.06] text-amber-100/90",
-  CONFIRMED: "border-emerald-200/20 bg-emerald-200/[0.06] text-emerald-100/90",
-  REJECTED: "border-rose-300/25 bg-rose-300/[0.08] text-rose-100/90",
-  REFUNDED: "border-white/8 bg-white/[0.02] text-muted-foreground/60",
+const paymentVariants: Record<PaymentStatus, Variant> = {
+  INITIATED: {
+    label: "Iniciado",
+    bg: "bg-white/[0.04]",
+    ring: "ring-white/8",
+    dot: "bg-foreground/40",
+    text: "text-muted-foreground",
+  },
+  PENDING_REVIEW: {
+    label: "Esperando revisión",
+    bg: "bg-gradient-to-b from-amber-200/[0.10] to-amber-200/[0.03]",
+    ring: "ring-amber-200/20",
+    dot: "bg-amber-200",
+    text: "text-amber-100/95",
+    glow: "shadow-[0_0_14px_-4px_oklch(0.85_0.15_85/0.45)]",
+    pulse: true,
+  },
+  CONFIRMED: {
+    label: "Confirmado",
+    bg: "bg-gradient-to-b from-emerald-200/[0.10] to-emerald-200/[0.03]",
+    ring: "ring-emerald-200/20",
+    dot: "bg-emerald-200",
+    text: "text-emerald-100/95",
+    glow: "shadow-[0_0_14px_-4px_oklch(0.85_0.15_155/0.40)]",
+  },
+  REJECTED: {
+    label: "Rechazado",
+    bg: "bg-gradient-to-b from-rose-300/[0.12] to-rose-300/[0.04]",
+    ring: "ring-rose-300/25",
+    dot: "bg-rose-300",
+    text: "text-rose-100/95",
+    glow: "shadow-[0_0_14px_-4px_oklch(0.75_0.18_25/0.45)]",
+  },
+  REFUNDED: {
+    label: "Reembolsado",
+    bg: "bg-white/[0.03]",
+    ring: "ring-white/8",
+    dot: "bg-foreground/25",
+    text: "text-muted-foreground/60",
+  },
 };
 
 export function PaymentStatusBadge({ status }: { status: PaymentStatus }) {
+  const v = paymentVariants[status];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.1em] ${paymentTint[status]}`}
+      className={[
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] ring-1 ring-inset backdrop-blur-sm",
+        v.bg,
+        v.ring,
+        v.text,
+        v.glow ?? "",
+      ].join(" ")}
     >
-      {paymentLabel[status]}
+      <span className="relative flex h-1.5 w-1.5">
+        {v.pulse && (
+          <span
+            className={`absolute inset-0 inline-flex h-full w-full animate-ping rounded-full opacity-60 ${v.dot}`}
+          />
+        )}
+        <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${v.dot}`} />
+      </span>
+      {v.label}
     </span>
   );
 }

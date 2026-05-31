@@ -8,7 +8,7 @@ import type { PaymentMethodConfig } from "@/lib/demo/types";
 import {
   BankTransferIcon,
   CryptoIcon,
-  MercadoPagoIcon,
+  MercadoPagoLogo,
 } from "@/components/icons/PaymentMethodIcons";
 import { CryptoAssetIcon } from "@/components/icons/CryptoAssetIcons";
 
@@ -82,12 +82,15 @@ export function PayFlow({
 
         <div className="grid gap-3 sm:grid-cols-3">
           <MethodCard
-            label="MercadoPago"
             sub="Pago automatizado"
             tag="instantáneo"
             active={chosen === "MERCADOPAGO"}
-            icon={<MercadoPagoIcon size={26} />}
-            iconBare
+            wordmark={
+              <MercadoPagoLogo
+                height={38}
+                className="text-foreground/95 transition-transform group-hover/method:scale-[1.02]"
+              />
+            }
             onClick={() => {
               setChosen("MERCADOPAGO");
               setChosenConfigId(null);
@@ -202,6 +205,27 @@ function PrimaryButton({
   );
 }
 
+function CustomRadio({ checked }: { checked: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={[
+        "mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border transition-all duration-200",
+        checked
+          ? "border-foreground/55 bg-foreground/[0.10] shadow-[inset_0_0_0_1px_oklch(0.85_0.04_220/0.25)]"
+          : "border-white/15 bg-white/[0.03] group-hover/opt:border-white/30",
+      ].join(" ")}
+    >
+      <span
+        className={[
+          "h-[7px] w-[7px] rounded-full bg-foreground/95 transition-all duration-200",
+          checked ? "scale-100 opacity-100" : "scale-50 opacity-0",
+        ].join(" ")}
+      />
+    </span>
+  );
+}
+
 function MethodCard({
   label,
   sub,
@@ -209,14 +233,16 @@ function MethodCard({
   active,
   icon,
   iconBare,
+  wordmark,
   onClick,
 }: {
-  label: string;
+  label?: string;
   sub: string;
   tag: string;
   active: boolean;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   iconBare?: boolean;
+  wordmark?: React.ReactNode;
   onClick: () => void;
 }) {
   return (
@@ -230,8 +256,10 @@ function MethodCard({
           : "border-white/8 bg-white/[0.02] hover:border-white/14 hover:bg-white/[0.04]",
       ].join(" ")}
     >
-      <div className="flex items-start justify-between">
-        {iconBare ? (
+      <div className="flex items-start justify-between gap-2">
+        {wordmark ? (
+          <div className="flex min-h-9 items-center pt-0.5">{wordmark}</div>
+        ) : iconBare ? (
           <div className="flex h-9 w-9 items-center justify-center text-foreground/85">
             {icon}
           </div>
@@ -247,12 +275,14 @@ function MethodCard({
             {icon}
           </div>
         )}
-        <span className="rounded-full border border-white/8 bg-white/[0.03] px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-muted-foreground/85">
+        <span className="shrink-0 rounded-full border border-white/8 bg-white/[0.03] px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-muted-foreground/85">
           {tag}
         </span>
       </div>
-      <p className="mt-3 font-medium text-foreground/95">{label}</p>
-      <p className="text-xs text-muted-foreground">{sub}</p>
+      {label && <p className="mt-3 font-medium text-foreground/95">{label}</p>}
+      <p className={wordmark && !label ? "mt-4 text-xs text-muted-foreground" : "text-xs text-muted-foreground"}>
+        {sub}
+      </p>
     </button>
   );
 }
@@ -297,10 +327,10 @@ function ManualFlow({
             <label
               key={o.id}
               className={[
-                "flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm transition",
+                "group/opt relative flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm transition",
                 isSel
                   ? "border-white/22 bg-white/[0.05]"
-                  : "border-white/8 bg-white/[0.02] hover:border-white/14",
+                  : "border-white/8 bg-white/[0.02] hover:border-white/14 hover:bg-white/[0.035]",
               ].join(" ")}
             >
               <input
@@ -308,8 +338,9 @@ function ManualFlow({
                 name="manual-option"
                 checked={isSel}
                 onChange={() => onSelect(o.id)}
-                className="mt-1 accent-foreground/70"
+                className="sr-only"
               />
+              <CustomRadio checked={isSel} />
               {o.kind === "CRYPTO_WALLET" && (
                 <div className="mt-0.5 shrink-0">
                   <CryptoAssetIcon
