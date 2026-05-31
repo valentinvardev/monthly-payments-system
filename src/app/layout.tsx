@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter_Tight, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TRPCReactProvider } from "@/trpc/react";
+import { Aurora } from "@/components/Aurora";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${interTight.variable} h-full`}
     >
       <body className="min-h-full flex flex-col antialiased">
+        <Aurora />
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>

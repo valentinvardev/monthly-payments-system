@@ -92,42 +92,117 @@ html, body {
 body {
   position: relative;
   min-height: 100vh;
-  background-image:
-    /* aurora top-left, restrained */
-    radial-gradient(70rem 44rem at 10% -10%, oklch(0.32 0.06 215 / 0.45), transparent 65%),
-    /* deep glow bottom-right */
-    radial-gradient(56rem 40rem at 105% 110%, oklch(0.22 0.06 260 / 0.42), transparent 70%),
-    /* base */
-    linear-gradient(180deg, oklch(0.125 0.012 245) 0%, oklch(0.15 0.012 240) 70%, oklch(0.12 0.012 250) 100%);
+  background-color: oklch(0.13 0.012 245);
+  background-image: linear-gradient(180deg, oklch(0.125 0.012 245) 0%, oklch(0.15 0.012 240) 60%, oklch(0.12 0.014 250) 100%);
   background-attachment: fixed;
-  background-repeat: no-repeat;
-  background-size: cover;
 }
 
-/* Grain overlay — fixed, very subtle */
-body::before {
+/* Grain overlay — sits above the aurora blobs but below content */
+body::after {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
-  opacity: 0.05;
+  z-index: 1;
+  opacity: 0.045;
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
-/* Slow ambient drift on the aurora */
-@keyframes aurora-drift {
-  0%   { background-position: 0% 0%, 100% 100%, 0 0; }
-  50%  { background-position: 2% 1.5%, 98% 101%, 0 0; }
-  100% { background-position: 0% 0%, 100% 100%, 0 0; }
-}
-body { animation: aurora-drift 40s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) {
-  body { animation: none; }
+body > * { position: relative; z-index: 2; }
+
+/* ============================================================
+   Aurora field — diffuse, drifting light orbs
+   ============================================================ */
+
+.aurora-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
 }
 
-body > * { position: relative; z-index: 1; }
+.aurora-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+}
+
+@keyframes orb-drift-a {
+  0%   { transform: translate3d(-15vw, -10vh, 0) scale(1); opacity: 0.55; }
+  25%  { transform: translate3d(20vw, 15vh, 0) scale(1.15); opacity: 0.65; }
+  50%  { transform: translate3d(45vw, 5vh, 0) scale(1); opacity: 0.5; }
+  75%  { transform: translate3d(25vw, -8vh, 0) scale(1.1); opacity: 0.62; }
+  100% { transform: translate3d(-15vw, -10vh, 0) scale(1); opacity: 0.55; }
+}
+
+@keyframes orb-drift-b {
+  0%   { transform: translate3d(60vw, 70vh, 0) scale(1.05); opacity: 0.5; }
+  33%  { transform: translate3d(35vw, 50vh, 0) scale(1.2); opacity: 0.6; }
+  66%  { transform: translate3d(75vw, 80vh, 0) scale(0.95); opacity: 0.45; }
+  100% { transform: translate3d(60vw, 70vh, 0) scale(1.05); opacity: 0.5; }
+}
+
+@keyframes orb-drift-c {
+  0%   { transform: translate3d(80vw, -5vh, 0) scale(1); opacity: 0.45; }
+  40%  { transform: translate3d(55vw, 30vh, 0) scale(1.1); opacity: 0.55; }
+  80%  { transform: translate3d(90vw, 15vh, 0) scale(0.9); opacity: 0.4; }
+  100% { transform: translate3d(80vw, -5vh, 0) scale(1); opacity: 0.45; }
+}
+
+@keyframes orb-drift-d {
+  0%   { transform: translate3d(-10vw, 60vh, 0) scale(0.95); opacity: 0.4; }
+  50%  { transform: translate3d(20vw, 85vh, 0) scale(1.1); opacity: 0.5; }
+  100% { transform: translate3d(-10vw, 60vh, 0) scale(0.95); opacity: 0.4; }
+}
+
+@keyframes orb-drift-e {
+  0%   { transform: translate3d(40vw, 35vh, 0) scale(1); opacity: 0.35; }
+  50%  { transform: translate3d(30vw, 55vh, 0) scale(1.2); opacity: 0.45; }
+  100% { transform: translate3d(40vw, 35vh, 0) scale(1); opacity: 0.35; }
+}
+
+.aurora-orb.orb-a {
+  width: 48rem; height: 48rem;
+  left: -10rem; top: -12rem;
+  background: radial-gradient(closest-side, oklch(0.55 0.13 215 / 0.55), oklch(0.45 0.10 230 / 0.2) 50%, transparent 75%);
+  animation: orb-drift-a 38s ease-in-out infinite;
+}
+
+.aurora-orb.orb-b {
+  width: 52rem; height: 52rem;
+  left: -6rem; top: 30vh;
+  background: radial-gradient(closest-side, oklch(0.38 0.13 270 / 0.55), oklch(0.30 0.10 280 / 0.2) 55%, transparent 78%);
+  animation: orb-drift-b 52s ease-in-out infinite;
+}
+
+.aurora-orb.orb-c {
+  width: 42rem; height: 42rem;
+  left: 0; top: -8rem;
+  background: radial-gradient(closest-side, oklch(0.62 0.11 195 / 0.45), oklch(0.50 0.08 215 / 0.18) 55%, transparent 80%);
+  animation: orb-drift-c 46s ease-in-out infinite;
+}
+
+.aurora-orb.orb-d {
+  width: 40rem; height: 40rem;
+  left: 0; top: 20vh;
+  background: radial-gradient(closest-side, oklch(0.50 0.09 250 / 0.45), oklch(0.40 0.07 260 / 0.15) 55%, transparent 80%);
+  animation: orb-drift-d 60s ease-in-out infinite;
+}
+
+.aurora-orb.orb-e {
+  width: 34rem; height: 34rem;
+  left: 0; top: 25vh;
+  background: radial-gradient(closest-side, oklch(0.70 0.08 210 / 0.35), oklch(0.55 0.06 220 / 0.10) 60%, transparent 85%);
+  animation: orb-drift-e 30s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-orb { animation: none !important; }
+}
 
 /* ============================================================
    Glass utilities — soft, restrained
