@@ -312,7 +312,11 @@ function ManualFlow({
               />
               {o.kind === "CRYPTO_WALLET" && (
                 <div className="mt-0.5 shrink-0">
-                  <CryptoAssetIcon asset={o.details.asset} size={28} />
+                  <CryptoAssetIcon
+                    asset={o.details.asset}
+                    network={o.details.network}
+                    size={32}
+                  />
                 </div>
               )}
               <div className="min-w-0 flex-1">
