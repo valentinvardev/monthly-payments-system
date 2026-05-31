@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, adminProcedure } from "@/server/api/trpc";
-import { store, nextId } from "@/lib/demo/store";
+import { adminProcedure, createTRPCRouter } from "@/server/api/trpc";
 
 const clientInput = z.object({
   fullName: z.string().min(1),
@@ -17,54 +16,57 @@ const planInput = z.object({
 });
 
 export const clientsRouter = createTRPCRouter({
-  list: adminProcedure.query(() => {
-    const s = store();
-    return s.clients.map((c) => ({
+  list: adminProcedure.query(async ({ ctx }) => {
+    const clients = await ctx.prisma.client.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        recurringPlan: true,
+        _count: { select: { invoices: true } },
+      },
+    });
+    return clients.map((c) => ({
       ...c,
-      plan: s.plans.find((p) => p.clientId === c.id) ?? null,
-      invoiceCount: s.invoices.filter((i) => i.clientId === c.id).length,
+      plan: c.recurringPlan,
+      invoiceCount: c._count.invoices,
     }));
   }),
 
-  get: adminProcedure.input(z.object({ id: z.string() })).query(({ input }) => {
-    const s = store();
-    const client = s.clients.find((c) => c.id === input.id);
+  get: adminProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
+    const client = await ctx.prisma.client.findUnique({
+      where: { id: input.id },
+      include: {
+        recurringPlan: true,
+        invoices: { orderBy: { dueDate: "desc" } },
+      },
+    });
     if (!client) throw new Error("Cliente no encontrado");
-    return {
-      ...client,
-      plan: s.plans.find((p) => p.clientId === client.id) ?? null,
-      invoices: s.invoices.filter((i) => i.clientId === client.id),
-    };
+    return { ...client, plan: client.recurringPlan };
   }),
 
   create: adminProcedure
     .input(clientInput.extend({ plan: planInput.optional() }))
-    .mutation(({ input }) => {
-      const s = store();
-      const id = nextId("c");
-      const now = new Date();
-      const client = {
-        id,
-        fullName: input.fullName,
-        email: input.email,
-        phone: input.phone,
-        taxId: input.taxId,
-        notes: input.notes,
-        active: true,
-        createdAt: now,
-      };
-      s.clients.push(client);
-      if (input.plan) {
-        s.plans.push({
-          id: nextId("p"),
-          clientId: id,
-          amountUsd: input.plan.amountUsd,
-          description: input.plan.description,
-          dueDayOfMonth: input.plan.dueDayOfMonth,
-          active: true,
-          startDate: now,
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.$transaction(async (tx) => {
+        const client = await tx.client.create({
+          data: {
+            fullName: input.fullName,
+            email: input.email.toLowerCase(),
+            phone: input.phone,
+            taxId: input.taxId,
+            notes: input.notes,
+          },
         });
-      }
-      return client;
+        if (input.plan) {
+          await tx.recurringPlan.create({
+            data: {
+              clientId: client.id,
+              amountUsd: input.plan.amountUsd,
+              description: input.plan.description,
+              dueDayOfMonth: input.plan.dueDayOfMonth,
+            },
+          });
+        }
+        return client;
+      });
     }),
 });

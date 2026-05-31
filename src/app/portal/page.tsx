@@ -11,7 +11,7 @@ export default async function PortalHome() {
   const pendingOrOverdue = invoices.filter(
     (i) => i.status === "PENDING" || i.status === "OVERDUE" || i.status === "PENDING_REVIEW",
   );
-  const totalPending = pendingOrOverdue.reduce((a, i) => a + i.amountUsd, 0);
+  const totalPending = pendingOrOverdue.reduce((a, i) => a + Number(i.amountUsd), 0);
 
   return (
     <div className="space-y-8">
@@ -21,7 +21,7 @@ export default async function PortalHome() {
         </p>
         <h1 className="mt-1.5 font-display text-3xl font-medium tracking-tight text-foreground">
           Hola,{" "}
-          <span className="font-light text-foreground/70">{user?.fullName.split(" ")[0]}.</span>
+          <span className="font-light text-foreground/70">{(user?.fullName ?? user?.email ?? "").split(" ")[0]}.</span>
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Acá vas a ver tus facturas y elegir cómo pagarlas.

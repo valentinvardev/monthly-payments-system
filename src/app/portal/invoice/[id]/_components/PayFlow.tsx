@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { trpc } from "@/trpc/react";
-import type { PaymentMethodConfig } from "@/lib/demo/types";
+import type { PaymentMethodConfigDto as PaymentMethodConfig } from "@/lib/types";
 import {
   BankTransferIcon,
   CryptoIcon,

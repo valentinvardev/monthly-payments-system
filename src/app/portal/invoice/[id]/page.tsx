@@ -26,7 +26,8 @@ export default async function InvoiceDetailPage({
     getUsdToArsRate().catch(() => null),
   ]);
 
-  const arsPreview = rate ? Math.round(invoice.amountUsd * rate.rate * 100) / 100 : null;
+  const amountUsd = Number(invoice.amountUsd);
+  const arsPreview = rate ? Math.round(amountUsd * rate.rate * 100) / 100 : null;
 
   return (
     <div className="space-y-6">

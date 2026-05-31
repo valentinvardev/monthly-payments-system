@@ -1,11 +1,12 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-import { getUserFromCookieHeader } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export async function createTRPCContext(opts: { headers: Headers }) {
-  const user = getUserFromCookieHeader(opts.headers.get("cookie"));
-  return { headers: opts.headers, user };
+  const user = await getCurrentUser();
+  return { headers: opts.headers, user, prisma };
 }
 
 export type Context = Awaited<ReturnType<typeof createTRPCContext>>;
@@ -39,8 +40,17 @@ export const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
 });
 
 export const clientProcedure = protectedProcedure.use(async ({ ctx, next }) => {
-  if (ctx.user.role !== "CLIENT" || !ctx.user.clientId) {
+  if (ctx.user.role !== "CLIENT") {
     throw new TRPCError({ code: "FORBIDDEN" });
   }
-  return next({ ctx: { ...ctx, user: ctx.user, clientId: ctx.user.clientId } });
+  const client = await ctx.prisma.client.findUnique({
+    where: { userId: ctx.user.id },
+  });
+  if (!client) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Tu usuario no está vinculado a un cliente",
+    });
+  }
+  return next({ ctx: { ...ctx, user: ctx.user, clientId: client.id } });
 });

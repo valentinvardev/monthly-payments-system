@@ -19,7 +19,7 @@ export default async function ClientsPage() {
           {clients.length} cliente{clients.length === 1 ? "" : "s"} activos · Suma mensual{" "}
           <span className="font-display text-foreground/90 tabular-nums">
             {formatUsd(
-              clients.reduce((acc, c) => acc + (c.plan?.amountUsd ?? 0), 0),
+              clients.reduce((acc, c) => acc + Number(c.plan?.amountUsd ?? 0), 0),
             )}
           </span>
         </p>

@@ -17,11 +17,11 @@ export default async function DashboardHome() {
 
   const totalOwedUsd = invoices
     .filter((i) => i.status === "PENDING" || i.status === "OVERDUE" || i.status === "PENDING_REVIEW")
-    .reduce((acc, i) => acc + i.amountUsd, 0);
+    .reduce((acc, i) => acc + Number(i.amountUsd), 0);
 
   const paidThisPeriodUsd = invoices
     .filter((i) => i.status === "PAID")
-    .reduce((acc, i) => acc + i.amountUsd, 0);
+    .reduce((acc, i) => acc + Number(i.amountUsd), 0);
 
   const greeting = (() => {
     const h = new Date().getHours();
@@ -39,7 +39,7 @@ export default async function DashboardHome() {
         </p>
         <h1 className="mt-1.5 font-display text-3xl font-medium tracking-tight text-foreground">
           {greeting},{" "}
-          <span className="font-light text-foreground/70">{user?.fullName.split(" ")[0]}.</span>
+          <span className="font-light text-foreground/70">{(user?.fullName ?? user?.email ?? "").split(" ")[0]}.</span>
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {clients.length} clientes activos · {invoices.length} facturas en el sistema
@@ -84,7 +84,7 @@ export default async function DashboardHome() {
                       </span>{" "}
                       · {p.invoice?.description} ·{" "}
                       <a
-                        href={p.proofUrl}
+                        href={p.proofUrl ?? "#"}
                         target="_blank"
                         rel="noreferrer"
                         className="text-foreground/70 underline-offset-2 hover:underline hover:text-foreground"

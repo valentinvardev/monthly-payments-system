@@ -1,4 +1,4 @@
-import type { InvoiceStatus, PaymentStatus } from "@/lib/demo/types";
+import type { InvoiceStatus, PaymentStatus } from "@/lib/types";
 
 type Variant = {
   label: string;

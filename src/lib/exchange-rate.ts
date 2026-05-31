@@ -1,5 +1,7 @@
-// In-memory USD→ARS exchange rate (demo mode). Replace with DB-cached version
-// when Supabase is wired (see prisma/schema.prisma → ExchangeRate model).
+// USD→ARS exchange rate, cached in the DB via the ExchangeRate model.
+// Falls back to the most recent row if dolarapi is unreachable.
+import "server-only";
+import { prisma } from "@/lib/prisma";
 
 const SOURCE = "dolarapi:oficial";
 const PAIR = "USD/ARS";
@@ -23,36 +25,56 @@ export type UsdToArsRate = {
   cached: boolean;
 };
 
-const globalForRate = globalThis as unknown as { __rateCache?: UsdToArsRate };
+async function readLatestFromDb() {
+  return prisma.exchangeRate.findFirst({
+    where: { source: SOURCE, pair: PAIR },
+    orderBy: { fetchedAt: "desc" },
+  });
+}
 
-async function fetchFromDolarApi(): Promise<UsdToArsRate> {
+async function fetchFromDolarApi(): Promise<{ rate: number; fetchedAt: Date }> {
   const res = await fetch(DOLARAPI_URL, { cache: "no-store" });
   if (!res.ok) throw new Error(`dolarapi responded ${res.status}`);
   const data = (await res.json()) as DolarApiResponse;
   if (typeof data.venta !== "number") throw new Error("dolarapi returned an unexpected payload");
-  return {
-    source: SOURCE,
-    pair: PAIR,
-    rate: Number(data.venta.toFixed(4)),
-    fetchedAt: new Date(),
-    cached: false,
-  };
+  return { rate: Number(data.venta.toFixed(4)), fetchedAt: new Date() };
 }
 
 export async function getUsdToArsRate(): Promise<UsdToArsRate> {
-  const cached = globalForRate.__rateCache;
-  const fresh = cached && cached.source === SOURCE && Date.now() - cached.fetchedAt.getTime() < CACHE_TTL_MS;
-  if (cached && fresh) {
-    return { ...cached, cached: true };
+  const latest = await readLatestFromDb();
+  const now = Date.now();
+  if (latest && now - latest.fetchedAt.getTime() < CACHE_TTL_MS) {
+    return {
+      source: latest.source,
+      pair: latest.pair,
+      rate: Number(latest.rate),
+      fetchedAt: latest.fetchedAt,
+      cached: true,
+    };
   }
+
   try {
     const fresh = await fetchFromDolarApi();
-    globalForRate.__rateCache = fresh;
-    return fresh;
+    const saved = await prisma.exchangeRate.create({
+      data: { source: SOURCE, pair: PAIR, rate: fresh.rate, fetchedAt: fresh.fetchedAt },
+    });
+    return {
+      source: saved.source,
+      pair: saved.pair,
+      rate: Number(saved.rate),
+      fetchedAt: saved.fetchedAt,
+      cached: false,
+    };
   } catch (err) {
-    if (cached) {
-      console.warn("[exchange-rate] dolarapi failed, using stale cache:", err);
-      return { ...cached, cached: true };
+    if (latest) {
+      console.warn("[exchange-rate] dolarapi failed, using stale row:", err);
+      return {
+        source: latest.source,
+        pair: latest.pair,
+        rate: Number(latest.rate),
+        fetchedAt: latest.fetchedAt,
+        cached: true,
+      };
     }
     throw err;
   }

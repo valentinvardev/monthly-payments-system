@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
-import { logout } from "@/app/login/actions";
+import { signOut } from "@/app/auth/actions";
 import { BrandMark, Wordmark } from "@/components/BrandMark";
 
 export async function AppHeader() {
@@ -8,7 +8,8 @@ export async function AppHeader() {
   if (!user) return null;
 
   const homeHref = user.role === "ADMIN" ? "/dashboard" : "/portal";
-  const initials = user.fullName
+  const displayName = user.fullName ?? user.email;
+  const initials = displayName
     .split(/\s+/)
     .slice(0, 2)
     .map((s) => s[0])
@@ -25,9 +26,6 @@ export async function AppHeader() {
               className="transition-transform group-hover:scale-105"
             />
             <Wordmark />
-            <span className="ml-2 rounded-full border border-white/10 bg-white/[0.03] px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground/90">
-              demo
-            </span>
           </Link>
 
           <nav className="flex items-center gap-1 text-sm">
@@ -44,13 +42,13 @@ export async function AppHeader() {
                 {initials}
               </div>
               <div className="hidden sm:block text-right leading-tight">
-                <div className="text-[11px] text-foreground/90">{user.fullName}</div>
+                <div className="text-[11px] text-foreground/90">{displayName}</div>
                 <div className="text-[9px] uppercase tracking-[0.18em] text-muted-foreground/80">
                   {user.role.toLowerCase()}
                 </div>
               </div>
             </div>
-            <form action={logout}>
+            <form action={signOut}>
               <button
                 type="submit"
                 className="ml-1 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-foreground/75 hover:bg-white/[0.07] hover:text-foreground transition"
