@@ -77,7 +77,7 @@ export default async function InvoiceDetailPage({
                   </span>
                 </p>
                 <p className="mt-2 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/70">
-                  cotización dólar cripto · 1 USD ={" "}
+                  cotización dólar oficial · 1 USD ={" "}
                   <span className="tabular-nums text-foreground/80">
                     {formatArs(rate.rate)}
                   </span>{" "}

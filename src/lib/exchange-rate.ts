@@ -1,10 +1,10 @@
 // In-memory USD→ARS exchange rate (demo mode). Replace with DB-cached version
 // when Supabase is wired (see prisma/schema.prisma → ExchangeRate model).
 
-const SOURCE = "dolarapi:cripto";
+const SOURCE = "dolarapi:oficial";
 const PAIR = "USD/ARS";
 const CACHE_TTL_MS = 10 * 60 * 1000;
-const DOLARAPI_URL = "https://dolarapi.com/v1/dolares/cripto";
+const DOLARAPI_URL = "https://dolarapi.com/v1/dolares/oficial";
 
 type DolarApiResponse = {
   moneda: string;
@@ -41,7 +41,8 @@ async function fetchFromDolarApi(): Promise<UsdToArsRate> {
 
 export async function getUsdToArsRate(): Promise<UsdToArsRate> {
   const cached = globalForRate.__rateCache;
-  if (cached && Date.now() - cached.fetchedAt.getTime() < CACHE_TTL_MS) {
+  const fresh = cached && cached.source === SOURCE && Date.now() - cached.fetchedAt.getTime() < CACHE_TTL_MS;
+  if (cached && fresh) {
     return { ...cached, cached: true };
   }
   try {
