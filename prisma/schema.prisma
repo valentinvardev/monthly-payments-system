@@ -1,0 +1,188 @@
+// Payment system schema
+// Amounts are stored in USD (source of truth). ARS is derived via ExchangeRate.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  CLIENT
+}
+
+enum InvoiceStatus {
+  DRAFT
+  PENDING
+  PENDING_REVIEW
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum PaymentMethod {
+  MERCADOPAGO
+  BANK_TRANSFER
+  CRYPTO
+}
+
+enum PaymentStatus {
+  INITIATED
+  PENDING_REVIEW
+  CONFIRMED
+  REJECTED
+  REFUNDED
+}
+
+enum PaymentMethodKind {
+  BANK_ACCOUNT
+  CRYPTO_WALLET
+}
+
+enum EmailKind {
+  INVOICE_CREATED
+  REMINDER_BEFORE_DUE
+  OVERDUE
+  PAYMENT_RECEIVED
+  PAYMENT_REVIEW_REQUIRED
+  WELCOME
+  MAGIC_LINK_INFO
+}
+
+model User {
+  id         String   @id @default(cuid())
+  authUserId String   @unique
+  email      String   @unique
+  fullName   String?
+  role       UserRole @default(CLIENT)
+  client     Client?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([role])
+}
+
+model Client {
+  id            String         @id @default(cuid())
+  user          User?          @relation(fields: [userId], references: [id])
+  userId        String?        @unique
+  fullName      String
+  email         String         @unique
+  phone         String?
+  taxId         String?
+  notes         String?
+  active        Boolean        @default(true)
+  recurringPlan RecurringPlan?
+  invoices      Invoice[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([active])
+  @@index([email])
+}
+
+model RecurringPlan {
+  id            String    @id @default(cuid())
+  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId      String    @unique
+  amountUsd     Decimal   @db.Decimal(12, 2)
+  description   String
+  dueDayOfMonth Int
+  active        Boolean   @default(true)
+  startDate     DateTime  @default(now())
+  endDate       DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([active])
+}
+
+model Invoice {
+  id                String        @id @default(cuid())
+  client            Client        @relation(fields: [clientId], references: [id])
+  clientId          String
+  amountUsd         Decimal       @db.Decimal(12, 2)
+  description       String
+  periodStart       DateTime
+  periodEnd         DateTime
+  dueDate           DateTime
+  status            InvoiceStatus @default(PENDING)
+  paidAt            DateTime?
+  arsAmountSnapshot Decimal?      @db.Decimal(14, 2)
+  arsRateSnapshot   Decimal?      @db.Decimal(14, 4)
+  arsSnapshotAt     DateTime?
+  payments          Payment[]
+  emailLogs         EmailLog[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([clientId, dueDate])
+  @@index([status, dueDate])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  invoice           Invoice       @relation(fields: [invoiceId], references: [id])
+  invoiceId         String
+  method            PaymentMethod
+  status            PaymentStatus @default(INITIATED)
+  amountUsd         Decimal       @db.Decimal(12, 2)
+  arsAmount         Decimal?      @db.Decimal(14, 2)
+  arsRate           Decimal?      @db.Decimal(14, 4)
+  externalId        String?
+  externalRaw       Json?
+  proofUrl          String?
+  notes             String?
+  confirmedAt       DateTime?
+  confirmedByUserId String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([invoiceId])
+  @@index([method, status])
+  @@index([externalId])
+}
+
+model PaymentMethodConfig {
+  id           String            @id @default(cuid())
+  kind         PaymentMethodKind
+  label        String
+  details      Json
+  instructions String?
+  active       Boolean           @default(true)
+  sortOrder    Int               @default(0)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([kind, active])
+}
+
+model EmailLog {
+  id         String    @id @default(cuid())
+  kind       EmailKind
+  toEmail    String
+  subject    String
+  invoice    Invoice?  @relation(fields: [invoiceId], references: [id])
+  invoiceId  String?
+  providerId String?
+  error      String?
+  sentAt     DateTime  @default(now())
+
+  @@index([toEmail])
+  @@index([invoiceId])
+  @@index([kind, sentAt])
+}
+
+model ExchangeRate {
+  id        String   @id @default(cuid())
+  source    String
+  pair      String
+  rate      Decimal  @db.Decimal(14, 4)
+  fetchedAt DateTime @default(now())
+
+  @@index([source, pair, fetchedAt])
+}
