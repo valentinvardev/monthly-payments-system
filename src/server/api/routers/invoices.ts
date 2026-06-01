@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 import { TRPCError } from "@trpc/server";
 import {
   adminProcedure,
@@ -63,8 +64,8 @@ export const invoicesRouter = createTRPCRouter({
         plan.anchorDate,
       );
 
-      return ctx.prisma.$transaction(async (tx) => {
-        const invoice = await tx.invoice.create({
+      const invoice = await ctx.prisma.$transaction(async (tx) => {
+        const created = await tx.invoice.create({
           data: {
             clientId: client.id,
             amountUsd: plan.amountUsd,
@@ -80,19 +81,28 @@ export const invoicesRouter = createTRPCRouter({
             kind: "INVOICE_CREATED",
             toEmail: client.email,
             subject: `Nueva factura — ${plan.description} (USD ${plan.amountUsd})`,
-            invoiceId: invoice.id,
+            invoiceId: created.id,
           },
         });
-        return invoice;
+        return created;
       });
+
+      revalidatePath("/dashboard");
+      revalidatePath("/dashboard/invoices");
+      revalidatePath(`/dashboard/clients/${input.clientId}`);
+      return invoice;
     }),
 
   markPaid: adminProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(({ ctx, input }) => {
-      return ctx.prisma.invoice.update({
+    .mutation(async ({ ctx, input }) => {
+      const invoice = await ctx.prisma.invoice.update({
         where: { id: input.id },
         data: { status: "PAID", paidAt: new Date() },
       });
+      revalidatePath("/dashboard");
+      revalidatePath("/dashboard/invoices");
+      revalidatePath(`/dashboard/clients/${invoice.clientId}`);
+      return invoice;
     }),
 });
