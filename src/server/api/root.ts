@@ -5,6 +5,7 @@ import { clientsRouter } from "@/server/api/routers/clients";
 import { invoicesRouter } from "@/server/api/routers/invoices";
 import { paymentsRouter } from "@/server/api/routers/payments";
 import { paymentMethodsRouter } from "@/server/api/routers/paymentMethods";
+import { mercadoPagoRouter } from "@/server/api/routers/mercadoPago";
 
 export const appRouter = createTRPCRouter({
   health: healthRouter,
@@ -13,6 +14,7 @@ export const appRouter = createTRPCRouter({
   invoices: invoicesRouter,
   payments: paymentsRouter,
   paymentMethods: paymentMethodsRouter,
+  mercadoPago: mercadoPagoRouter,
 });
 
 export type AppRouter = typeof appRouter;

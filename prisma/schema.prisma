@@ -61,16 +61,32 @@ enum EmailKind {
 }
 
 model User {
-  id         String   @id @default(cuid())
-  authUserId String   @unique
-  email      String   @unique
-  fullName   String?
-  role       UserRole @default(CLIENT)
-  client     Client?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String                 @id @default(cuid())
+  authUserId  String                 @unique
+  email       String                 @unique
+  fullName    String?
+  role        UserRole               @default(CLIENT)
+  client      Client?
+  mercadoPago MercadoPagoConnection?
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
 
   @@index([role])
+}
+
+model MercadoPagoConnection {
+  id           String    @id @default(cuid())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String    @unique
+  mpUserId     String
+  mpEmail      String?
+  mpNickname   String?
+  accessToken  String
+  refreshToken String?
+  expiresAt    DateTime?
+  scope        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model Client {

@@ -6,9 +6,18 @@ import { CryptoAssetIcon } from "@/components/icons/CryptoAssetIcons";
 import { BankTransferIcon } from "@/components/icons/PaymentMethodIcons";
 import { ToggleMethodActive } from "./_components/ToggleMethodActive";
 import { DeleteMethodButton } from "./_components/DeleteMethodButton";
+import { MercadoPagoConnectCard } from "./_components/MercadoPagoConnectCard";
 
-export default async function PaymentMethodsPage() {
-  const methods = await api.paymentMethods.listAll();
+export default async function PaymentMethodsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mp?: string; mp_error?: string }>;
+}) {
+  const [methods, mp, sp] = await Promise.all([
+    api.paymentMethods.listAll(),
+    api.mercadoPago.getConnection(),
+    searchParams,
+  ]);
   const banks = methods.filter((m) => m.kind === "BANK_ACCOUNT");
   const cryptos = methods.filter((m) => m.kind === "CRYPTO_WALLET");
 
@@ -33,6 +42,15 @@ export default async function PaymentMethodsPage() {
           <Plus className="h-4 w-4" /> Agregar método
         </Link>
       </header>
+
+      <section className="reveal" style={{ animationDelay: "30ms" }}>
+        <MercadoPagoConnectCard
+          initialConnection={mp.connection}
+          configured={mp.configured}
+          errorParam={sp.mp_error ?? null}
+          successParam={sp.mp ?? null}
+        />
+      </section>
 
       <Section title="Cuentas bancarias" count={banks.length}>
         {banks.length === 0 ? (
