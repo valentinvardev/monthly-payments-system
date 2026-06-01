@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { trpc } from "@/trpc/react";
@@ -19,7 +18,7 @@ type Plan = {
   amountUsd: number;
   description: string;
   frequency: Frequency;
-  anchorDate: string; // YYYY-MM-DD
+  anchorDate: string;
 };
 
 export function PlanModal({
@@ -34,6 +33,7 @@ export function PlanModal({
   initial: Plan | null;
 }) {
   const router = useRouter();
+  const ref = useRef<HTMLDialogElement>(null);
   const [frequency, setFrequency] = useState<Frequency>(initial?.frequency ?? "MONTHLY");
   const [anchorDate, setAnchorDate] = useState<string>(
     initial?.anchorDate ?? new Date().toISOString().slice(0, 10),
@@ -44,29 +44,20 @@ export function PlanModal({
   const [description, setDescription] = useState<string>(initial?.description ?? "");
   const [error, setError] = useState<string | null>(null);
 
-  // Lock body scroll while open and listen for Escape.
+  // Sync native <dialog> open state with React state.
   useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open, onClose]);
-
-  // Reset state when modal reopens with a new initial.
-  useEffect(() => {
-    if (!open) return;
-    setFrequency(initial?.frequency ?? "MONTHLY");
-    setAnchorDate(initial?.anchorDate ?? new Date().toISOString().slice(0, 10));
-    setAmountUsd(initial?.amountUsd ? String(initial.amountUsd) : "");
-    setDescription(initial?.description ?? "");
-    setError(null);
+    const dlg = ref.current;
+    if (!dlg) return;
+    if (open && !dlg.open) {
+      setFrequency(initial?.frequency ?? "MONTHLY");
+      setAnchorDate(initial?.anchorDate ?? new Date().toISOString().slice(0, 10));
+      setAmountUsd(initial?.amountUsd ? String(initial.amountUsd) : "");
+      setDescription(initial?.description ?? "");
+      setError(null);
+      dlg.showModal();
+    } else if (!open && dlg.open) {
+      dlg.close();
+    }
   }, [open, initial]);
 
   const m = trpc.clients.upsertPlan.useMutation({
@@ -98,8 +89,6 @@ export function PlanModal({
     });
   }
 
-  if (!open || typeof document === "undefined") return null;
-
   const anchorLabel: Record<Frequency, string> = {
     DAILY: "Empieza el",
     WEEKLY: "Día de la semana",
@@ -107,23 +96,24 @@ export function PlanModal({
     YEARLY: "Vence cada año el",
   };
 
-  return createPortal(
-    <div
-      role="dialog"
-      aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+  return (
+    <dialog
+      ref={ref}
+      onCancel={(e) => {
+        e.preventDefault();
+        onClose();
+      }}
+      onClick={(e) => {
+        // Click on the backdrop (i.e. directly on the dialog element)
+        if (e.target === ref.current) onClose();
+      }}
+      className="m-auto w-full max-w-md rounded-3xl border border-white/12 bg-[oklch(0.16_0.015_245)] p-0 text-foreground shadow-2xl backdrop:bg-black/65 backdrop:backdrop-blur-md"
     >
-      <button
-        type="button"
-        aria-label="Cerrar"
-        onClick={onClose}
-        className="absolute inset-0 bg-black/60 backdrop-blur-md"
-      />
-      <div className="glass-strong relative w-full max-w-md rounded-3xl p-6 reveal">
+      <div className="relative p-6">
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-foreground/70 transition hover:bg-white/[0.08] hover:text-foreground"
+          className="absolute right-4 top-4 inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-foreground/70 transition hover:bg-white/[0.10] hover:text-foreground"
           aria-label="Cerrar"
         >
           <X className="h-3.5 w-3.5" />
@@ -154,8 +144,8 @@ export function PlanModal({
                     className={[
                       "rounded-xl border p-3 text-left transition-all",
                       active
-                        ? "border-white/22 bg-white/[0.08]"
-                        : "border-white/8 bg-white/[0.02] hover:border-white/14 hover:bg-white/[0.04]",
+                        ? "border-white/30 bg-white/[0.10]"
+                        : "border-white/10 bg-white/[0.03] hover:border-white/18 hover:bg-white/[0.05]",
                     ].join(" ")}
                   >
                     <p className="text-sm font-medium text-foreground/95">{f.label}</p>
@@ -203,14 +193,14 @@ export function PlanModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full border border-white/10 bg-transparent px-4 py-2 text-sm text-muted-foreground transition hover:bg-white/[0.05] hover:text-foreground"
+                className="rounded-full border border-white/10 bg-transparent px-4 py-2 text-sm text-muted-foreground transition hover:bg-white/[0.06] hover:text-foreground"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={m.isPending}
-                className="rounded-full border border-white/18 bg-white/[0.07] px-5 py-2 text-sm font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-50"
+                className="rounded-full border border-white/22 bg-white/[0.10] px-5 py-2 text-sm font-medium text-foreground transition hover:bg-white/[0.15] hover:border-white/32 disabled:opacity-50"
               >
                 {m.isPending ? "Guardando…" : initial ? "Guardar cambios" : "Crear plan"}
               </button>
@@ -218,8 +208,7 @@ export function PlanModal({
           </div>
         </form>
       </div>
-    </div>,
-    document.body,
+    </dialog>
   );
 }
 
@@ -256,7 +245,7 @@ function Field({
         required={required}
         step={step}
         min={min}
-        className="glass-input focus:glass-input-focus mt-1.5 w-full rounded-xl px-3 py-2.5 text-sm placeholder:text-muted-foreground/55"
+        className="mt-1.5 w-full rounded-xl border border-white/12 bg-white/[0.04] px-3 py-2.5 text-sm text-foreground transition focus:border-white/30 focus:bg-white/[0.07] focus:outline-none placeholder:text-muted-foreground/55"
       />
     </label>
   );
