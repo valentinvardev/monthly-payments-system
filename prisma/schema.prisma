@@ -43,6 +43,13 @@ enum PaymentMethodKind {
   CRYPTO_WALLET
 }
 
+enum PlanFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
 enum EmailKind {
   INVOICE_CREATED
   REMINDER_BEFORE_DUE
@@ -100,17 +107,17 @@ model Invite {
 }
 
 model RecurringPlan {
-  id            String    @id @default(cuid())
-  client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  clientId      String    @unique
-  amountUsd     Decimal   @db.Decimal(12, 2)
-  description   String
-  dueDayOfMonth Int
-  active        Boolean   @default(true)
-  startDate     DateTime  @default(now())
-  endDate       DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id          String        @id @default(cuid())
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId    String        @unique
+  amountUsd   Decimal       @db.Decimal(12, 2)
+  description String
+  frequency   PlanFrequency @default(MONTHLY)
+  anchorDate  DateTime
+  active      Boolean       @default(true)
+  endDate     DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   @@index([active])
 }

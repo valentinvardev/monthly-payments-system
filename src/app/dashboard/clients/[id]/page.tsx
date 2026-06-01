@@ -6,9 +6,10 @@ import { formatDate, formatDateTime, formatUsd } from "@/lib/format";
 import { InvoiceStatusBadge } from "@/components/StatusBadge";
 import { EditClientForm } from "./_components/EditClientForm";
 import { ToggleActiveButton } from "./_components/ToggleActiveButton";
-import { PlanEditor } from "./_components/PlanEditor";
+import { PlanSection } from "./_components/PlanSection";
 import { ClientInviteAction } from "./_components/ClientInviteAction";
 import { ClientGenerateInvoice } from "./_components/ClientGenerateInvoice";
+import { describeAnchor } from "@/lib/recurrence";
 
 export default async function ManageClientPage({
   params,
@@ -120,14 +121,19 @@ export default async function ManageClientPage({
         <SectionHeader title="Plan recurrente" />
         <Card className="mt-3">
           <CardContent>
-            <PlanEditor
+            <PlanSection
               clientId={client.id}
               plan={
                 client.plan
                   ? {
                       amountUsd: Number(client.plan.amountUsd),
                       description: client.plan.description,
-                      dueDayOfMonth: client.plan.dueDayOfMonth,
+                      frequency: client.plan.frequency,
+                      anchorDate: new Date(client.plan.anchorDate).toISOString().slice(0, 10),
+                      anchorPretty: describeAnchor(
+                        client.plan.frequency,
+                        client.plan.anchorDate,
+                      ),
                     }
                   : null
               }

@@ -15,7 +15,7 @@ export function ClientGenerateInvoice({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const gen = trpc.invoices.generateNextMonth.useMutation({
+  const gen = trpc.invoices.generateNext.useMutation({
     onSuccess: () => router.refresh(),
     onError: (e) => setError(e.message),
     onSettled: () => setBusy(false),
@@ -41,7 +41,7 @@ export function ClientGenerateInvoice({
         }}
         className="rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium text-foreground/85 transition hover:bg-white/[0.08] hover:border-white/22 hover:text-foreground disabled:opacity-50"
       >
-        {busy ? "Generando…" : "+ Factura del próximo mes"}
+        {busy ? "Generando…" : "+ Próxima factura"}
       </button>
       {error && <span className="text-[10px] text-rose-200/85">{error}</span>}
     </div>

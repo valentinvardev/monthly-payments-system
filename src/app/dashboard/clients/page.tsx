@@ -3,6 +3,7 @@ import { Plus, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { api } from "@/trpc/server";
 import { formatDate, formatUsd } from "@/lib/format";
+import { formatFrequency } from "@/lib/recurrence";
 import { InviteLinkButton } from "./_components/InviteLinkButton";
 
 export default async function ClientsPage() {
@@ -42,8 +43,8 @@ export default async function ClientsPage() {
               <tr className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80">
                 <th className="px-5 py-3 text-left font-medium">Cliente</th>
                 <th className="px-5 py-3 text-left font-medium">Plan recurrente</th>
-                <th className="px-5 py-3 text-right font-medium">Monto / mes</th>
-                <th className="px-5 py-3 text-left font-medium">Día vto.</th>
+                <th className="px-5 py-3 text-right font-medium">Monto</th>
+                <th className="px-5 py-3 text-left font-medium">Frecuencia</th>
                 <th className="px-5 py-3 text-right font-medium">Facturas</th>
                 <th className="px-5 py-3 text-left font-medium">Alta</th>
                 <th className="px-5 py-3 text-right font-medium">Acciones</th>
@@ -71,7 +72,7 @@ export default async function ClientsPage() {
                     {c.plan ? formatUsd(c.plan.amountUsd) : "—"}
                   </td>
                   <td className="px-5 py-4 text-muted-foreground">
-                    {c.plan?.dueDayOfMonth ?? "—"}
+                    {c.plan ? formatFrequency(c.plan.frequency) : "—"}
                   </td>
                   <td className="px-5 py-4 text-right tabular-nums text-foreground/80">
                     {c.invoiceCount}

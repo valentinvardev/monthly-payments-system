@@ -6,6 +6,7 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "@/server/api/trpc";
+import { computeNextPeriod } from "@/lib/recurrence";
 
 export const invoicesRouter = createTRPCRouter({
   listAll: adminProcedure.query(async ({ ctx }) => {
@@ -41,7 +42,7 @@ export const invoicesRouter = createTRPCRouter({
       return invoice;
     }),
 
-  generateNextMonth: adminProcedure
+  generateNext: adminProcedure
     .input(z.object({ clientId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const client = await ctx.prisma.client.findUnique({
@@ -57,10 +58,10 @@ export const invoicesRouter = createTRPCRouter({
         });
       }
 
-      const today = new Date();
-      const periodStart = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-      const periodEnd = new Date(today.getFullYear(), today.getMonth() + 2, 0);
-      const dueDate = new Date(today.getFullYear(), today.getMonth() + 1, plan.dueDayOfMonth);
+      const { periodStart, periodEnd, dueDate } = computeNextPeriod(
+        plan.frequency,
+        plan.anchorDate,
+      );
 
       return ctx.prisma.$transaction(async (tx) => {
         const invoice = await tx.invoice.create({

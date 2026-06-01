@@ -14,12 +14,6 @@ const clientInput = z.object({
   notes: z.string().optional(),
 });
 
-const planInput = z.object({
-  amountUsd: z.number().positive(),
-  description: z.string().min(1),
-  dueDayOfMonth: z.number().int().min(1).max(28),
-});
-
 export const clientsRouter = createTRPCRouter({
   list: adminProcedure.query(async ({ ctx }) => {
     const clients = await ctx.prisma.client.findMany({
@@ -76,23 +70,30 @@ export const clientsRouter = createTRPCRouter({
         clientId: z.string(),
         amountUsd: z.number().positive(),
         description: z.string().min(1),
-        dueDayOfMonth: z.number().int().min(1).max(28),
+        frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]),
+        anchorDate: z.string(),
       }),
     )
     .mutation(({ ctx, input }) => {
+      const anchor = new Date(input.anchorDate);
+      if (Number.isNaN(anchor.getTime())) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Fecha inválida" });
+      }
       return ctx.prisma.recurringPlan.upsert({
         where: { clientId: input.clientId },
         update: {
           amountUsd: input.amountUsd,
           description: input.description,
-          dueDayOfMonth: input.dueDayOfMonth,
+          frequency: input.frequency,
+          anchorDate: anchor,
           active: true,
         },
         create: {
           clientId: input.clientId,
           amountUsd: input.amountUsd,
           description: input.description,
-          dueDayOfMonth: input.dueDayOfMonth,
+          frequency: input.frequency,
+          anchorDate: anchor,
         },
       });
     }),
@@ -160,29 +161,16 @@ export const clientsRouter = createTRPCRouter({
   }),
 
   create: adminProcedure
-    .input(clientInput.extend({ plan: planInput.optional() }))
+    .input(clientInput)
     .mutation(async ({ ctx, input }) => {
-      return ctx.prisma.$transaction(async (tx) => {
-        const client = await tx.client.create({
-          data: {
-            fullName: input.fullName,
-            email: input.email.toLowerCase(),
-            phone: input.phone,
-            taxId: input.taxId,
-            notes: input.notes,
-          },
-        });
-        if (input.plan) {
-          await tx.recurringPlan.create({
-            data: {
-              clientId: client.id,
-              amountUsd: input.plan.amountUsd,
-              description: input.plan.description,
-              dueDayOfMonth: input.plan.dueDayOfMonth,
-            },
-          });
-        }
-        return client;
+      return ctx.prisma.client.create({
+        data: {
+          fullName: input.fullName,
+          email: input.email.toLowerCase(),
+          phone: input.phone,
+          taxId: input.taxId,
+          notes: input.notes,
+        },
       });
     }),
 });
