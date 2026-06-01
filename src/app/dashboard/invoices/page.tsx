@@ -18,13 +18,18 @@ export default async function InvoicesPage() {
           Facturas
         </p>
         <h1 className="mt-1.5 font-display text-3xl font-medium tracking-tight text-foreground">
-          Movimiento <span className="font-light text-foreground/70">por cliente</span>.
+          Todo el <span className="font-light text-foreground/70">movimiento</span>.
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {invoices.length} facturas ·{" "}
-          {Object.entries(byStatus)
-            .map(([s, n]) => `${n} ${s.toLowerCase().replace("_", " ")}`)
-            .join(" · ")}
+          {invoices.length} facturas
+          {Object.keys(byStatus).length > 0 && (
+            <>
+              {" · "}
+              {Object.entries(byStatus)
+                .map(([s, n]) => `${n} ${s.toLowerCase().replace("_", " ")}`)
+                .join(" · ")}
+            </>
+          )}
         </p>
       </header>
 
@@ -35,20 +40,23 @@ export default async function InvoicesPage() {
               <tr className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80">
                 <th className="px-5 py-3 text-left font-medium">Cliente</th>
                 <th className="px-5 py-3 text-left font-medium">Descripción</th>
-                <th className="px-5 py-3 text-left font-medium">Período</th>
                 <th className="px-5 py-3 text-right font-medium">Monto</th>
                 <th className="px-5 py-3 text-left font-medium">Vence</th>
                 <th className="px-5 py-3 text-left font-medium">Estado</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/6">
+              {invoices.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-5 py-8 text-center text-sm text-muted-foreground">
+                    Sin facturas todavía.
+                  </td>
+                </tr>
+              )}
               {invoices.map((i) => (
                 <tr key={i.id} className="transition-colors hover:bg-white/[0.025]">
                   <td className="px-5 py-3.5 text-foreground/95">{i.client?.fullName}</td>
                   <td className="px-5 py-3.5 text-muted-foreground">{i.description}</td>
-                  <td className="px-5 py-3.5 text-[11px] text-muted-foreground">
-                    {formatDate(i.periodStart)} – {formatDate(i.periodEnd)}
-                  </td>
                   <td className="px-5 py-3.5 text-right font-display tabular-nums text-foreground/95">
                     {formatUsd(i.amountUsd)}
                   </td>

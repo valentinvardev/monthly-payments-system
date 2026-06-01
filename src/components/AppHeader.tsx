@@ -34,6 +34,7 @@ export async function AppHeader() {
                 <HeaderLink href="/dashboard">Resumen</HeaderLink>
                 <HeaderLink href="/dashboard/clients">Clientes</HeaderLink>
                 <HeaderLink href="/dashboard/invoices">Facturas</HeaderLink>
+                <HeaderLink href="/dashboard/payment-methods">Métodos</HeaderLink>
                 <span className="mx-2 h-4 w-px bg-white/8" />
               </>
             )}

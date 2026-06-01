@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { api } from "@/trpc/server";
 import { formatDate, formatUsd } from "@/lib/format";
@@ -46,16 +46,15 @@ export default async function ClientsPage() {
                 <th className="px-5 py-3 text-left font-medium">Día vto.</th>
                 <th className="px-5 py-3 text-right font-medium">Facturas</th>
                 <th className="px-5 py-3 text-left font-medium">Alta</th>
-                <th className="px-5 py-3 text-center font-medium">Invite</th>
                 <th className="px-5 py-3 text-right font-medium">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/6">
               {clients.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-5 py-8 text-center text-sm text-muted-foreground">
-                    Todavía no hay clientes. Tocá <span className="text-foreground/85">Nuevo cliente</span>{" "}
-                    para crear el primero.
+                  <td colSpan={7} className="px-5 py-8 text-center text-sm text-muted-foreground">
+                    Todavía no hay clientes. Tocá{" "}
+                    <span className="text-foreground/85">Nuevo cliente</span> para crear el primero.
                   </td>
                 </tr>
               )}
@@ -79,17 +78,15 @@ export default async function ClientsPage() {
                   </td>
                   <td className="px-5 py-4 text-muted-foreground">{formatDate(c.createdAt)}</td>
                   <td className="px-5 py-4">
-                    <div className="flex justify-center">
+                    <div className="flex items-center justify-end gap-2">
                       <InviteLinkButton clientId={c.id} hasLogin={c.hasLogin} />
+                      <Link
+                        href={`/dashboard/clients/${c.id}`}
+                        className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-[11px] font-medium text-foreground/90 transition hover:bg-white/[0.10] hover:border-white/25"
+                      >
+                        Gestionar <ArrowRight className="h-3 w-3" />
+                      </Link>
                     </div>
-                  </td>
-                  <td className="px-5 py-4 text-right">
-                    <Link
-                      href={`/dashboard/clients/${c.id}`}
-                      className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-[11px] font-medium text-foreground/90 transition hover:bg-white/[0.10] hover:border-white/25"
-                    >
-                      Gestionar →
-                    </Link>
                   </td>
                 </tr>
               ))}

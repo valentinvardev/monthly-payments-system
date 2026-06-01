@@ -152,7 +152,6 @@ export default async function ManageClientPage({
                 <thead>
                   <tr className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80">
                     <th className="px-5 py-3 text-left font-medium">Descripción</th>
-                    <th className="px-5 py-3 text-left font-medium">Período</th>
                     <th className="px-5 py-3 text-right font-medium">Monto</th>
                     <th className="px-5 py-3 text-left font-medium">Vence</th>
                     <th className="px-5 py-3 text-left font-medium">Estado</th>
@@ -162,9 +161,6 @@ export default async function ManageClientPage({
                   {client.invoices.map((i) => (
                     <tr key={i.id} className="transition-colors hover:bg-white/[0.025]">
                       <td className="px-5 py-3.5 text-foreground/95">{i.description}</td>
-                      <td className="px-5 py-3.5 text-[11px] text-muted-foreground">
-                        {formatDate(i.periodStart)} – {formatDate(i.periodEnd)}
-                      </td>
                       <td className="px-5 py-3.5 text-right font-display tabular-nums text-foreground/95">
                         {formatUsd(i.amountUsd)}
                       </td>
