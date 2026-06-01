@@ -1,8 +1,10 @@
 import { z } from "zod";
 import { randomBytes } from "node:crypto";
+import { revalidatePath } from "next/cache";
 import { TRPCError } from "@trpc/server";
 import { adminProcedure, createTRPCRouter } from "@/server/api/trpc";
 import { env } from "@/lib/env";
+import { computeNextPeriod } from "@/lib/recurrence";
 
 const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
@@ -74,12 +76,17 @@ export const clientsRouter = createTRPCRouter({
         anchorDate: z.string(),
       }),
     )
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       const anchor = new Date(input.anchorDate);
       if (Number.isNaN(anchor.getTime())) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "Fecha inválida" });
       }
-      return ctx.prisma.recurringPlan.upsert({
+
+      const existing = await ctx.prisma.recurringPlan.findUnique({
+        where: { clientId: input.clientId },
+      });
+
+      const plan = await ctx.prisma.recurringPlan.upsert({
         where: { clientId: input.clientId },
         update: {
           amountUsd: input.amountUsd,
@@ -96,6 +103,48 @@ export const clientsRouter = createTRPCRouter({
           anchorDate: anchor,
         },
       });
+
+      // First-time plan creation → generate the first invoice immediately.
+      // If you're creating a plan it's because the client owes you, so the
+      // schedule should start producing bills right away. Skipped on edits
+      // so updating amount/description doesn't spam invoices.
+      if (!existing) {
+        const client = await ctx.prisma.client.findUnique({
+          where: { id: input.clientId },
+        });
+        if (client) {
+          const { periodStart, periodEnd, dueDate } = computeNextPeriod(
+            plan.frequency,
+            plan.anchorDate,
+          );
+          await ctx.prisma.$transaction(async (tx) => {
+            const invoice = await tx.invoice.create({
+              data: {
+                clientId: client.id,
+                amountUsd: plan.amountUsd,
+                description: plan.description,
+                periodStart,
+                periodEnd,
+                dueDate,
+                status: "PENDING",
+              },
+            });
+            await tx.emailLog.create({
+              data: {
+                kind: "INVOICE_CREATED",
+                toEmail: client.email,
+                subject: `Nueva factura — ${plan.description} (USD ${plan.amountUsd})`,
+                invoiceId: invoice.id,
+              },
+            });
+          });
+        }
+      }
+
+      revalidatePath("/dashboard");
+      revalidatePath("/dashboard/invoices");
+      revalidatePath(`/dashboard/clients/${input.clientId}`);
+      return plan;
     }),
 
   generateInvite: adminProcedure

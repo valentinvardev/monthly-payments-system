@@ -13,28 +13,27 @@ export function computeNextPeriod(
 
   switch (frequency) {
     case "DAILY": {
-      // Each day is its own period. Skip to tomorrow if anchor was today or earlier.
-      const due = a.getTime() > today.getTime() ? a : addDays(today, 1);
+      // Today counts if anchor was today or earlier; otherwise wait for the anchor day.
+      const due = a.getTime() > today.getTime() ? a : today;
       return { periodStart: due, periodEnd: due, dueDate: due };
     }
 
     case "WEEKLY": {
-      // Same weekday as anchor, every 7 days. Pick the first one strictly in the future.
+      // Same weekday as anchor. If today is that weekday, today is valid.
       const dow = a.getDay();
-      let due = new Date(today);
-      const offset = (dow - today.getDay() + 7) % 7;
-      due = addDays(today, offset === 0 ? 7 : offset);
+      const offset = (dow - today.getDay() + 7) % 7; // 0 = today
+      const due = addDays(today, offset);
       const periodStart = addDays(due, -6);
       return { periodStart, periodEnd: due, dueDate: due };
     }
 
     case "MONTHLY": {
-      // Same day-of-month as anchor.
+      // Same day-of-month as anchor. Today is valid; jump to next month only when today is past it.
       const dom = a.getDate();
       const baseYear = today.getFullYear();
       const baseMonth = today.getMonth();
       let candidate = new Date(baseYear, baseMonth, dom);
-      if (candidate.getTime() <= today.getTime()) {
+      if (candidate.getTime() < today.getTime()) {
         candidate = new Date(baseYear, baseMonth + 1, dom);
       }
       const periodStart = new Date(candidate.getFullYear(), candidate.getMonth(), 1);
@@ -47,7 +46,7 @@ export function computeNextPeriod(
       const m = a.getMonth();
       const d = a.getDate();
       let candidate = new Date(today.getFullYear(), m, d);
-      if (candidate.getTime() <= today.getTime()) {
+      if (candidate.getTime() < today.getTime()) {
         candidate = new Date(today.getFullYear() + 1, m, d);
       }
       const periodStart = new Date(candidate.getFullYear(), 0, 1);
