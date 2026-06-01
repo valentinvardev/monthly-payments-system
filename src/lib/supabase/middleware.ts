@@ -41,8 +41,13 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && pathname === "/login") {
+    // Authenticated user on /login: bounce through `/` so the
+    // role-based redirect there picks the right home (admin → /dashboard,
+    // client → /portal). Middleware can't see roles (only the Supabase
+    // session), so delegating to `/` keeps the logic in one place.
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = "/";
+    url.search = "";
     return NextResponse.redirect(url);
   }
 

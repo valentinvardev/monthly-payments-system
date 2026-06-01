@@ -7,7 +7,10 @@ import { createClient } from "@/lib/supabase/client";
 export function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const next = params.get("next") ?? "/dashboard";
+  // After login, send users to `/` so the role-based redirect there
+  // routes ADMINs to /dashboard and CLIENTs to /portal. `next` only
+  // wins when explicitly set (e.g. coming back from a protected page).
+  const next = params.get("next") ?? "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
