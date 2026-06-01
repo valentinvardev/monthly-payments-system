@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/trpc/react";
 import type { PaymentMethodConfigDto } from "@/lib/types";
+import { CryptoAssetPicker } from "./CryptoAssetPicker";
 
 type Kind = "BANK_ACCOUNT" | "CRYPTO_WALLET";
 
@@ -157,35 +158,22 @@ export function MethodForm({ existing }: { existing?: PaymentMethodConfigDto }) 
         </Section>
       ) : (
         <Section title="Datos de la wallet">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Field
-              name="asset"
-              label="Asset"
-              required
-              defaultValue={cryptoDetails?.asset ?? "USDT"}
-              hint="USDT, USDC, BTC, LTC, BNB…"
-            />
-            <Field
-              name="network"
-              label="Red"
-              required
-              defaultValue={cryptoDetails?.network ?? "TRON (TRC20)"}
-              hint="TRC20, BEP20, Polygon, Bitcoin, Litecoin…"
-            />
-            <Field
-              name="address"
-              label="Dirección de la wallet"
-              required
-              defaultValue={cryptoDetails?.address}
-              className="sm:col-span-2"
-            />
-            <Field
-              name="memo"
-              label="Memo / tag"
-              defaultValue={cryptoDetails?.memo ?? ""}
-              hint="Solo si la red lo requiere"
-            />
-          </div>
+          <CryptoAssetPicker
+            defaultAsset={cryptoDetails?.asset}
+            defaultNetwork={cryptoDetails?.network}
+          />
+          <Field
+            name="address"
+            label="Dirección de la wallet"
+            required
+            defaultValue={cryptoDetails?.address}
+          />
+          <Field
+            name="memo"
+            label="Memo / tag"
+            defaultValue={cryptoDetails?.memo ?? ""}
+            hint="Solo si la red lo requiere"
+          />
         </Section>
       )}
 
