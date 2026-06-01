@@ -92,3 +92,79 @@ function addDays(d: Date, n: number) {
   x.setDate(x.getDate() + n);
   return x;
 }
+
+function derivePeriod(
+  frequency: PlanFrequency,
+  dueDate: Date,
+): { periodStart: Date; periodEnd: Date } {
+  switch (frequency) {
+    case "DAILY":
+      return { periodStart: dueDate, periodEnd: dueDate };
+    case "WEEKLY":
+      return { periodStart: addDays(dueDate, -6), periodEnd: dueDate };
+    case "MONTHLY":
+      return {
+        periodStart: new Date(dueDate.getFullYear(), dueDate.getMonth(), 1),
+        periodEnd: new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 0),
+      };
+    case "YEARLY":
+      return {
+        periodStart: new Date(dueDate.getFullYear(), 0, 1),
+        periodEnd: new Date(dueDate.getFullYear(), 11, 31),
+      };
+  }
+}
+
+function advanceByOne(frequency: PlanFrequency, date: Date): Date {
+  const x = new Date(date);
+  switch (frequency) {
+    case "DAILY":
+      x.setDate(x.getDate() + 1);
+      break;
+    case "WEEKLY":
+      x.setDate(x.getDate() + 7);
+      break;
+    case "MONTHLY":
+      x.setMonth(x.getMonth() + 1);
+      break;
+    case "YEARLY":
+      x.setFullYear(x.getFullYear() + 1);
+      break;
+  }
+  return x;
+}
+
+// Backfill: walk from the anchor up to `until` (default today) and return
+// one period per cycle. Used when a plan is created with an anchor in the
+// past so the client gets every missed bill at once. Capped so a typo
+// like "anchor: 5 years ago, frequency: DAILY" doesn't generate thousands
+// of rows in one transaction.
+export const BACKFILL_LIMIT_BY_FREQUENCY: Record<PlanFrequency, number> = {
+  DAILY: 60, // ~2 months
+  WEEKLY: 52, // 1 year
+  MONTHLY: 36, // 3 years
+  YEARLY: 10,
+};
+
+export function computeAllDueDatesFromAnchor(
+  frequency: PlanFrequency,
+  anchorDate: Date,
+  until: Date = new Date(),
+): { dueDate: Date; periodStart: Date; periodEnd: Date }[] {
+  const anchor = startOfDay(anchorDate);
+  const stop = startOfDay(until);
+
+  // Anchor in the future → just one invoice at the anchor date.
+  if (anchor.getTime() > stop.getTime()) {
+    return [{ dueDate: anchor, ...derivePeriod(frequency, anchor) }];
+  }
+
+  const max = BACKFILL_LIMIT_BY_FREQUENCY[frequency];
+  const out: { dueDate: Date; periodStart: Date; periodEnd: Date }[] = [];
+  let current = anchor;
+  while (current.getTime() <= stop.getTime() && out.length < max) {
+    out.push({ dueDate: current, ...derivePeriod(frequency, current) });
+    current = advanceByOne(frequency, current);
+  }
+  return out;
+}

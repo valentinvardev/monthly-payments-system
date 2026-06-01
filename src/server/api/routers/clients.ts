@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { TRPCError } from "@trpc/server";
 import { adminProcedure, createTRPCRouter } from "@/server/api/trpc";
 import { env } from "@/lib/env";
-import { computeNextPeriod } from "@/lib/recurrence";
+import { computeAllDueDatesFromAnchor } from "@/lib/recurrence";
 
 const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
@@ -104,39 +104,45 @@ export const clientsRouter = createTRPCRouter({
         },
       });
 
-      // First-time plan creation → generate the first invoice immediately.
-      // If you're creating a plan it's because the client owes you, so the
-      // schedule should start producing bills right away. Skipped on edits
-      // so updating amount/description doesn't spam invoices.
+      // First-time plan creation → backfill all bills from the anchor up
+      // to today (inclusive). If the anchor is in the past the client
+      // owes multiple periods already; each one becomes its own invoice
+      // (OVERDUE for past due-dates, PENDING for today's). Skipped on
+      // edits so changing amount/description doesn't spam invoices.
       if (!existing) {
         const client = await ctx.prisma.client.findUnique({
           where: { id: input.clientId },
         });
         if (client) {
-          const { periodStart, periodEnd, dueDate } = computeNextPeriod(
-            plan.frequency,
-            plan.anchorDate,
-          );
+          const periods = computeAllDueDatesFromAnchor(plan.frequency, plan.anchorDate);
+          const todayStart = new Date(
+            new Date().getFullYear(),
+            new Date().getMonth(),
+            new Date().getDate(),
+          ).getTime();
           await ctx.prisma.$transaction(async (tx) => {
-            const invoice = await tx.invoice.create({
-              data: {
-                clientId: client.id,
-                amountUsd: plan.amountUsd,
-                description: plan.description,
-                periodStart,
-                periodEnd,
-                dueDate,
-                status: "PENDING",
-              },
-            });
-            await tx.emailLog.create({
-              data: {
-                kind: "INVOICE_CREATED",
-                toEmail: client.email,
-                subject: `Nueva factura — ${plan.description} (USD ${plan.amountUsd})`,
-                invoiceId: invoice.id,
-              },
-            });
+            for (const p of periods) {
+              const status = p.dueDate.getTime() < todayStart ? "OVERDUE" : "PENDING";
+              const invoice = await tx.invoice.create({
+                data: {
+                  clientId: client.id,
+                  amountUsd: plan.amountUsd,
+                  description: plan.description,
+                  periodStart: p.periodStart,
+                  periodEnd: p.periodEnd,
+                  dueDate: p.dueDate,
+                  status,
+                },
+              });
+              await tx.emailLog.create({
+                data: {
+                  kind: "INVOICE_CREATED",
+                  toEmail: client.email,
+                  subject: `Nueva factura — ${plan.description} (USD ${plan.amountUsd})`,
+                  invoiceId: invoice.id,
+                },
+              });
+            }
           });
         }
       }
