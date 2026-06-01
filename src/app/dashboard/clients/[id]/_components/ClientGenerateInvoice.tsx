@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/trpc/react";
 
-export function GenerateInvoiceButton({
+export function ClientGenerateInvoice({
   clientId,
   hasPlan,
 }: {
@@ -23,8 +23,8 @@ export function GenerateInvoiceButton({
 
   if (!hasPlan) {
     return (
-      <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/60">
-        Sin plan
+      <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/70">
+        Cargá un plan para poder generar
       </span>
     );
   }
@@ -41,9 +41,9 @@ export function GenerateInvoiceButton({
         }}
         className="rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium text-foreground/85 transition hover:bg-white/[0.08] hover:border-white/22 hover:text-foreground disabled:opacity-50"
       >
-        {busy ? "Generando..." : "+ Próxima factura"}
+        {busy ? "Generando…" : "+ Factura del próximo mes"}
       </button>
-      {error && <span className="text-[11px] text-rose-200/85">{error}</span>}
+      {error && <span className="text-[10px] text-rose-200/85">{error}</span>}
     </div>
   );
 }

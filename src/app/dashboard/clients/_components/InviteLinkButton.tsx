@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Send, Check, Copy } from "lucide-react";
 import { trpc } from "@/trpc/react";
 
 export function InviteLinkButton({
@@ -19,6 +20,10 @@ export function InviteLinkButton({
   const gen = trpc.clients.generateInvite.useMutation({
     onSuccess: (res) => {
       setUrl(res.url);
+      // Copy immediately so the admin can paste right away.
+      navigator.clipboard.writeText(res.url).catch(() => null);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
       router.refresh();
     },
     onError: (e) => setError(e.message),
@@ -26,8 +31,12 @@ export function InviteLinkButton({
 
   if (hasLogin) {
     return (
-      <span className="text-[10px] uppercase tracking-[0.16em] text-emerald-200/80">
-        ✓ activo
+      <span
+        title="Cliente activo en el portal"
+        className="inline-flex items-center gap-1 rounded-full border border-emerald-200/25 bg-emerald-200/[0.06] px-2 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-emerald-100/90"
+      >
+        <Check className="h-3 w-3" />
+        Activo
       </span>
     );
   }
@@ -37,7 +46,7 @@ export function InviteLinkButton({
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1600);
+      setTimeout(() => setCopied(false), 1800);
     } catch {
       /* ignore */
     }
@@ -45,18 +54,22 @@ export function InviteLinkButton({
 
   if (url) {
     return (
-      <div className="flex flex-col items-end gap-1">
-        <button
-          type="button"
-          onClick={copy}
-          className="rounded-full border border-cyan-300/30 bg-white/[0.05] px-3 py-1.5 text-[11px] font-medium text-cyan-50 transition hover:bg-white/[0.10]"
-        >
-          {copied ? "✓ Copiado" : "📋 Copiar link"}
-        </button>
-        <code className="max-w-[16rem] truncate text-[10px] font-mono text-muted-foreground/70">
-          {url}
-        </code>
-      </div>
+      <button
+        type="button"
+        onClick={copy}
+        title={url}
+        className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-foreground/90 transition hover:bg-white/[0.10] hover:border-white/25"
+      >
+        {copied ? (
+          <>
+            <Check className="h-3 w-3 text-emerald-200" /> Copiado
+          </>
+        ) : (
+          <>
+            <Copy className="h-3 w-3" /> Copiar
+          </>
+        )}
+      </button>
     );
   }
 
@@ -69,9 +82,10 @@ export function InviteLinkButton({
           setError(null);
           gen.mutate({ clientId });
         }}
-        className="rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium text-foreground/85 transition hover:bg-white/[0.08] hover:border-white/22 hover:text-foreground disabled:opacity-50"
+        title="Generar link de invitación"
+        className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/12 bg-white/[0.04] text-foreground/80 transition hover:bg-white/[0.08] hover:border-white/22 hover:text-foreground disabled:opacity-50"
       >
-        {gen.isPending ? "Generando…" : "+ Link de invite"}
+        <Send className="h-3.5 w-3.5" />
       </button>
       {error && <span className="text-[10px] text-rose-200/85">{error}</span>}
     </div>

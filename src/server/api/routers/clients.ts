@@ -37,6 +37,66 @@ export const clientsRouter = createTRPCRouter({
     }));
   }),
 
+  update: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        fullName: z.string().min(1),
+        email: z.string().email(),
+        phone: z.string().optional().nullable(),
+        taxId: z.string().optional().nullable(),
+        notes: z.string().optional().nullable(),
+      }),
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.client.update({
+        where: { id: input.id },
+        data: {
+          fullName: input.fullName,
+          email: input.email.toLowerCase(),
+          phone: input.phone,
+          taxId: input.taxId,
+          notes: input.notes,
+        },
+      });
+    }),
+
+  setActive: adminProcedure
+    .input(z.object({ id: z.string(), active: z.boolean() }))
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.client.update({
+        where: { id: input.id },
+        data: { active: input.active },
+      });
+    }),
+
+  upsertPlan: adminProcedure
+    .input(
+      z.object({
+        clientId: z.string(),
+        amountUsd: z.number().positive(),
+        description: z.string().min(1),
+        dueDayOfMonth: z.number().int().min(1).max(28),
+      }),
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.recurringPlan.upsert({
+        where: { clientId: input.clientId },
+        update: {
+          amountUsd: input.amountUsd,
+          description: input.description,
+          dueDayOfMonth: input.dueDayOfMonth,
+          active: true,
+        },
+        create: {
+          clientId: input.clientId,
+          amountUsd: input.amountUsd,
+          description: input.description,
+          dueDayOfMonth: input.dueDayOfMonth,
+        },
+      });
+    }),
+
   generateInvite: adminProcedure
     .input(z.object({ clientId: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -80,8 +140,23 @@ export const clientsRouter = createTRPCRouter({
         invoices: { orderBy: { dueDate: "desc" } },
       },
     });
-    if (!client) throw new Error("Cliente no encontrado");
-    return { ...client, plan: client.recurringPlan };
+    if (!client) throw new TRPCError({ code: "NOT_FOUND" });
+    const emailLogs = await ctx.prisma.emailLog.findMany({
+      where: { toEmail: client.email },
+      orderBy: { sentAt: "desc" },
+      take: 20,
+    });
+    const latestInvite = await ctx.prisma.invite.findFirst({
+      where: { clientId: client.id, usedAt: null },
+      orderBy: { createdAt: "desc" },
+    });
+    return {
+      ...client,
+      plan: client.recurringPlan,
+      emailLogs,
+      latestInvite,
+      hasLogin: client.userId !== null,
+    };
   }),
 
   create: adminProcedure
