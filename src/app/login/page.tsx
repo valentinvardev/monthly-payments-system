@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { BrandMark } from "@/components/BrandMark";
 import { LoginForm } from "./_components/LoginForm";
 
@@ -30,7 +31,9 @@ export default function LoginPage() {
           </p>
         </header>
 
-        <LoginForm />
+        <Suspense fallback={<div className="h-32" />}>
+          <LoginForm />
+        </Suspense>
 
         <footer className="mt-7 text-center text-[9px] uppercase tracking-[0.24em] text-muted-foreground/50">
           glaciar · sur · {new Date().getFullYear()}
