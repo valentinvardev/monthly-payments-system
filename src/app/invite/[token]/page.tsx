@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { BrandMark } from "@/components/BrandMark";
 import { InviteForm } from "./_components/InviteForm";
@@ -17,9 +17,14 @@ export default async function InvitePage({
 
   if (!invite) notFound();
 
+  // If the client already registered (invite used or client has a linked
+  // login), this link has no useful action left — bounce them to /login
+  // pre-filled with their email so they can sign in normally.
+  if (invite.usedAt !== null || invite.client.userId !== null) {
+    redirect(`/login?email=${encodeURIComponent(invite.client.email)}&msg=already_registered`);
+  }
+
   const expired = invite.expiresAt.getTime() < Date.now();
-  const used = invite.usedAt !== null;
-  const linked = invite.client.userId !== null;
 
   return (
     <main className="relative flex min-h-screen items-center justify-center px-4 py-10">
@@ -49,11 +54,9 @@ export default async function InvitePage({
           </p>
         </header>
 
-        {expired || used || linked ? (
+        {expired ? (
           <div className="rounded-2xl border border-rose-300/25 bg-rose-300/[0.08] p-5 text-sm text-rose-100/95">
-            {expired && "Este link de invitación está vencido."}
-            {!expired && used && "Este link ya fue usado."}
-            {!expired && !used && linked && "Este cliente ya tiene acceso al portal."}
+            Este link de invitación está vencido.
             <p className="mt-2 text-xs text-rose-100/70">
               Pedile al administrador que te genere uno nuevo.
             </p>

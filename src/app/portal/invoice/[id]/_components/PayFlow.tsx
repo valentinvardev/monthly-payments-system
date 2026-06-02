@@ -73,7 +73,7 @@ export function PayFlow({
             Elegí cómo pagar
           </p>
           <h2 className="mt-1 font-display text-base font-medium tracking-tight text-foreground/95">
-            Tres caminos hacia el sur.
+            Elegí cómo querés pagar.
           </h2>
         </div>
 
