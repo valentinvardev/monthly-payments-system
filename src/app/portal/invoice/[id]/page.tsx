@@ -9,10 +9,12 @@ import { PayFlow } from "./_components/PayFlow";
 
 export default async function InvoiceDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ mp_status?: string }>;
 }) {
-  const { id } = await params;
+  const [{ id }, sp] = await Promise.all([params, searchParams]);
 
   let invoice;
   try {
@@ -26,6 +28,8 @@ export default async function InvoiceDetailPage({
     getUsdToArsRate().catch(() => null),
   ]);
 
+  const mpStatus = sp.mp_status;
+
   const amountUsd = Number(invoice.amountUsd);
   const arsPreview = rate ? Math.round(amountUsd * rate.rate * 100) / 100 : null;
 
@@ -37,6 +41,24 @@ export default async function InvoiceDetailPage({
       >
         ← Volver
       </Link>
+
+      {mpStatus === "success" && (
+        <div className="rounded-2xl border border-emerald-200/25 bg-emerald-200/[0.06] p-4 text-sm text-emerald-100/95">
+          ✓ Mercado Pago confirmó tu pago. La factura va a marcarse como pagada en unos segundos.
+        </div>
+      )}
+      {mpStatus === "pending" && (
+        <div className="rounded-2xl border border-yellow-200/25 bg-yellow-200/[0.06] p-4 text-sm text-yellow-100/95">
+          ⏳ Tu pago está siendo procesado por Mercado Pago. En cuanto se confirme la factura queda
+          pagada.
+        </div>
+      )}
+      {mpStatus === "failure" && (
+        <div className="rounded-2xl border border-rose-300/25 bg-rose-300/[0.08] p-4 text-sm text-rose-100/95">
+          ✗ No pudimos completar el pago en Mercado Pago. Podés volver a intentarlo o usar otro
+          método más abajo.
+        </div>
+      )}
 
       <Card className="reveal">
         <div className="px-5 pt-5">

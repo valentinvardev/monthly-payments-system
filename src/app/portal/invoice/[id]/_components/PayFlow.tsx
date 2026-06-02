@@ -37,10 +37,12 @@ export function PayFlow({
   const banks = methods.filter((m) => m.kind === "BANK_ACCOUNT");
   const cryptos = methods.filter((m) => m.kind === "CRYPTO_WALLET");
 
-  const mp = trpc.payments.simulateMercadoPago.useMutation({
-    onSuccess: () => {
-      setDone("¡Pago acreditado! La factura quedó marcada como pagada.");
-      router.refresh();
+  const mp = trpc.payments.createMpPreference.useMutation({
+    onSuccess: (res) => {
+      // Hop to Mercado Pago's hosted checkout. When the user comes back
+      // (success / failure / pending) the back_urls drop them on this
+      // same invoice page with ?mp_status=… which the page reads.
+      window.location.href = res.url;
     },
   });
 
@@ -113,14 +115,14 @@ export function PayFlow({
         {chosen === "MERCADOPAGO" && (
           <div className="space-y-3 rounded-2xl border border-white/8 bg-white/[0.02] p-5">
             <p className="text-sm text-muted-foreground">
-              En modo real serías redirigido al checkout de MercadoPago y al confirmar el pago la
-              factura quedaría marcada como pagada vía webhook.
+              Vas a ser redirigido al checkout de Mercado Pago. Cuando confirmes el pago volvés
+              acá automáticamente y la factura queda como pagada.
             </p>
             <div className="flex justify-end">
               <PrimaryButton
                 disabled={mp.isPending}
                 onClick={() => mp.mutate({ invoiceId })}
-                label={mp.isPending ? "Procesando..." : "Simular pago con MercadoPago"}
+                label={mp.isPending ? "Llevándote a MP…" : "Pagar con Mercado Pago"}
               />
             </div>
             {mp.error && <p className="text-sm text-rose-200/85">{mp.error.message}</p>}

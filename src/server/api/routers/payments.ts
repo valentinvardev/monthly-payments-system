@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { adminProcedure, clientProcedure, createTRPCRouter } from "@/server/api/trpc";
 import { getUsdToArsRate } from "@/lib/exchange-rate";
+import { createMpPreference } from "@/lib/mercadoPago";
 
 export const paymentsRouter = createTRPCRouter({
   pendingReview: adminProcedure.query(async ({ ctx }) => {
@@ -17,51 +18,63 @@ export const paymentsRouter = createTRPCRouter({
     }));
   }),
 
-  // Demo: simulate a MercadoPago payment that succeeds immediately.
-  simulateMercadoPago: clientProcedure
+  // Create a real Mercado Pago Checkout Pro preference for the given
+  // invoice using the admin's connected MP account. Returns the
+  // checkout URL the client should be redirected to. Records an
+  // INITIATED Payment row so we know a checkout was opened.
+  createMpPreference: clientProcedure
     .input(z.object({ invoiceId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const invoice = await ctx.prisma.invoice.findUnique({
         where: { id: input.invoiceId },
+        include: { client: true },
       });
       if (!invoice) throw new TRPCError({ code: "NOT_FOUND" });
       if (invoice.clientId !== ctx.clientId) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
+      if (invoice.status === "PAID") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Esta factura ya está pagada",
+        });
+      }
 
-      const rate = await getUsdToArsRate().catch(() => null);
+      const rate = await getUsdToArsRate();
       const amountUsd = Number(invoice.amountUsd);
 
-      return ctx.prisma.$transaction(async (tx) => {
-        const payment = await tx.payment.create({
-          data: {
-            invoiceId: invoice.id,
-            method: "MERCADOPAGO",
-            status: "CONFIRMED",
-            amountUsd,
-            arsAmount: rate ? Math.round(amountUsd * rate.rate * 100) / 100 : null,
-            arsRate: rate?.rate ?? null,
-            externalId: `MP-DEMO-${Math.floor(Math.random() * 100000)}`,
-            confirmedAt: new Date(),
-          },
+      let preference;
+      try {
+        preference = await createMpPreference({
+          invoiceId: invoice.id,
+          description: invoice.description,
+          amountUsd,
+          rateArs: rate.rate,
+          payerEmail: invoice.client.email,
         });
-        await tx.invoice.update({
-          where: { id: invoice.id },
-          data: { status: "PAID", paidAt: new Date() },
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: (err as Error).message,
         });
-        const client = await tx.client.findUnique({ where: { id: invoice.clientId } });
-        if (client) {
-          await tx.emailLog.create({
-            data: {
-              kind: "PAYMENT_RECEIVED",
-              toEmail: client.email,
-              subject: `Pago recibido — ${invoice.description}`,
-              invoiceId: invoice.id,
-            },
-          });
-        }
-        return payment;
+      }
+
+      // Track the checkout attempt so the admin sees it in the pending
+      // pipeline. The webhook will flip this row's status once MP
+      // confirms (or creates a fresh row keyed by mp payment id).
+      await ctx.prisma.payment.create({
+        data: {
+          invoiceId: invoice.id,
+          method: "MERCADOPAGO",
+          status: "INITIATED",
+          amountUsd,
+          arsAmount: preference.amountArs,
+          arsRate: preference.rateArs,
+          externalId: preference.preferenceId,
+        },
       });
+
+      return { url: preference.initPoint, preferenceId: preference.preferenceId };
     }),
 
   submitManualPayment: clientProcedure
