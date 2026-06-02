@@ -19,28 +19,26 @@ export function InviteEmail({
   });
 
   return (
-    <EmailShell preview={`Activá tu acceso al portal de Surcodia`}>
-      <Text style={styles.h1}>Hola {clientName},</Text>
+    <EmailShell preview={`${clientName}, activá tu acceso al portal de Surcodia`}>
+      <Text style={styles.h1}>Hola {clientName} 👋</Text>
       <Text style={styles.p}>
-        Te invitamos a acceder a tu portal de Surcodia para ver tus facturas y registrar tus
-        pagos.
+        Te invitamos a activar tu portal de Surcodia para ver tus facturas y registrar tus
+        pagos en un solo lugar.
       </Text>
-      <Text style={styles.p}>
-        Tocá el botón para crear tu contraseña y entrar:
-      </Text>
-      <Section style={{ margin: "20px 0" }}>
+      <Text style={styles.p}>Tocá el botón y elegí tu contraseña en menos de un minuto:</Text>
+      <Section style={{ margin: "26px 0 18px" }}>
         <Button href={inviteUrl} style={styles.button}>
-          Activar mi cuenta
+          Activar mi cuenta →
         </Button>
       </Section>
       <Text style={styles.small}>
-        El link expira el <strong>{expires}</strong>. Si se te vence, pedile al administrador
-        que te genere uno nuevo.
+        El link expira el <strong style={{ color: "#ffffff" }}>{expires}</strong>. Si se vence,
+        pedile al administrador que te genere uno nuevo.
       </Text>
-      <Text style={{ ...styles.small, marginTop: "16px", wordBreak: "break-all" }}>
-        Si el botón no funciona, copiá y pegá esta URL en el navegador:
+      <Text style={{ ...styles.small, marginTop: "18px", wordBreak: "break-all" }}>
+        Si el botón no funciona, copiá y pegá esta URL en tu navegador:
         <br />
-        {inviteUrl}
+        <span style={{ color: "rgba(232,237,245,0.75)" }}>{inviteUrl}</span>
       </Text>
     </EmailShell>
   );

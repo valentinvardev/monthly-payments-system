@@ -26,34 +26,26 @@ export function InvoiceCreatedEmail({
   });
 
   return (
-    <EmailShell preview={`Nueva factura — ${description}`}>
+    <EmailShell preview={`Nueva factura — ${description} (${usd})`}>
       <Text style={styles.h1}>Tenés una nueva factura</Text>
       <Text style={styles.p}>
-        Hola {clientName}, te emitimos una nueva factura por <strong>{description}</strong>.
+        Hola {clientName}, te emitimos una factura por <strong>{description}</strong>. Acá los
+        detalles:
       </Text>
-      <Section
-        style={{
-          backgroundColor: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: "12px",
-          padding: "16px",
-          margin: "18px 0",
-        }}
-      >
-        <Text style={{ ...styles.small, margin: 0 }}>Monto</Text>
+      <Section style={styles.callout}>
+        <Text style={styles.metaLabel}>Monto</Text>
         <Text style={styles.amount}>{usd}</Text>
-        <Text style={{ ...styles.small, margin: "4px 0 0" }}>
+        <Text style={styles.metaValue}>
           Vence: <strong style={{ color: "#fff" }}>{due}</strong>
         </Text>
       </Section>
-      <Section style={{ margin: "20px 0" }}>
+      <Section style={{ margin: "22px 0 18px" }}>
         <Button href={portalUrl} style={styles.button}>
-          Ver y pagar
+          Ver y pagar →
         </Button>
       </Section>
       <Text style={styles.small}>
-        Entrá al portal con tu email y contraseña para pagarla por Mercado Pago, transferencia
-        bancaria o crypto.
+        Podés pagarla por Mercado Pago, transferencia bancaria o crypto desde tu portal.
       </Text>
     </EmailShell>
   );

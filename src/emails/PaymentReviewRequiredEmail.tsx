@@ -29,38 +29,42 @@ export function PaymentReviewRequiredEmail({
     <EmailShell preview={`${clientName} envió un pago para revisar`}>
       <Text style={styles.h1}>Comprobante pendiente de confirmar</Text>
       <Text style={styles.p}>
-        <strong>{clientName}</strong> reportó un pago de{" "}
-        <strong>{description}</strong> y subió un comprobante. Confirmá o rechazá desde el
-        dashboard.
+        <strong style={{ color: "#fff" }}>{clientName}</strong> reportó un pago de{" "}
+        <strong>{description}</strong> y subió un comprobante.
       </Text>
-      <Section
-        style={{
-          backgroundColor: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: "12px",
-          padding: "16px",
-          margin: "18px 0",
-        }}
-      >
-        <Text style={{ ...styles.small, margin: 0 }}>Monto</Text>
+      <Section style={styles.callout}>
+        <Text style={styles.metaLabel}>Monto</Text>
         <Text style={styles.amount}>{usd}</Text>
-        <Text style={{ ...styles.small, margin: "4px 0 0" }}>
+        <Text style={styles.metaValue}>
           Método: <strong style={{ color: "#fff" }}>{methodLabel}</strong>
         </Text>
         {notes && (
-          <Text style={{ ...styles.small, margin: "8px 0 0", fontStyle: "italic" }}>
-            Notas: "{notes}"
+          <Text
+            style={{
+              ...styles.metaValue,
+              marginTop: "10px",
+              fontStyle: "italic",
+              color: "rgba(232,237,245,0.65)",
+            }}
+          >
+            "{notes}"
           </Text>
         )}
       </Section>
-      <Section style={{ margin: "20px 0" }}>
+      <Section style={{ margin: "22px 0 18px" }}>
         <Button href={adminUrl} style={styles.button}>
-          Revisar en el dashboard
+          Revisar en el dashboard →
         </Button>
       </Section>
       {proofUrl && (
         <Text style={{ ...styles.small, wordBreak: "break-all" }}>
-          Comprobante: {proofUrl}
+          Comprobante:{" "}
+          <a
+            href={proofUrl}
+            style={{ color: "rgba(232,237,245,0.75)", textDecoration: "underline" }}
+          >
+            {proofUrl}
+          </a>
         </Text>
       )}
     </EmailShell>

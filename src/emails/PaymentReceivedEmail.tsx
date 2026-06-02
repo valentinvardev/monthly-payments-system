@@ -19,29 +19,31 @@ export function PaymentReceivedEmail({
   }).format(amountUsd);
 
   return (
-    <EmailShell preview={`Pago recibido — ${description}`}>
-      <Text style={styles.h1}>¡Pago recibido!</Text>
+    <EmailShell preview={`Pago confirmado — ${description}`}>
+      <Text style={styles.h1}>¡Pago confirmado! ✓</Text>
       <Text style={styles.p}>
-        Hola {clientName}, confirmamos tu pago por <strong>{description}</strong>.
+        Hola {clientName}, confirmamos tu pago por <strong>{description}</strong>. La factura
+        quedó marcada como pagada en tu portal.
       </Text>
-      <Section
-        style={{
-          backgroundColor: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: "12px",
-          padding: "16px",
-          margin: "18px 0",
-        }}
-      >
-        <Text style={{ ...styles.small, margin: 0 }}>Monto</Text>
+      <Section style={styles.callout}>
+        <Text style={styles.metaLabel}>Monto</Text>
         <Text style={styles.amount}>{usd}</Text>
         {externalId && (
-          <Text style={{ ...styles.small, margin: "4px 0 0" }}>
-            ID Mercado Pago: <span style={{ fontFamily: "monospace" }}>{externalId}</span>
+          <Text style={{ ...styles.metaValue, marginTop: "8px" }}>
+            ID Mercado Pago:{" "}
+            <span
+              style={{
+                fontFamily:
+                  "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                color: "rgba(232,237,245,0.85)",
+              }}
+            >
+              {externalId}
+            </span>
           </Text>
         )}
       </Section>
-      <Text style={styles.p}>Gracias por estar al día. La factura quedó marcada como pagada.</Text>
+      <Text style={styles.p}>Gracias por estar al día.</Text>
     </EmailShell>
   );
 }

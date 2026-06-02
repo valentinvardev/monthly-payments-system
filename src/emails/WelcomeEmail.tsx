@@ -10,31 +10,32 @@ export function WelcomeEmail({
 }) {
   return (
     <EmailShell preview={`Bienvenido a Surcodia, ${clientName}`}>
-      <Text style={styles.h1}>Bienvenido, {clientName}</Text>
+      <Text style={styles.h1}>Bienvenido, {clientName} ✨</Text>
       <Text style={styles.p}>
-        Tu cuenta de Surcodia ya está activa. Desde tu portal podés:
+        Tu cuenta de Surcodia ya está activa. Desde tu portal vas a poder:
       </Text>
-      <Section style={{ margin: "12px 0" }}>
-        <Text style={{ ...styles.p, margin: "4px 0" }}>
-          • Ver tus facturas pendientes, vencidas o pagadas.
+      <Section style={{ ...styles.callout, padding: "20px 22px" }}>
+        <Text style={{ ...styles.p, margin: "0 0 8px" }}>
+          → Ver tus facturas pendientes, vencidas o pagadas.
         </Text>
-        <Text style={{ ...styles.p, margin: "4px 0" }}>
-          • Pagar online con Mercado Pago al instante.
+        <Text style={{ ...styles.p, margin: "0 0 8px" }}>
+          → Pagar online con <strong style={{ color: "#fff" }}>Mercado Pago</strong> al
+          instante.
         </Text>
-        <Text style={{ ...styles.p, margin: "4px 0" }}>
-          • Hacer transferencias bancarias o enviar crypto y subir el comprobante.
+        <Text style={{ ...styles.p, margin: "0 0 8px" }}>
+          → Mandar transferencias bancarias o crypto y subir el comprobante.
         </Text>
-        <Text style={{ ...styles.p, margin: "4px 0" }}>
-          • Recibir recordatorios automáticos antes del vencimiento.
+        <Text style={{ ...styles.p, margin: 0 }}>
+          → Recibir recordatorios automáticos antes de cada vencimiento.
         </Text>
       </Section>
-      <Section style={{ margin: "20px 0" }}>
+      <Section style={{ margin: "22px 0 18px" }}>
         <Button href={portalUrl} style={styles.button}>
-          Entrar al portal
+          Entrar al portal →
         </Button>
       </Section>
       <Text style={styles.small}>
-        Si tenés alguna duda, respondé este mail y te contestamos.
+        Si necesitás algo, respondé este mail y te respondemos directo.
       </Text>
     </EmailShell>
   );

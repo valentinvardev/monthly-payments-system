@@ -23,30 +23,22 @@ export function PaymentSubmittedEmail({
 
   return (
     <EmailShell preview={`Recibimos tu pago — ${description}`}>
-      <Text style={styles.h1}>Recibimos tu pago</Text>
+      <Text style={styles.h1}>Recibimos tu pago ⏳</Text>
       <Text style={styles.p}>
         Hola {clientName}, registramos tu pago por <strong>{description}</strong> vía{" "}
-        {methodLabel}. Lo estamos revisando.
+        {methodLabel}. Lo estamos revisando — apenas se confirme, te avisamos por mail y la
+        factura aparece como pagada en tu portal.
       </Text>
-      <Section
-        style={{
-          backgroundColor: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: "12px",
-          padding: "16px",
-          margin: "18px 0",
-        }}
-      >
-        <Text style={{ ...styles.small, margin: 0 }}>Monto</Text>
+      <Section style={styles.callout}>
+        <Text style={styles.metaLabel}>Monto</Text>
         <Text style={styles.amount}>{usd}</Text>
+        <Text style={styles.metaValue}>
+          Método: <strong style={{ color: "#fff" }}>{methodLabel}</strong>
+        </Text>
       </Section>
-      <Text style={styles.p}>
-        Te vamos a avisar por mail cuando la confirmación termine. La factura va a quedar como
-        pagada en tu portal.
-      </Text>
-      <Section style={{ margin: "20px 0" }}>
+      <Section style={{ margin: "22px 0 18px" }}>
         <Button href={portalUrl} style={styles.button}>
-          Ver mi factura
+          Ver mi factura →
         </Button>
       </Section>
     </EmailShell>

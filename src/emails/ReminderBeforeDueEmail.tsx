@@ -28,35 +28,30 @@ export function ReminderBeforeDueEmail({
 
   const headline =
     daysUntil === 0
-      ? "Vence hoy"
+      ? "Tu factura vence hoy"
       : daysUntil === 1
-        ? "Vence mañana"
-        : `Vence en ${daysUntil} días`;
+        ? "Tu factura vence mañana"
+        : `Tu factura vence en ${daysUntil} días`;
 
   return (
-    <EmailShell preview={`Recordatorio: ${description} — ${headline}`}>
+    <EmailShell preview={`${headline} — ${description}`}>
       <Text style={styles.h1}>{headline}</Text>
       <Text style={styles.p}>
-        Hola {clientName}, tu factura por <strong>{description}</strong> vence el{" "}
-        <strong>{due}</strong>.
+        Hola {clientName}, te recordamos que tu factura de <strong>{description}</strong> vence
+        el <strong style={{ color: "#fff" }}>{due}</strong>.
       </Text>
-      <Section
-        style={{
-          backgroundColor: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: "12px",
-          padding: "16px",
-          margin: "18px 0",
-        }}
-      >
-        <Text style={{ ...styles.small, margin: 0 }}>Monto</Text>
+      <Section style={styles.callout}>
+        <Text style={styles.metaLabel}>Monto</Text>
         <Text style={styles.amount}>{usd}</Text>
       </Section>
-      <Section style={{ margin: "20px 0" }}>
+      <Section style={{ margin: "22px 0 18px" }}>
         <Button href={portalUrl} style={styles.button}>
-          Pagar ahora
+          Pagar ahora →
         </Button>
       </Section>
+      <Text style={styles.small}>
+        Pagás online en menos de un minuto desde tu portal.
+      </Text>
     </EmailShell>
   );
 }
