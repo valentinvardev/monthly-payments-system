@@ -6,6 +6,7 @@ import { createMpPreference } from "@/lib/mercadoPago";
 import { env } from "@/lib/env";
 import { sendEmail } from "@/lib/email";
 import { PaymentReviewRequiredEmail } from "@/emails/PaymentReviewRequiredEmail";
+import { PaymentSubmittedEmail } from "@/emails/PaymentSubmittedEmail";
 import { getProofUploadToken, getProofSignedDownloadUrl } from "@/lib/supabase/storage";
 
 export const paymentsRouter = createTRPCRouter({
@@ -160,7 +161,9 @@ export const paymentsRouter = createTRPCRouter({
       // Generate a 24h signed URL for the admin email so they can open
       // the proof straight from the inbox without logging in first.
       const proofSignedUrl = await getProofSignedDownloadUrl(result.proofUrl, 86400);
+      const base = env.APP_URL.replace(/\/+$/, "");
 
+      // Notify admin so they can review.
       await sendEmail({
         kind: "PAYMENT_REVIEW_REQUIRED",
         to: env.ADMIN_EMAIL,
@@ -172,10 +175,27 @@ export const paymentsRouter = createTRPCRouter({
           method: input.method,
           notes: input.notes,
           proofUrl: proofSignedUrl,
-          adminUrl: `${env.APP_URL.replace(/\/+$/, "")}/dashboard`,
+          adminUrl: `${base}/dashboard`,
         }),
         invoiceId: invoice.id,
       });
+
+      // Confirm to the client that we received the proof.
+      if (client) {
+        await sendEmail({
+          kind: "PAYMENT_REVIEW_REQUIRED",
+          to: client.email,
+          subject: `Recibimos tu pago — ${invoice.description}`,
+          template: PaymentSubmittedEmail({
+            clientName: client.fullName,
+            description: invoice.description,
+            amountUsd: Number(invoice.amountUsd),
+            method: input.method,
+            portalUrl: `${base}/portal/invoice/${invoice.id}`,
+          }),
+          invoiceId: invoice.id,
+        });
+      }
 
       return result;
     }),
