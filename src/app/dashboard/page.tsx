@@ -6,6 +6,7 @@ import { api } from "@/trpc/server";
 import { getCurrentUser } from "@/lib/auth";
 import { formatDate, formatUsd } from "@/lib/format";
 import { ConfirmPaymentButtons } from "./_components/ConfirmPaymentButtons";
+import { ProofModal } from "./_components/ProofModal";
 
 export default async function DashboardHome() {
   const [user, clients, invoices, pendingReview] = await Promise.all([
@@ -84,14 +85,7 @@ export default async function DashboardHome() {
                       </span>{" "}
                       · {p.invoice?.description} ·{" "}
                       {p.proofSignedUrl ? (
-                        <a
-                          href={p.proofSignedUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-foreground/70 underline-offset-2 hover:underline hover:text-foreground"
-                        >
-                          ver comprobante
-                        </a>
+                        <ProofModal url={p.proofSignedUrl} />
                       ) : (
                         <span className="text-muted-foreground/60">sin comprobante</span>
                       )}
