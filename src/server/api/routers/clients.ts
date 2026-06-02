@@ -5,6 +5,8 @@ import { TRPCError } from "@trpc/server";
 import { adminProcedure, createTRPCRouter } from "@/server/api/trpc";
 import { env } from "@/lib/env";
 import { computeAllDueDatesFromAnchor } from "@/lib/recurrence";
+import { sendEmail } from "@/lib/email";
+import { InviteEmail } from "@/emails/InviteEmail";
 
 const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
@@ -182,9 +184,27 @@ export const clientsRouter = createTRPCRouter({
         },
       });
 
+      const url = `${env.APP_URL}/invite/${invite.token}`;
+
+      // Fire-and-mostly-forget: send the invite email through Resend.
+      // We don't block the response on the email — if it fails the admin
+      // still has the copy-link button as a fallback. Errors are logged
+      // to EmailLog inside sendEmail.
+      await sendEmail({
+        kind: "WELCOME",
+        to: client.email,
+        subject: `Te invitamos a tu portal de Surcodia`,
+        template: InviteEmail({
+          clientName: client.fullName,
+          inviteUrl: url,
+          expiresAt: invite.expiresAt,
+        }),
+      });
+
       return {
-        url: `${env.APP_URL}/invite/${invite.token}`,
+        url,
         expiresAt: invite.expiresAt,
+        emailed: true,
       };
     }),
 
