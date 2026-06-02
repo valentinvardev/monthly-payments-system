@@ -1,9 +1,8 @@
-import { Suspense } from "react";
-import Link from "next/link";
 import { BrandMark } from "@/components/BrandMark";
-import { LoginForm } from "./_components/LoginForm";
+import Link from "next/link";
+import { ForgotForm } from "./_components/ForgotForm";
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
   return (
     <main className="relative flex min-h-screen items-center justify-center px-4 py-10">
       <div
@@ -21,32 +20,26 @@ export default function LoginPage() {
 
       <div className="glass-strong relative w-full max-w-md rounded-3xl p-8 reveal">
         <header className="mb-7 flex flex-col items-center text-center">
-          <div className="float-soft mb-4 rounded-2xl border border-white/8 bg-white/[0.03] p-3">
+          <div className="mb-4 rounded-2xl border border-white/8 bg-white/[0.03] p-3">
             <BrandMark size={40} />
           </div>
-          <h1 className="font-display text-3xl font-medium tracking-tight text-foreground">
-            Surcodia
+          <h1 className="font-display text-2xl font-medium tracking-tight text-foreground">
+            ¿Olvidaste tu contraseña?
           </h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Cobros mensuales tan claros como un día austral.
+            Te mandamos un link a tu mail para que la reestablezcas.
           </p>
         </header>
 
-        <Suspense fallback={<div className="h-32" />}>
-          <LoginForm />
-        </Suspense>
+        <ForgotForm />
 
-        <div className="mt-4 text-center">
+        <footer className="mt-6 text-center">
           <Link
-            href="/forgot-password"
+            href="/login"
             className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground transition"
           >
-            ¿olvidaste tu contraseña?
+            ← volver al login
           </Link>
-        </div>
-
-        <footer className="mt-6 text-center text-[9px] uppercase tracking-[0.24em] text-muted-foreground/50">
-          surcodia · {new Date().getFullYear()}
         </footer>
       </div>
     </main>

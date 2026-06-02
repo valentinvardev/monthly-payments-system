@@ -83,14 +83,18 @@ export default async function DashboardHome() {
                         {p.method}
                       </span>{" "}
                       · {p.invoice?.description} ·{" "}
-                      <a
-                        href={p.proofUrl ?? "#"}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-foreground/70 underline-offset-2 hover:underline hover:text-foreground"
-                      >
-                        ver comprobante
-                      </a>
+                      {p.proofSignedUrl ? (
+                        <a
+                          href={p.proofSignedUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-foreground/70 underline-offset-2 hover:underline hover:text-foreground"
+                        >
+                          ver comprobante
+                        </a>
+                      ) : (
+                        <span className="text-muted-foreground/60">sin comprobante</span>
+                      )}
                     </p>
                     {p.notes && (
                       <p className="text-xs italic text-muted-foreground/80">"{p.notes}"</p>

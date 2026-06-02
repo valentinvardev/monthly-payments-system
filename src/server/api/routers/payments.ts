@@ -6,6 +6,7 @@ import { createMpPreference } from "@/lib/mercadoPago";
 import { env } from "@/lib/env";
 import { sendEmail } from "@/lib/email";
 import { PaymentReviewRequiredEmail } from "@/emails/PaymentReviewRequiredEmail";
+import { getProofUploadToken, getProofSignedDownloadUrl } from "@/lib/supabase/storage";
 
 export const paymentsRouter = createTRPCRouter({
   pendingReview: adminProcedure.query(async ({ ctx }) => {
@@ -14,12 +15,47 @@ export const paymentsRouter = createTRPCRouter({
       orderBy: { createdAt: "desc" },
       include: { invoice: { include: { client: true } } },
     });
-    return rows.map((p) => ({
-      ...p,
-      invoice: p.invoice,
-      client: p.invoice.client,
-    }));
+    // Resolve a short-lived signed URL for each proof so the admin can
+    // open it directly. Legacy demo http:// proofs pass through as-is.
+    const withSignedUrls = await Promise.all(
+      rows.map(async (p) => {
+        const proofSignedUrl = await getProofSignedDownloadUrl(p.proofUrl, 3600);
+        return {
+          ...p,
+          invoice: p.invoice,
+          client: p.invoice.client,
+          proofSignedUrl,
+        };
+      }),
+    );
+    return withSignedUrls;
   }),
+
+  // Returns a one-shot signed upload URL for the proofs bucket. The
+  // client uploads directly to Supabase via `uploadToSignedUrl`, then
+  // submits the returned path through submitManualPayment.
+  getProofUploadToken: clientProcedure
+    .input(z.object({ invoiceId: z.string(), filename: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const invoice = await ctx.prisma.invoice.findUnique({
+        where: { id: input.invoiceId },
+      });
+      if (!invoice) throw new TRPCError({ code: "NOT_FOUND" });
+      if (invoice.clientId !== ctx.clientId) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      try {
+        return await getProofUploadToken({
+          invoiceId: input.invoiceId,
+          filename: input.filename,
+        });
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: (err as Error).message,
+        });
+      }
+    }),
 
   // Create a real Mercado Pago Checkout Pro preference for the given
   // invoice using the admin's connected MP account. Returns the
@@ -87,7 +123,11 @@ export const paymentsRouter = createTRPCRouter({
         method: z.enum(["BANK_TRANSFER", "CRYPTO"]),
         paymentMethodConfigId: z.string(),
         notes: z.string().optional(),
-        proofFileName: z.string().optional(),
+        // Storage path inside the proofs bucket — the client uploaded the
+        // file directly via getProofUploadToken and now hands back the path
+        // they got back. Optional: clients can still mark a payment
+        // without attaching anything.
+        proofStoragePath: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -98,9 +138,6 @@ export const paymentsRouter = createTRPCRouter({
       if (invoice.clientId !== ctx.clientId) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
-
-      const safeName = (input.proofFileName ?? `${input.paymentMethodConfigId}-${Date.now()}.png`)
-        .replace(/[^a-zA-Z0-9._-]+/g, "_");
 
       const client = await ctx.prisma.client.findUnique({
         where: { id: invoice.clientId },
@@ -113,12 +150,16 @@ export const paymentsRouter = createTRPCRouter({
             method: input.method,
             status: "PENDING_REVIEW",
             amountUsd: invoice.amountUsd,
-            proofUrl: `https://demo.invalid/proofs/${safeName}`,
+            proofUrl: input.proofStoragePath ?? null,
             notes: input.notes,
           },
         });
         return payment;
       });
+
+      // Generate a 24h signed URL for the admin email so they can open
+      // the proof straight from the inbox without logging in first.
+      const proofSignedUrl = await getProofSignedDownloadUrl(result.proofUrl, 86400);
 
       await sendEmail({
         kind: "PAYMENT_REVIEW_REQUIRED",
@@ -130,7 +171,7 @@ export const paymentsRouter = createTRPCRouter({
           amountUsd: Number(invoice.amountUsd),
           method: input.method,
           notes: input.notes,
-          proofUrl: result.proofUrl,
+          proofUrl: proofSignedUrl,
           adminUrl: `${env.APP_URL.replace(/\/+$/, "")}/dashboard`,
         }),
         invoiceId: invoice.id,

@@ -12,7 +12,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { trpc } from "@/trpc/react";
+import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 import type { PaymentMethodConfigDto as PaymentMethodConfig } from "@/lib/types";
+
+// Upload the proof file directly to Supabase Storage via the signed URL
+// generated server-side. Returns the storage path so submitManualPayment
+// can persist it on the Payment row. Throws on any error so callers can
+// surface a friendly message.
+async function uploadProof(
+  file: File,
+  token: { path: string; token: string; signedUrl: string },
+) {
+  const supabase = createSupabaseClient();
+  const { error } = await supabase.storage
+    .from("proofs")
+    .uploadToSignedUrl(token.path, token.token, file, {
+      contentType: file.type || "application/octet-stream",
+      upsert: false,
+    });
+  if (error) {
+    throw new Error(`No pudimos subir el comprobante: ${error.message}`);
+  }
+  return token.path;
+}
 import {
   BankTransferIcon,
   CryptoIcon,
@@ -166,13 +188,44 @@ function BankTransferFlow({
   const [selectedId, setSelectedId] = useState<string | null>(options[0]?.id ?? null);
   const [proof, setProof] = useState<File | null>(null);
   const [notes, setNotes] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
+  const getUploadToken = trpc.payments.getProofUploadToken.useMutation();
   const mutation = trpc.payments.submitManualPayment.useMutation({
     onSuccess: () => {
       onDone("Recibimos tu comprobante. Vas a ver el pago como 'pagada' una vez que el admin lo confirme.");
       router.refresh();
     },
   });
+
+  async function submit() {
+    if (!selectedId) return;
+    setUploadError(null);
+    let proofStoragePath: string | undefined;
+    if (proof) {
+      setUploading(true);
+      try {
+        const token = await getUploadToken.mutateAsync({
+          invoiceId,
+          filename: proof.name,
+        });
+        proofStoragePath = await uploadProof(proof, token);
+      } catch (err) {
+        setUploadError((err as Error).message);
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
+    }
+    mutation.mutate({
+      invoiceId,
+      method: "BANK_TRANSFER",
+      paymentMethodConfigId: selectedId,
+      notes: notes || undefined,
+      proofStoragePath,
+    });
+  }
 
   if (options.length === 0) {
     return (
@@ -183,6 +236,8 @@ function BankTransferFlow({
   }
 
   const canSubmit = !!selectedId;
+  const busy = uploading || mutation.isPending;
+  const busyLabel = uploading ? "Subiendo comprobante..." : "Enviando...";
 
   return (
     <div className="space-y-4 rounded-2xl border border-white/8 bg-white/[0.02] p-5">
@@ -251,20 +306,12 @@ function BankTransferFlow({
 
       <div className="flex justify-end">
         <PrimaryButton
-          disabled={!canSubmit || mutation.isPending}
-          onClick={() => {
-            if (!selectedId) return;
-            mutation.mutate({
-              invoiceId,
-              method: "BANK_TRANSFER",
-              paymentMethodConfigId: selectedId,
-              notes: notes || undefined,
-              proofFileName: proof?.name,
-            });
-          }}
-          label={mutation.isPending ? "Enviando..." : "Marcar como transferido"}
+          disabled={!canSubmit || busy}
+          onClick={submit}
+          label={busy ? busyLabel : "Marcar como transferido"}
         />
       </div>
+      {uploadError && <p className="text-sm text-rose-200/85">{uploadError}</p>}
       {mutation.error && <p className="text-sm text-rose-200/85">{mutation.error.message}</p>}
     </div>
   );
@@ -288,13 +335,44 @@ function CryptoFlow({
   const [proof, setProof] = useState<File | null>(null);
   const [notes, setNotes] = useState("");
   const [copied, setCopied] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
+  const getUploadToken = trpc.payments.getProofUploadToken.useMutation();
   const mutation = trpc.payments.submitManualPayment.useMutation({
     onSuccess: () => {
       onDone("Recibimos tu comprobante. Vas a ver el pago como 'pagada' una vez que el admin lo confirme.");
       router.refresh();
     },
   });
+
+  async function submit() {
+    if (!selectedId) return;
+    setUploadError(null);
+    let proofStoragePath: string | undefined;
+    if (proof) {
+      setUploading(true);
+      try {
+        const token = await getUploadToken.mutateAsync({
+          invoiceId,
+          filename: proof.name,
+        });
+        proofStoragePath = await uploadProof(proof, token);
+      } catch (err) {
+        setUploadError((err as Error).message);
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
+    }
+    mutation.mutate({
+      invoiceId,
+      method: "CRYPTO",
+      paymentMethodConfigId: selectedId,
+      notes: notes || undefined,
+      proofStoragePath,
+    });
+  }
 
   if (options.length === 0) {
     return (
@@ -306,6 +384,8 @@ function CryptoFlow({
 
   const selected = options.find((o) => o.id === selectedId);
   const canSubmit = !!selected;
+  const busy = uploading || mutation.isPending;
+  const busyLabel = uploading ? "Subiendo comprobante..." : "Enviando...";
 
   async function copyAddress() {
     if (!selected || selected.kind !== "CRYPTO_WALLET") return;
@@ -437,20 +517,12 @@ function CryptoFlow({
 
           <div className="flex justify-end">
             <PrimaryButton
-              disabled={!canSubmit || mutation.isPending}
-              onClick={() => {
-                if (!selected) return;
-                mutation.mutate({
-                  invoiceId,
-                  method: "CRYPTO",
-                  paymentMethodConfigId: selected.id,
-                  notes: notes || undefined,
-                  proofFileName: proof?.name,
-                });
-              }}
-              label={mutation.isPending ? "Enviando..." : "Confirmar envío"}
+              disabled={!canSubmit || busy}
+              onClick={submit}
+              label={busy ? busyLabel : "Confirmar envío"}
             />
           </div>
+          {uploadError && <p className="text-sm text-rose-200/85">{uploadError}</p>}
           {mutation.error && (
             <p className="text-sm text-rose-200/85">{mutation.error.message}</p>
           )}
