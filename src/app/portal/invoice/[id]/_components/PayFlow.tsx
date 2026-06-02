@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import QRCode from "react-qr-code";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -386,21 +387,35 @@ function CryptoFlow({
                 </p>
               </div>
             </div>
-            <div className="mt-3 space-y-1">
-              <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/80">
-                Dirección
-              </p>
-              <div className="flex items-center gap-2 rounded-lg border border-white/8 bg-white/[0.02] p-2">
-                <code className="min-w-0 flex-1 break-all font-mono text-[11px] text-foreground/90">
-                  {selected.details.address}
-                </code>
-                <button
-                  type="button"
-                  onClick={copyAddress}
-                  className="shrink-0 rounded-full border border-white/12 bg-white/[0.04] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground/95 hover:border-white/22 transition"
-                >
-                  {copied ? "Copiado" : "Copiar"}
-                </button>
+            <div className="mt-3 flex flex-col items-center gap-3 sm:flex-row sm:items-stretch sm:gap-4">
+              <div className="shrink-0 self-center rounded-xl bg-white p-3 shadow-[0_2px_12px_-4px_oklch(0_0_0/0.5)]">
+                <QRCode
+                  value={selected.details.address}
+                  size={140}
+                  level="M"
+                  bgColor="#ffffff"
+                  fgColor="#0d1320"
+                />
+              </div>
+              <div className="min-w-0 flex-1 space-y-1">
+                <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/80">
+                  Dirección
+                </p>
+                <div className="flex items-center gap-2 rounded-lg border border-white/8 bg-white/[0.02] p-2">
+                  <code className="min-w-0 flex-1 break-all font-mono text-[11px] text-foreground/90">
+                    {selected.details.address}
+                  </code>
+                  <button
+                    type="button"
+                    onClick={copyAddress}
+                    className="shrink-0 rounded-full border border-white/12 bg-white/[0.04] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground/95 hover:border-white/22 transition"
+                  >
+                    {copied ? "Copiado" : "Copiar"}
+                  </button>
+                </div>
+                <p className="pt-1 text-[10px] uppercase tracking-[0.14em] text-muted-foreground/60">
+                  Escaneá con tu wallet o copiá la dirección
+                </p>
               </div>
             </div>
             {selected.instructions && (
