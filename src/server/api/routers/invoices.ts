@@ -8,6 +8,13 @@ import {
   protectedProcedure,
 } from "@/server/api/trpc";
 import { computeNextPeriod } from "@/lib/recurrence";
+import { env } from "@/lib/env";
+import { sendEmail } from "@/lib/email";
+import { InvoiceCreatedEmail } from "@/emails/InvoiceCreatedEmail";
+
+function portalInvoiceUrl(invoiceId: string) {
+  return `${env.APP_URL.replace(/\/+$/, "")}/portal/invoice/${invoiceId}`;
+}
 
 export const invoicesRouter = createTRPCRouter({
   listAll: adminProcedure.query(async ({ ctx }) => {
@@ -76,15 +83,21 @@ export const invoicesRouter = createTRPCRouter({
             status: "PENDING",
           },
         });
-        await tx.emailLog.create({
-          data: {
-            kind: "INVOICE_CREATED",
-            toEmail: client.email,
-            subject: `Nueva factura — ${plan.description} (USD ${plan.amountUsd})`,
-            invoiceId: created.id,
-          },
-        });
         return created;
+      });
+
+      await sendEmail({
+        kind: "INVOICE_CREATED",
+        to: client.email,
+        subject: `Nueva factura — ${plan.description}`,
+        template: InvoiceCreatedEmail({
+          clientName: client.fullName,
+          description: plan.description,
+          amountUsd: Number(plan.amountUsd),
+          dueDate: invoice.dueDate,
+          portalUrl: portalInvoiceUrl(invoice.id),
+        }),
+        invoiceId: invoice.id,
       });
 
       revalidatePath("/dashboard");
@@ -137,15 +150,21 @@ export const invoicesRouter = createTRPCRouter({
             status,
           },
         });
-        await tx.emailLog.create({
-          data: {
-            kind: "INVOICE_CREATED",
-            toEmail: client.email,
-            subject: `Nueva factura — ${input.description} (USD ${input.amountUsd})`,
-            invoiceId: created.id,
-          },
-        });
         return created;
+      });
+
+      await sendEmail({
+        kind: "INVOICE_CREATED",
+        to: client.email,
+        subject: `Nueva factura — ${input.description}`,
+        template: InvoiceCreatedEmail({
+          clientName: client.fullName,
+          description: input.description,
+          amountUsd: input.amountUsd,
+          dueDate: invoice.dueDate,
+          portalUrl: portalInvoiceUrl(invoice.id),
+        }),
+        invoiceId: invoice.id,
       });
 
       revalidatePath("/dashboard");

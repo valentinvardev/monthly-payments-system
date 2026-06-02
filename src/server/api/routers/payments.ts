@@ -3,6 +3,9 @@ import { TRPCError } from "@trpc/server";
 import { adminProcedure, clientProcedure, createTRPCRouter } from "@/server/api/trpc";
 import { getUsdToArsRate } from "@/lib/exchange-rate";
 import { createMpPreference } from "@/lib/mercadoPago";
+import { env } from "@/lib/env";
+import { sendEmail } from "@/lib/email";
+import { PaymentReviewRequiredEmail } from "@/emails/PaymentReviewRequiredEmail";
 
 export const paymentsRouter = createTRPCRouter({
   pendingReview: adminProcedure.query(async ({ ctx }) => {
@@ -99,7 +102,11 @@ export const paymentsRouter = createTRPCRouter({
       const safeName = (input.proofFileName ?? `${input.paymentMethodConfigId}-${Date.now()}.png`)
         .replace(/[^a-zA-Z0-9._-]+/g, "_");
 
-      return ctx.prisma.$transaction(async (tx) => {
+      const client = await ctx.prisma.client.findUnique({
+        where: { id: invoice.clientId },
+      });
+
+      const result = await ctx.prisma.$transaction(async (tx) => {
         const payment = await tx.payment.create({
           data: {
             invoiceId: invoice.id,
@@ -110,20 +117,26 @@ export const paymentsRouter = createTRPCRouter({
             notes: input.notes,
           },
         });
-        await tx.invoice.update({
-          where: { id: invoice.id },
-          data: { status: "PENDING_REVIEW" },
-        });
-        await tx.emailLog.create({
-          data: {
-            kind: "PAYMENT_REVIEW_REQUIRED",
-            toEmail: process.env.ADMIN_EMAIL ?? "admin@surcodia.test",
-            subject: `Comprobante recibido — ${invoice.description}`,
-            invoiceId: invoice.id,
-          },
-        });
         return payment;
       });
+
+      await sendEmail({
+        kind: "PAYMENT_REVIEW_REQUIRED",
+        to: env.ADMIN_EMAIL,
+        subject: `Comprobante recibido — ${invoice.description}`,
+        template: PaymentReviewRequiredEmail({
+          clientName: client?.fullName ?? "Cliente",
+          description: invoice.description,
+          amountUsd: Number(invoice.amountUsd),
+          method: input.method,
+          notes: input.notes,
+          proofUrl: result.proofUrl,
+          adminUrl: `${env.APP_URL.replace(/\/+$/, "")}/dashboard`,
+        }),
+        invoiceId: invoice.id,
+      });
+
+      return result;
     }),
 
   confirm: adminProcedure
