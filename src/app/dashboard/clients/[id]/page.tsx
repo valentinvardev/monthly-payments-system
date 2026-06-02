@@ -8,7 +8,7 @@ import { EditClientForm } from "./_components/EditClientForm";
 import { ToggleActiveButton } from "./_components/ToggleActiveButton";
 import { PlanSection } from "./_components/PlanSection";
 import { ClientInviteAction } from "./_components/ClientInviteAction";
-import { ClientGenerateInvoice } from "./_components/ClientGenerateInvoice";
+import { InvoiceActions } from "./_components/InvoiceActions";
 import { describeAnchor } from "@/lib/recurrence";
 
 export default async function ManageClientPage({
@@ -145,7 +145,7 @@ export default async function ManageClientPage({
       <section className="reveal" style={{ animationDelay: "240ms" }}>
         <SectionHeader
           title="Facturas"
-          action={<ClientGenerateInvoice clientId={client.id} hasPlan={!!client.plan} />}
+          action={<InvoiceActions clientId={client.id} hasPlan={!!client.plan} />}
         />
         <Card className="mt-3">
           {client.invoices.length === 0 ? (

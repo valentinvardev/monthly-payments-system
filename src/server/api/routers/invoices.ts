@@ -93,6 +93,67 @@ export const invoicesRouter = createTRPCRouter({
       return invoice;
     }),
 
+  createOneOff: adminProcedure
+    .input(
+      z.object({
+        clientId: z.string(),
+        amountUsd: z.number().positive(),
+        description: z.string().min(1),
+        dueDate: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const client = await ctx.prisma.client.findUnique({
+        where: { id: input.clientId },
+      });
+      if (!client) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Cliente no encontrado" });
+      }
+
+      const due = new Date(input.dueDate);
+      if (Number.isNaN(due.getTime())) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Fecha de vencimiento inválida" });
+      }
+
+      const today = new Date();
+      const todayStart = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+      ).getTime();
+      const status = due.getTime() < todayStart ? "OVERDUE" : "PENDING";
+
+      const invoice = await ctx.prisma.$transaction(async (tx) => {
+        const created = await tx.invoice.create({
+          data: {
+            clientId: client.id,
+            amountUsd: input.amountUsd,
+            description: input.description,
+            // One-off invoices have no real period; use the dueDate as both
+            // ends so the schema stays consistent.
+            periodStart: due,
+            periodEnd: due,
+            dueDate: due,
+            status,
+          },
+        });
+        await tx.emailLog.create({
+          data: {
+            kind: "INVOICE_CREATED",
+            toEmail: client.email,
+            subject: `Nueva factura — ${input.description} (USD ${input.amountUsd})`,
+            invoiceId: created.id,
+          },
+        });
+        return created;
+      });
+
+      revalidatePath("/dashboard");
+      revalidatePath("/dashboard/invoices");
+      revalidatePath(`/dashboard/clients/${input.clientId}`);
+      return invoice;
+    }),
+
   markPaid: adminProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
