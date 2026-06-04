@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { api } from "@/trpc/server";
 import { formatDate, formatDateTime, formatUsd } from "@/lib/format";
 import { InvoiceStatusBadge } from "@/components/StatusBadge";
+import { DeleteInvoiceButton } from "@/app/dashboard/_components/DeleteInvoiceButton";
 import { EditClientForm } from "./_components/EditClientForm";
 import { ToggleActiveButton } from "./_components/ToggleActiveButton";
 import { PlanSection } from "./_components/PlanSection";
@@ -161,6 +162,7 @@ export default async function ManageClientPage({
                     <th className="px-5 py-3 text-right font-medium">Monto</th>
                     <th className="px-5 py-3 text-left font-medium">Vence</th>
                     <th className="px-5 py-3 text-left font-medium">Estado</th>
+                    <th className="px-5 py-3 text-right font-medium">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/6">
@@ -175,6 +177,9 @@ export default async function ManageClientPage({
                       </td>
                       <td className="px-5 py-3.5">
                         <InvoiceStatusBadge status={i.status} />
+                      </td>
+                      <td className="px-5 py-3.5 text-right">
+                        <DeleteInvoiceButton id={i.id} />
                       </td>
                     </tr>
                   ))}

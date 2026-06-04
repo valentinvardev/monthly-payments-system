@@ -185,4 +185,31 @@ export const invoicesRouter = createTRPCRouter({
       revalidatePath(`/dashboard/clients/${invoice.clientId}`);
       return invoice;
     }),
+
+  // Hard-delete an invoice + any payments tied to it. Used to clean
+  // out test invoices. Email-log rows are preserved (we just NULL out
+  // their invoiceId) so the audit trail of what was sent and to whom
+  // survives the deletion.
+  delete: adminProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const invoice = await ctx.prisma.invoice.findUnique({
+        where: { id: input.id },
+      });
+      if (!invoice) throw new TRPCError({ code: "NOT_FOUND" });
+
+      await ctx.prisma.$transaction(async (tx) => {
+        await tx.emailLog.updateMany({
+          where: { invoiceId: input.id },
+          data: { invoiceId: null },
+        });
+        await tx.payment.deleteMany({ where: { invoiceId: input.id } });
+        await tx.invoice.delete({ where: { id: input.id } });
+      });
+
+      revalidatePath("/dashboard");
+      revalidatePath("/dashboard/invoices");
+      revalidatePath(`/dashboard/clients/${invoice.clientId}`);
+      return { id: input.id, clientId: invoice.clientId };
+    }),
 });

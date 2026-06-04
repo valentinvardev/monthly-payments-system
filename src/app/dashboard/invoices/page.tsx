@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { InvoiceStatusBadge } from "@/components/StatusBadge";
 import { api } from "@/trpc/server";
 import { formatDate, formatUsd } from "@/lib/format";
+import { DeleteInvoiceButton } from "@/app/dashboard/_components/DeleteInvoiceButton";
 
 export default async function InvoicesPage() {
   const invoices = await api.invoices.listAll();
@@ -43,12 +44,13 @@ export default async function InvoicesPage() {
                 <th className="px-5 py-3 text-right font-medium">Monto</th>
                 <th className="px-5 py-3 text-left font-medium">Vence</th>
                 <th className="px-5 py-3 text-left font-medium">Estado</th>
+                <th className="px-5 py-3 text-right font-medium">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/6">
               {invoices.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-5 py-8 text-center text-sm text-muted-foreground">
+                  <td colSpan={6} className="px-5 py-8 text-center text-sm text-muted-foreground">
                     Sin facturas todavía.
                   </td>
                 </tr>
@@ -63,6 +65,9 @@ export default async function InvoicesPage() {
                   <td className="px-5 py-3.5 text-muted-foreground">{formatDate(i.dueDate)}</td>
                   <td className="px-5 py-3.5">
                     <InvoiceStatusBadge status={i.status} />
+                  </td>
+                  <td className="px-5 py-3.5 text-right">
+                    <DeleteInvoiceButton id={i.id} />
                   </td>
                 </tr>
               ))}
