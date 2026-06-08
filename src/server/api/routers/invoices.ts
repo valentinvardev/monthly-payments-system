@@ -24,6 +24,52 @@ export const invoicesRouter = createTRPCRouter({
     });
   }),
 
+  // What the cron would emit on its next pass: one row per active
+  // recurring plan whose next dueDate doesn't have an Invoice yet.
+  // Lets the admin preview / nudge upcoming bills without waiting for
+  // the daily worker.
+  upcomingBills: adminProcedure.query(async ({ ctx }) => {
+    const now = new Date();
+    const plans = await ctx.prisma.recurringPlan.findMany({
+      where: {
+        active: true,
+        client: { active: true },
+        OR: [{ endDate: null }, { endDate: { gt: now } }],
+      },
+      include: { client: true },
+    });
+
+    const rows = await Promise.all(
+      plans.map(async (plan) => {
+        const { periodStart, periodEnd, dueDate } = computeNextPeriod(
+          plan.frequency,
+          plan.anchorDate,
+          now,
+        );
+        const existing = await ctx.prisma.invoice.findFirst({
+          where: { clientId: plan.clientId, dueDate },
+          select: { id: true },
+        });
+        if (existing) return null;
+        return {
+          planId: plan.id,
+          clientId: plan.clientId,
+          clientName: plan.client.fullName,
+          description: plan.description,
+          amountUsd: plan.amountUsd,
+          frequency: plan.frequency,
+          periodStart,
+          periodEnd,
+          dueDate,
+        };
+      }),
+    );
+
+    return rows
+      .filter((r): r is NonNullable<typeof r> => r !== null)
+      .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
+  }),
+
   listMine: clientProcedure.query(({ ctx }) => {
     return ctx.prisma.invoice.findMany({
       where: { clientId: ctx.clientId },

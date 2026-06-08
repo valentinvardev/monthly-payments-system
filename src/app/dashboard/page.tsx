@@ -5,15 +5,18 @@ import { InvoiceStatusBadge, PaymentStatusBadge } from "@/components/StatusBadge
 import { api } from "@/trpc/server";
 import { getCurrentUser } from "@/lib/auth";
 import { formatDate, formatUsd } from "@/lib/format";
+import { formatFrequency } from "@/lib/recurrence";
 import { ConfirmPaymentButtons } from "./_components/ConfirmPaymentButtons";
 import { ProofModal } from "./_components/ProofModal";
+import { GenerateNextButton } from "./_components/GenerateNextButton";
 
 export default async function DashboardHome() {
-  const [user, clients, invoices, pendingReview] = await Promise.all([
+  const [user, clients, invoices, pendingReview, upcoming] = await Promise.all([
     getCurrentUser(),
     api.clients.list(),
     api.invoices.listAll(),
     api.payments.pendingReview(),
+    api.invoices.upcomingBills(),
   ]);
 
   const totalOwedUsd = invoices
@@ -101,6 +104,93 @@ export default async function DashboardHome() {
                 </li>
               ))}
             </ul>
+          )}
+        </Card>
+      </section>
+
+      <section className="reveal" style={{ animationDelay: "150ms" }}>
+        <SectionHeader
+          title="Próximas facturas"
+          subtitle={
+            upcoming.length === 0
+              ? "Sin facturas pendientes de generar"
+              : `${upcoming.length} ${upcoming.length === 1 ? "lista" : "listas"} para emitir`
+          }
+        />
+        <Card className="mt-3">
+          {upcoming.length === 0 ? (
+            <CardContent>
+              <p className="py-4 text-sm text-muted-foreground">
+                Todos los planes activos ya tienen su próxima factura emitida.
+              </p>
+            </CardContent>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80">
+                    <th className="px-5 py-3 text-left font-medium">Cliente</th>
+                    <th className="px-5 py-3 text-left font-medium">Descripción</th>
+                    <th className="px-5 py-3 text-left font-medium">Frecuencia</th>
+                    <th className="px-5 py-3 text-right font-medium">Monto</th>
+                    <th className="px-5 py-3 text-left font-medium">Vence</th>
+                    <th className="px-5 py-3 text-right font-medium">Acción</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/6">
+                  {upcoming.map((u) => {
+                    const days = Math.round(
+                      (new Date(u.dueDate).getTime() - Date.now()) / 86_400_000,
+                    );
+                    const dueLabel =
+                      days <= 0
+                        ? "hoy"
+                        : days === 1
+                          ? "mañana"
+                          : `en ${days} días`;
+                    return (
+                      <tr
+                        key={u.planId}
+                        className="transition-colors hover:bg-white/[0.025]"
+                      >
+                        <td className="px-5 py-3.5 text-foreground/95">
+                          <Link
+                            href={`/dashboard/clients/${u.clientId}`}
+                            className="hover:text-foreground transition"
+                          >
+                            {u.clientName}
+                          </Link>
+                        </td>
+                        <td className="px-5 py-3.5 text-muted-foreground">
+                          {u.description}
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className="rounded-full border border-white/8 bg-white/[0.03] px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] text-muted-foreground/85">
+                            {formatFrequency(u.frequency)}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5 text-right font-display tabular-nums text-foreground/95">
+                          {formatUsd(Number(u.amountUsd))}
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <div className="leading-tight">
+                            <div className="text-foreground/90">
+                              {formatDate(u.dueDate)}
+                            </div>
+                            <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70">
+                              {dueLabel}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-5 py-3.5 text-right">
+                          <GenerateNextButton clientId={u.clientId} />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </Card>
       </section>
