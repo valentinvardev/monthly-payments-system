@@ -44,21 +44,28 @@ export function PlanModal({
   const [description, setDescription] = useState<string>(initial?.description ?? "");
   const [error, setError] = useState<string | null>(null);
 
-  // Sync native <dialog> open state with React state.
+  // Sync native <dialog> open state with React state. Kept deliberately
+  // narrow (deps: [open]) so a parent re-render that hands us a new
+  // `initial` object reference can NEVER fire this effect mid-edit.
   useEffect(() => {
     const dlg = ref.current;
     if (!dlg) return;
-    if (open && !dlg.open) {
-      setFrequency(initial?.frequency ?? "MONTHLY");
-      setAnchorDate(initial?.anchorDate ?? new Date().toISOString().slice(0, 10));
-      setAmountUsd(initial?.amountUsd ? String(initial.amountUsd) : "");
-      setDescription(initial?.description ?? "");
-      setError(null);
-      dlg.showModal();
-    } else if (!open && dlg.open) {
-      dlg.close();
-    }
-  }, [open, initial]);
+    if (open && !dlg.open) dlg.showModal();
+    if (!open && dlg.open) dlg.close();
+  }, [open]);
+
+  // Seed form fields from `initial` ONLY when the modal transitions
+  // closed→open. Anything the user types after that is preserved until
+  // the next open.
+  useEffect(() => {
+    if (!open) return;
+    setFrequency(initial?.frequency ?? "MONTHLY");
+    setAnchorDate(initial?.anchorDate ?? new Date().toISOString().slice(0, 10));
+    setAmountUsd(initial?.amountUsd ? String(initial.amountUsd) : "");
+    setDescription(initial?.description ?? "");
+    setError(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const m = trpc.clients.upsertPlan.useMutation({
     onSuccess: () => {
@@ -167,25 +174,24 @@ export function PlanModal({
             required
           />
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Field
-              label="Monto USD"
-              name="amountUsd"
-              type="number"
-              step="0.01"
-              min="0"
-              value={amountUsd}
-              onChange={setAmountUsd}
-              required
-            />
-            <Field
-              label="Descripción"
-              name="description"
-              value={description}
-              onChange={setDescription}
-              required
-            />
-          </div>
+          <Field
+            label="Descripción"
+            name="description"
+            value={description}
+            onChange={setDescription}
+            required
+          />
+
+          <Field
+            label="Monto USD"
+            name="amountUsd"
+            type="number"
+            step="0.01"
+            min="0"
+            value={amountUsd}
+            onChange={setAmountUsd}
+            required
+          />
 
           <div className="flex items-center justify-between gap-4 pt-1">
             {error && <p className="text-sm text-rose-200/85">{error}</p>}
