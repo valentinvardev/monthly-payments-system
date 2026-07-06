@@ -87,7 +87,7 @@ export default async function StudioLanding() {
             <LangToggle locale={locale} />
             <Link
               href="/contanos"
-              className="ml-1 inline-flex h-8 items-center justify-center gap-1.5 bg-[#0070F3] px-3.5 text-xs font-medium text-white transition hover:bg-[#0060d3]"
+              className="ml-1 inline-flex h-8 items-center justify-center gap-1.5 bg-[#0070F3] px-3.5 font-pixel text-[10px] text-white transition hover:bg-[#0060d3]"
             >
               {s.heroCtaA}
               <ArrowRight className="h-3.5 w-3.5" />
@@ -125,14 +125,14 @@ export default async function StudioLanding() {
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link
                 href="/contanos"
-                className="inline-flex h-11 items-center justify-center gap-2 bg-[#0070F3] px-5 text-sm font-medium text-white transition hover:bg-[#0060d3]"
+                className="inline-flex h-11 items-center justify-center gap-2 bg-[#0070F3] px-5 font-pixel text-[11px] text-white transition hover:bg-[#0060d3]"
               >
                 {s.heroCtaA}
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <a
                 href="#proyectos"
-                className="inline-flex h-11 items-center justify-center border border-white/12 bg-[#161616] px-5 text-sm text-white/90 transition hover:bg-[#1f1f1f]"
+                className="inline-flex h-11 items-center justify-center border border-white/12 bg-[#161616] px-5 font-pixel text-[11px] text-white/90 transition hover:bg-[#1f1f1f]"
               >
                 {s.heroCtaB}
               </a>
@@ -191,7 +191,7 @@ export default async function StudioLanding() {
                     <div className="mt-auto flex items-end justify-between gap-3 pt-6">
                       <a
                         href="#proyectos"
-                        className="inline-flex h-9 items-center justify-center gap-1.5 border border-white/12 bg-[#161616] px-4 text-[13px] font-medium text-white/90 transition hover:bg-[#1f1f1f]"
+                        className="inline-flex h-9 items-center justify-center gap-1.5 border border-white/12 bg-[#161616] px-4 font-pixel text-[10px] text-white/90 transition hover:bg-[#1f1f1f]"
                       >
                         {s.nichesCta}
                         <ArrowRight className="h-3.5 w-3.5 text-white/50" />
@@ -319,7 +319,7 @@ export default async function StudioLanding() {
                         href={p.liveUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex h-9 items-center justify-center gap-1.5 bg-[#ededed] px-4 text-[13px] font-medium text-[#0a0a0a] transition hover:bg-white"
+                        className="inline-flex h-9 items-center justify-center gap-1.5 bg-[#ededed] px-4 font-pixel text-[10px] text-[#0a0a0a] transition hover:bg-white"
                       >
                         {s.projectsVisit}
                         <ArrowUpRight className="h-3.5 w-3.5" />
@@ -403,7 +403,7 @@ export default async function StudioLanding() {
                   href="https://valentinvarela.cloud/about"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-6 inline-flex h-9 items-center justify-center gap-1.5 border border-white/12 bg-[#161616] px-4 text-[13px] font-medium text-white/90 transition hover:bg-[#1f1f1f]"
+                  className="mt-6 inline-flex h-9 items-center justify-center gap-1.5 border border-white/12 bg-[#161616] px-4 font-pixel text-[10px] text-white/90 transition hover:bg-[#1f1f1f]"
                 >
                   {s.aboutCta}
                   <ArrowUpRight className="h-3.5 w-3.5 text-white/50" />
@@ -436,7 +436,7 @@ export default async function StudioLanding() {
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
                 href="/contanos"
-                className="inline-flex h-12 items-center justify-center gap-2 bg-[#0070F3] px-6 text-sm font-medium text-white transition hover:bg-[#0060d3]"
+                className="inline-flex h-12 items-center justify-center gap-2 bg-[#0070F3] px-6 font-pixel text-[11px] text-white transition hover:bg-[#0060d3]"
               >
                 {s.heroCtaA}
                 <ArrowRight className="h-4 w-4" />

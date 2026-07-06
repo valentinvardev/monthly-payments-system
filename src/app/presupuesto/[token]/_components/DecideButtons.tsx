@@ -45,14 +45,14 @@ export function DecideButtons({ token, locale }: { token: string; locale: "es" |
         <button
           type="button"
           onClick={() => setMode("accept")}
-          className="border border-[#2EA043] bg-[#2EA043] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#278a39]"
+          className="font-pixel border border-[#2EA043] bg-[#2EA043] px-6 py-3 text-[11px] text-white transition hover:bg-[#278a39]"
         >
           {s.accept}
         </button>
         <button
           type="button"
           onClick={() => setMode("reject")}
-          className="border border-white/18 px-5 py-3 text-sm text-white/70 transition hover:border-white/40 hover:text-white"
+          className="font-pixel border border-white/18 px-5 py-3 text-[11px] text-white/70 transition hover:border-white/40 hover:text-white"
         >
           {s.reject}
         </button>
@@ -67,14 +67,14 @@ export function DecideButtons({ token, locale }: { token: string; locale: "es" |
           type="button"
           disabled={m.isPending}
           onClick={() => m.mutate({ token, decision: "ACCEPTED" })}
-          className="border border-[#2EA043] bg-[#2EA043] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#278a39] disabled:opacity-60"
+          className="font-pixel border border-[#2EA043] bg-[#2EA043] px-6 py-3 text-[11px] text-white transition hover:bg-[#278a39] disabled:opacity-60"
         >
           {m.isPending ? s.sending : s.confirmAccept}
         </button>
         <button
           type="button"
           onClick={() => setMode("idle")}
-          className="px-4 py-3 font-mono text-[11px] uppercase tracking-[0.18em] text-white/45 transition hover:text-white"
+          className="px-4 py-3 font-pixel text-[10px] text-white/45 transition hover:text-white"
         >
           {s.cancel}
         </button>
@@ -102,14 +102,14 @@ export function DecideButtons({ token, locale }: { token: string; locale: "es" |
           type="button"
           disabled={m.isPending}
           onClick={() => m.mutate({ token, decision: "REJECTED", reason: reason || undefined })}
-          className="border border-[#E5484D]/70 bg-[#E5484D]/15 px-5 py-2.5 text-sm font-medium text-rose-100 transition hover:bg-[#E5484D]/25 disabled:opacity-60"
+          className="font-pixel border border-[#E5484D]/70 bg-[#E5484D]/15 px-5 py-2.5 text-[11px] text-rose-100 transition hover:bg-[#E5484D]/25 disabled:opacity-60"
         >
           {m.isPending ? s.sending : s.confirmReject}
         </button>
         <button
           type="button"
           onClick={() => setMode("idle")}
-          className="px-3 py-2.5 font-mono text-[11px] uppercase tracking-[0.18em] text-white/45 transition hover:text-white"
+          className="px-3 py-2.5 font-pixel text-[10px] text-white/45 transition hover:text-white"
         >
           {s.cancel}
         </button>

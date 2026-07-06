@@ -204,7 +204,7 @@ export function IntakeForm({ locale }: { locale: Locale }) {
         </p>
         <a
           href="/"
-          className="mt-8 border border-white/18 px-5 py-2.5 text-sm text-white/85 transition hover:border-white/40 hover:text-white"
+          className="font-pixel mt-8 border border-white/18 px-5 py-2.5 text-[11px] text-white/85 transition hover:border-white/40 hover:text-white"
         >
           {s.doneBack}
         </a>
@@ -361,7 +361,7 @@ export function IntakeForm({ locale }: { locale: Locale }) {
             type="button"
             onClick={() => setStep((x) => Math.max(0, x - 1))}
             disabled={step === 0 || submit.isPending}
-            className="px-3 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-white/45 transition hover:text-white disabled:invisible"
+            className="px-3 py-2 font-pixel text-[10px] text-white/45 transition hover:text-white disabled:invisible"
           >
             ← {s.back}
           </button>
@@ -372,7 +372,7 @@ export function IntakeForm({ locale }: { locale: Locale }) {
                 type="button"
                 onClick={() => setStep((x) => x + 1)}
                 disabled={!canNext()}
-                className="border border-white/20 bg-white/[0.06] px-5 py-2.5 text-sm font-medium text-white transition hover:border-white/45 hover:bg-white/[0.1] disabled:opacity-35"
+                className="font-pixel border border-white/20 bg-white/[0.06] px-5 py-2.5 text-[11px] text-white transition hover:border-white/45 hover:bg-white/[0.1] disabled:opacity-35"
               >
                 {s.next} →
               </button>
@@ -381,7 +381,7 @@ export function IntakeForm({ locale }: { locale: Locale }) {
                 type="button"
                 onClick={onSend}
                 disabled={submit.isPending}
-                className="border border-[#0070F3] bg-[#0070F3] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#0060d3] disabled:opacity-60"
+                className="font-pixel border border-[#0070F3] bg-[#0070F3] px-6 py-2.5 text-[11px] text-white transition hover:bg-[#0060d3] disabled:opacity-60"
               >
                 {submit.isPending ? s.sending : s.send}
               </button>

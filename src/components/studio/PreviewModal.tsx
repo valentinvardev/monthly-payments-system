@@ -35,7 +35,7 @@ export function PreviewModal({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex h-9 items-center justify-center gap-1.5 border border-white/12 bg-[#161616] px-4 text-[13px] font-medium text-white/90 transition hover:bg-[#1f1f1f]"
+        className="inline-flex h-9 items-center justify-center gap-1.5 border border-white/12 bg-[#161616] px-4 font-pixel text-[10px] text-white/90 transition hover:bg-[#1f1f1f]"
       >
         <Eye className="h-3.5 w-3.5 text-white/50" />
         {triggerLabel}
@@ -61,7 +61,7 @@ export function PreviewModal({
                 href={liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-8 items-center gap-1.5 bg-[#ededed] px-3 text-[12px] font-medium text-[#0a0a0a] transition hover:bg-white"
+                className="inline-flex h-8 items-center gap-1.5 bg-[#ededed] px-3 font-pixel text-[10px] text-[#0a0a0a] transition hover:bg-white"
               >
                 {openLabel}
                 <ExternalLink className="h-3 w-3" />

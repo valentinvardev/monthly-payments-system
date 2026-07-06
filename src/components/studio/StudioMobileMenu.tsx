@@ -104,7 +104,7 @@ export function StudioMobileMenu({
             <Link
               href={loginHref}
               onClick={() => setOpen(false)}
-              className="block border border-white/18 bg-white/[0.05] px-4 py-2.5 text-center text-sm text-white/90 transition hover:bg-white/[0.1]"
+              className="font-pixel block border border-white/18 bg-white/[0.05] px-4 py-2.5 text-center text-[11px] text-white/90 transition hover:bg-white/[0.1]"
             >
               {loginLabel}
             </Link>

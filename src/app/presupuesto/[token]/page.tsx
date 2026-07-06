@@ -252,7 +252,7 @@ export default async function QuotePublicPage({
 
             <a
               href={contactHref}
-              className="mt-5 inline-flex items-center gap-2.5 border border-white/20 bg-white/[0.05] px-5 py-3 text-sm font-medium text-white/90 transition hover:border-white/40 hover:bg-white/[0.09]"
+              className="font-pixel mt-5 inline-flex items-center gap-2.5 border border-white/20 bg-white/[0.05] px-5 py-3 text-[11px] text-white/90 transition hover:border-white/40 hover:bg-white/[0.09]"
             >
               <MessageCircle className="h-4 w-4 text-[#0070F3]" />
               {s.nextContact}
