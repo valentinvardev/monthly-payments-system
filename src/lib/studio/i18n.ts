@@ -23,7 +23,7 @@ const STRINGS = {
     heroTitleA: "Construimos el software que tu negocio necesita hoy,",
     heroTitleB: "con la mirada puesta en cómo se va a automatizar mañana.",
     heroSub:
-      "Estudio de desarrollo: e-commerce, plataformas para fotógrafos y herramientas con IA. Código preciso, diseño con criterio — desde Sudamérica para donde haga falta.",
+      "Desarrollamos soluciones que simplifican y automatizan tus procesos. Menos trabajo manual, más resultados.",
     heroCtaA: "Contanos tu proyecto",
     heroCtaB: "Ver proyectos",
 
@@ -50,10 +50,18 @@ const STRINGS = {
     manifestoEyebrow: "03 · MANIFIESTO",
     manifestoTitle: "Sur + codia.",
     manifestoBody:
-      "Surcodia nace de dos mundos que parecen competir: la precisión técnica y la sensibilidad estética. Acá conviven. Escribimos código como se compone una foto — con intención. Y diseñamos sistemas que no te piden permiso para trabajar: agentes, automatización, procesos que corren solos mientras dormís.",
+      "La mejor tecnología es la que no se nota: sistemas que trabajan solos, procesos que fluyen y herramientas que te devuelven tiempo. Así encaramos cada proyecto, simple por fuera y sólido por dentro.",
     manifestoQuote: "El futuro no se espera. Se programa.",
 
-    contactEyebrow: "04 · CONTACTO",
+    aboutEyebrow: "04 · QUIÉN ESTÁ DETRÁS",
+    aboutTitle: "Con quién vas a trabajar.",
+    aboutP1:
+      "Soy Valentín Varela, desarrollador full-stack y diseñador. Surcodia es mi estudio: acá orquesto cada proyecto de punta a punta, de la estrategia de producto al deploy final.",
+    aboutP2:
+      "Vengo de construir plataformas de fotografía, e-commerce y sistemas de reconocimiento facial. Me obsesiona que las cosas carguen rápido, se sientan claras y sean fáciles de mantener.",
+    aboutCta: "Conocé más sobre mí",
+
+    contactEyebrow: "05 · CONTACTO",
     contactTitle: "¿Tenés un proyecto en la cabeza?",
     contactSub: "Contanos qué querés construir y te respondemos en el día.",
     contactCta: "Escribinos",
@@ -72,7 +80,7 @@ const STRINGS = {
     heroTitleA: "We build the software your business needs today,",
     heroTitleB: "designed for how it will automate itself tomorrow.",
     heroSub:
-      "A development studio: e-commerce, platforms for photographers and AI-powered tools. Precise code, deliberate design — from South America to wherever it's needed.",
+      "We build solutions that simplify and automate your processes. Less manual work, better results.",
     heroCtaA: "Tell us about your project",
     heroCtaB: "See our work",
 
@@ -99,10 +107,18 @@ const STRINGS = {
     manifestoEyebrow: "03 · MANIFESTO",
     manifestoTitle: "Sur + codia.",
     manifestoBody:
-      "Surcodia was born from two worlds that seem to compete: technical precision and aesthetic sensibility. Here they coexist. We write code the way a photograph is composed — with intent. And we design systems that don't ask permission to work: agents, automation, processes that run on their own while you sleep.",
+      "The best technology is the kind you don't notice: systems that run on their own, processes that flow, and tools that give you back time. That's how we approach every project, simple on the outside and solid underneath.",
     manifestoQuote: "The future isn't waited for. It's programmed.",
 
-    contactEyebrow: "04 · CONTACT",
+    aboutEyebrow: "04 · WHO'S BEHIND IT",
+    aboutTitle: "Who you'll work with.",
+    aboutP1:
+      "I'm Valentín Varela, a full-stack developer and designer. Surcodia is my studio: I orchestrate every project end to end, from product strategy to the final deploy.",
+    aboutP2:
+      "I've built photography platforms, e-commerce stores and facial-recognition systems. I'm obsessed with things loading fast, feeling clear and staying easy to maintain.",
+    aboutCta: "More about me",
+
+    contactEyebrow: "05 · CONTACT",
     contactTitle: "Got a project in mind?",
     contactSub: "Tell us what you want to build — we reply the same day.",
     contactCta: "Write to us",

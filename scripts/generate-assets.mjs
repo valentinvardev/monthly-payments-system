@@ -96,16 +96,15 @@ const CATALOG = {
     prompt: (a) =>
       `${STYLE_DNA(a)}. Character: a shopping cart with rocket thrusters instead of back wheels, thruster flames as 4-6 pixels in accent color ${a}, one single package box inside the cart, slight forward tilt suggesting speed, tiny motion lines made of 3 gray pixels behind it`,
   },
-  // Manifiesto: los dos mundos fusionados — mitad cámara, mitad terminal.
-  // "Escribimos código como se compone una foto."
-  constructor: {
+  // Manifiesto: la terminal retro trabajando sola de noche.
+  terminal: {
     accent: ACCENT.blue,
     aspect: "1:1",
     grid: 128,
     scale: 6,
     transparent: true,
     prompt: (a) =>
-      `${STYLE_DNA(a)}. Single large sprite, front view: one device that is a seamless fusion of two machines split vertically down the exact middle — the LEFT half is a vintage SLR photo camera (big round lens, shutter button, textured grip, film advance lever), the RIGHT half is a retro CRT computer terminal (screen with a single glowing accent ${a} cursor and two short lines of pixel code, vents, a small keyboard fragment below), both halves share one continuous body outline as a single object, a thin glowing accent seam where they meet, subtle accent glow pixels around the lens center too, iconic and symmetrical composition`,
+      `${STYLE_DNA(a)}. Single large sprite, front view: a retro CRT computer terminal, chunky beige body with vents and small details, dark screen glowing with a single accent ${a} blinking cursor and two or three short lines of pixel code in accent color, soft accent glow pixels bleeding around the screen edges, a small mechanical keyboard attached below, one tiny power LED, iconic centered composition`,
   },
   // Escudo pixel estilo Belgrano (celeste) para la franja de la landing.
   // Interpretación pixel-art, no el escudo oficial — si Valentin quiere el

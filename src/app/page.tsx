@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { getLocale, t } from "@/lib/studio/i18n";
 import {
@@ -127,13 +128,14 @@ export default async function StudioLanding() {
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link
                 href="/contanos"
-                className="inline-flex h-11 items-center justify-center rounded-md bg-[#0070F3] px-5 text-sm font-medium text-white transition hover:bg-[#0060d3]"
+                className="inline-flex h-11 items-center justify-center gap-2 bg-[#0070F3] px-5 text-sm font-medium text-white transition hover:bg-[#0060d3]"
               >
                 {s.heroCtaA}
+                <ArrowRight className="h-4 w-4" />
               </Link>
               <a
                 href="#proyectos"
-                className="inline-flex h-11 items-center justify-center rounded-md border border-white/12 bg-[#161616] px-5 text-sm text-white/90 transition hover:bg-[#1f1f1f]"
+                className="inline-flex h-11 items-center justify-center border border-white/12 bg-[#161616] px-5 text-sm text-white/90 transition hover:bg-[#1f1f1f]"
               >
                 {s.heroCtaB}
               </a>
@@ -192,10 +194,10 @@ export default async function StudioLanding() {
                     <div className="mt-auto flex items-end justify-between gap-3 pt-6">
                       <a
                         href="#proyectos"
-                        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-white/12 bg-[#161616] px-4 text-[13px] font-medium text-white/90 transition hover:bg-[#1f1f1f]"
+                        className="inline-flex h-9 items-center justify-center gap-1.5 border border-white/12 bg-[#161616] px-4 text-[13px] font-medium text-white/90 transition hover:bg-[#1f1f1f]"
                       >
                         {s.nichesCta}
-                        <span aria-hidden className="text-white/50">→</span>
+                        <ArrowRight className="h-3.5 w-3.5 text-white/50" />
                       </a>
                       {art && (
                         <Image
@@ -320,9 +322,10 @@ export default async function StudioLanding() {
                         href={p.liveUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex h-9 items-center justify-center rounded-md bg-[#ededed] px-4 text-[13px] font-medium text-[#0a0a0a] transition hover:bg-white"
+                        className="inline-flex h-9 items-center justify-center gap-1.5 bg-[#ededed] px-4 text-[13px] font-medium text-[#0a0a0a] transition hover:bg-white"
                       >
                         {s.projectsVisit}
+                        <ArrowUpRight className="h-3.5 w-3.5" />
                       </a>
                     )}
                   </div>
@@ -338,10 +341,10 @@ export default async function StudioLanding() {
         <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-20 lg:grid-cols-[0.7fr_1.3fr]">
           <div className="flex justify-center lg:justify-start">
             <Image
-              src={`/pixel/constructor.png${PIXEL_V}`}
-              alt="Mitad cámara, mitad terminal — los dos mundos de Surcodia fusionados"
-              width={340}
-              height={340}
+              src={`/pixel/terminal.png${PIXEL_V}`}
+              alt="Una terminal retro trabajando sola, con el cursor encendido"
+              width={320}
+              height={320}
               unoptimized
               className="pixelated"
             />
@@ -364,6 +367,45 @@ export default async function StudioLanding() {
                 {s.stackEyebrow}
               </p>
               <TechBadges />
+            </div>
+          </div>
+        </section>
+
+        {/* ================= QUIÉN ESTÁ DETRÁS ================= */}
+        <section className="border-t border-white/8">
+          <div className="mx-auto max-w-6xl px-5 py-20">
+            <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/45">
+              {s.aboutEyebrow}
+            </p>
+            <h2 className="mt-3 font-display text-3xl font-medium tracking-[-0.025em]">
+              {s.aboutTitle}
+            </h2>
+            <div className="mt-8 flex flex-col gap-8 sm:flex-row sm:items-start">
+              <Image
+                src="/valentin.jpg"
+                alt="Valentín Varela, fundador de Surcodia"
+                width={128}
+                height={128}
+                unoptimized
+                className="h-32 w-32 shrink-0 rounded-lg border border-white/12 object-cover"
+              />
+              <div className="min-w-0">
+                <p className="max-w-[58ch] text-[15px] leading-relaxed text-white/60">
+                  {s.aboutP1}
+                </p>
+                <p className="mt-4 max-w-[58ch] text-[15px] leading-relaxed text-white/60">
+                  {s.aboutP2}
+                </p>
+                <a
+                  href="https://valentinvarela.cloud/about"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex h-9 items-center justify-center gap-1.5 border border-white/12 bg-[#161616] px-4 text-[13px] font-medium text-white/90 transition hover:bg-[#1f1f1f]"
+                >
+                  {s.aboutCta}
+                  <ArrowUpRight className="h-3.5 w-3.5 text-white/50" />
+                </a>
+              </div>
             </div>
           </div>
         </section>
@@ -391,9 +433,10 @@ export default async function StudioLanding() {
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
                 href="/contanos"
-                className="inline-flex h-12 items-center justify-center rounded-md bg-[#0070F3] px-6 text-sm font-medium text-white transition hover:bg-[#0060d3]"
+                className="inline-flex h-12 items-center justify-center gap-2 bg-[#0070F3] px-6 text-sm font-medium text-white transition hover:bg-[#0060d3]"
               >
                 {s.heroCtaA}
+                <ArrowRight className="h-4 w-4" />
               </Link>
               <a
                 href="mailto:hola@surcodia.com"
