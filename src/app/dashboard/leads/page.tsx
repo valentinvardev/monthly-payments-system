@@ -113,7 +113,13 @@ export default async function LeadsPage() {
                   {l.problem}
                 </p>
 
-                <div className="flex justify-end">
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <a
+                    href={`/dashboard/quotes/new?lead=${l.id}`}
+                    className="rounded-full border border-white/18 bg-white/[0.07] px-3 py-1.5 text-[11px] font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28"
+                  >
+                    + Presupuestar
+                  </a>
                   <LeadStatusButtons id={l.id} status={l.status} />
                 </div>
               </div>

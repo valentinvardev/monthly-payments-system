@@ -9,6 +9,7 @@ const ADMIN_NAV: MobileNavItem[] = [
   { href: "/dashboard/clients", label: "Clientes" },
   { href: "/dashboard/invoices", label: "Facturas" },
   { href: "/dashboard/leads", label: "Leads" },
+  { href: "/dashboard/quotes", label: "Presupuestos" },
   { href: "/dashboard/payment-methods", label: "Métodos" },
   { href: "/dashboard/emails", label: "Emails" },
 ];

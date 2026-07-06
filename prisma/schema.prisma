@@ -59,6 +59,15 @@ enum EmailKind {
   WELCOME
   MAGIC_LINK_INFO
   PROJECT_LEAD
+  QUOTE_SENT
+  QUOTE_DECIDED
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
 }
 
 enum LeadStatus {
@@ -110,6 +119,7 @@ model Client {
   recurringPlan RecurringPlan?
   invoices      Invoice[]
   invites       Invite[]
+  quotes        Quote[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -250,8 +260,50 @@ model ProjectLead {
   locale       String     @default("es")
   status       LeadStatus @default(NEW)
   notes        String?
+  quotes       Quote[]
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
   @@index([status, createdAt])
+}
+
+// Presupuesto para cliente existente o prospecto. Los datos del
+// destinatario van denormalizados (name/email) para poder presupuestar
+// a alguien que todavía no es Client. `token` es el acceso público:
+// /presupuesto/[token], sin login.
+model Quote {
+  id           String       @id @default(cuid())
+  token        String       @unique @default(cuid())
+  client       Client?      @relation(fields: [clientId], references: [id])
+  clientId     String?
+  lead         ProjectLead? @relation(fields: [leadId], references: [id])
+  leadId       String?
+  name         String
+  email        String
+  company      String?
+  title        String
+  intro        String?
+  locale       String       @default("es")
+  validUntil   DateTime?
+  status       QuoteStatus  @default(DRAFT)
+  sentAt       DateTime?
+  decidedAt    DateTime?
+  rejectReason String?
+  items        QuoteItem[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([status, createdAt])
+}
+
+model QuoteItem {
+  id        String  @id @default(cuid())
+  quote     Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  quoteId   String
+  label     String
+  detail    String?
+  amountUsd Decimal @db.Decimal(12, 2)
+  sortOrder Int     @default(0)
+
+  @@index([quoteId, sortOrder])
 }
