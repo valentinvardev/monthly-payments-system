@@ -323,3 +323,50 @@ dialog.mobile-nav-dialog::backdrop {
 @utility reveal {
   animation: reveal-up 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
+
+/* ============================================================
+   Surcodia Studio — landing utilities (B&W pixel system)
+   ============================================================ */
+
+/* Pixel-art images must never get smoothed by the browser. */
+@utility pixelated {
+  image-rendering: pixelated;
+}
+
+/* Infinite marquee strip. The track holds the content twice; the
+   animation shifts exactly half its width for a seamless loop. */
+@keyframes studio-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.studio-marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+.studio-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: studio-marquee 42s linear infinite;
+}
+.studio-marquee:hover .studio-marquee-track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .studio-marquee-track { animation: none; }
+}
+
+/* Checkerboard dissolve — section separator, huehaus style. */
+.studio-dissolve {
+  height: 26px;
+  position: relative;
+}
+.studio-dissolve::before,
+.studio-dissolve::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  height: 8px;
+  background-image: conic-gradient(rgb(255 255 255 / 0.10) 25%, transparent 0 50%, rgb(255 255 255 / 0.10) 0 75%, transparent 0);
+  background-size: 16px 16px;
+}
+.studio-dissolve::before { top: 0; }
+.studio-dissolve::after { top: 12px; opacity: 0.4; background-position: 8px 0; }
