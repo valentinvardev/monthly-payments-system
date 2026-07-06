@@ -96,7 +96,8 @@ const CATALOG = {
     prompt: (a) =>
       `${STYLE_DNA(a)}. Character: a shopping cart with rocket thrusters instead of back wheels, thruster flames as 4-6 pixels in accent color ${a}, one single package box inside the cart, slight forward tilt suggesting speed, tiny motion lines made of 3 gray pixels behind it`,
   },
-  // Manifiesto: la grúa construyendo la Cruz del Sur — "el futuro se programa".
+  // Manifiesto: los dos mundos fusionados — mitad cámara, mitad terminal.
+  // "Escribimos código como se compone una foto."
   constructor: {
     accent: ACCENT.blue,
     aspect: "1:1",
@@ -104,7 +105,7 @@ const CATALOG = {
     scale: 6,
     transparent: true,
     prompt: (a) =>
-      `${STYLE_DNA(a)}. Scene as a single sprite: a tall thin pixel construction crane lifting one giant glowing CUBE in accent color ${a} into the sky, placing it as the final piece of a constellation formed by four oversized floating white SQUARE CUBES (strictly square blocks with hard flat faces, like minecraft blocks or giant pixels, absolutely no spheres, no round shapes), a tiny robot builder with a hard hat standing at the crane base looking up, one thin cable connecting crane to the glowing cube, composition taller than wide inside the square`,
+      `${STYLE_DNA(a)}. Single large sprite, front view: one device that is a seamless fusion of two machines split vertically down the exact middle — the LEFT half is a vintage SLR photo camera (big round lens, shutter button, textured grip, film advance lever), the RIGHT half is a retro CRT computer terminal (screen with a single glowing accent ${a} cursor and two short lines of pixel code, vents, a small keyboard fragment below), both halves share one continuous body outline as a single object, a thin glowing accent seam where they meet, subtle accent glow pixels around the lens center too, iconic and symmetrical composition`,
   },
   // Escudo pixel estilo Belgrano (celeste) para la franja de la landing.
   // Interpretación pixel-art, no el escudo oficial — si Valentin quiere el

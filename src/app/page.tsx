@@ -339,7 +339,7 @@ export default async function StudioLanding() {
           <div className="flex justify-center lg:justify-start">
             <Image
               src={`/pixel/constructor.png${PIXEL_V}`}
-              alt="Una grúa pixel construyendo la Cruz del Sur"
+              alt="Mitad cámara, mitad terminal — los dos mundos de Surcodia fusionados"
               width={340}
               height={340}
               unoptimized
