@@ -1,12 +1,13 @@
 import { cookies } from "next/headers";
 
-export type Locale = "es" | "en";
+export type Locale = "es" | "en" | "pt";
 
 export const LOCALE_COOKIE = "studio_lang";
 
 export async function getLocale(): Promise<Locale> {
   const store = await cookies();
-  return store.get(LOCALE_COOKIE)?.value === "en" ? "en" : "es";
+  const v = store.get(LOCALE_COOKIE)?.value;
+  return v === "en" || v === "pt" ? v : "es";
 }
 
 // Landing copy. Keys are shared between locales; `t(locale)` returns the
@@ -125,6 +126,63 @@ const STRINGS = {
 
     footerLogin: "Client login",
     footerRights: "Made in the south",
+  },
+  pt: {
+    navNiches: "Nichos",
+    navProjects: "Projetos",
+    navContact: "Contato",
+    navClients: "Acesso de clientes",
+    navPanel: "Meu painel",
+
+    heroEyebrow: "SURCODIA STUDIO · SOFTWARE DO SUL",
+    heroTitleA: "Construímos o software que o seu negócio precisa hoje,",
+    heroTitleB: "pensado para se automatizar amanhã.",
+    heroSub:
+      "Desenvolvemos soluções que simplificam e automatizam seus processos. Menos trabalho manual, mais resultados.",
+    heroCtaA: "Conte seu projeto",
+    heroCtaB: "Ver projetos",
+
+    nichesEyebrow: "01 · NICHOS",
+    nichesTitle: "Três mundos, um mesmo padrão.",
+    nichesCta: "Ver projetos",
+
+    projectsEyebrow: "02 · PROJETOS",
+    projectsTitle: "Coisas reais, rodando em produção.",
+    projectsVisit: "Visitar",
+    projectsPreview: "Ver preview",
+    projectsOpen: "Abrir site",
+    previewSoon: "Captura em breve",
+
+    belgranoTag: "CASO REAL · FOTOGRAFIA ESPORTIVA",
+    belgranoTitle: "Vendemos as fotos do campeão da liga argentina.",
+    belgranoSub: "Busca por número de peito e reconhecimento facial, para torcedores e campeões.",
+    belgranoPhotosBy: "Fotos:",
+    belgranoPlaceholder: "3 FOTOS · EM BREVE",
+    belgranoBadge: "COMPRADAS PELOS PRÓPRIOS JOGADORES",
+
+    stackEyebrow: "COM O QUE CONSTRUÍMOS",
+
+    manifestoEyebrow: "03 · MANIFESTO",
+    manifestoTitle: "Sur + codia.",
+    manifestoBody:
+      "A melhor tecnologia é a que não se nota: sistemas que trabalham sozinhos, processos que fluem e ferramentas que devolvem o seu tempo. É assim que encaramos cada projeto, simples por fora e sólido por dentro.",
+    manifestoQuote: "O futuro não se espera. Se programa.",
+
+    aboutEyebrow: "04 · QUEM ESTÁ POR TRÁS",
+    aboutTitle: "Com quem você vai trabalhar.",
+    aboutP1:
+      "Sou Valentín Varela, desenvolvedor full-stack e designer. A Surcodia é o meu estúdio: aqui orquestro cada projeto de ponta a ponta, da estratégia de produto ao deploy final.",
+    aboutP2:
+      "Venho de construir plataformas de fotografia, e-commerce e sistemas de reconhecimento facial. Sou obcecado por coisas que carregam rápido, se sentem claras e são fáceis de manter.",
+    aboutCta: "Saiba mais sobre mim",
+
+    contactEyebrow: "05 · CONTATO",
+    contactTitle: "Tem um projeto em mente?",
+    contactSub: "Conte o que você quer construir e respondemos no mesmo dia.",
+    contactCta: "Escreva pra gente",
+
+    footerLogin: "Acesso de clientes",
+    footerRights: "Feito no sul",
   },
 } as const;
 

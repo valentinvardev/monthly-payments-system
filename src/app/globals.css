@@ -333,6 +333,11 @@ dialog.mobile-nav-dialog::backdrop {
   image-rendering: pixelated;
 }
 
+/* Tipografía pixel (Silkscreen, cargada en layout.tsx). */
+@utility font-pixel {
+  font-family: var(--font-pixel), monospace;
+}
+
 /* Infinite marquee strip. The track holds the content twice; the
    animation shifts exactly half its width for a seamless loop. */
 @keyframes studio-marquee {

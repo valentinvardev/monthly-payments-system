@@ -66,9 +66,9 @@ export function StudioMobileMenu({
           className="ml-auto flex h-full w-[84%] max-w-[300px] flex-col border-l border-white/12 bg-[#0d0d0c]"
         >
           <header className="flex items-center justify-between border-b border-white/8 px-5 py-4">
-            <span className="text-[15px] font-semibold tracking-[-0.03em] text-white">
-              surcodia
-              <span className="ml-2 font-mono text-[8.5px] font-normal uppercase tracking-[0.4em] text-white/45">
+            <span className="text-white">
+              <span className="font-pixel text-[13px]">surcodia</span>
+              <span className="ml-2 text-[9px] font-medium uppercase tracking-[0.38em] text-white/45">
                 studio
               </span>
             </span>
@@ -89,7 +89,7 @@ export function StudioMobileMenu({
                   <a
                     href={it.href}
                     onClick={() => setOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 text-sm text-white/75 transition hover:bg-white/[0.05] hover:text-white"
+                    className="font-pixel flex items-center gap-3 px-4 py-3 text-[11px] text-white/75 transition hover:bg-white/[0.05] hover:text-white"
                   >
                     <span className="inline-block h-1.5 w-1.5 bg-[#0070F3]" />
                     {it.label}

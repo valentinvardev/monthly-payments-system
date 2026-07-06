@@ -107,6 +107,22 @@ export function CruxMark({
   );
 }
 
+// Lockup de marca para headers del studio: monograma + "surcodia" en
+// tipografía pixel (Silkscreen) + "studio" en sans. Server-safe.
+export function StudioBrand() {
+  return (
+    <span className="flex items-center gap-2.5">
+      <SMonogram size={22} color="#fafafa" />
+      <span className="font-pixel text-[13px] tracking-[0.02em] text-[#fafafa]">
+        surcodia
+      </span>
+      <span className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.38em] text-white/45">
+        studio
+      </span>
+    </span>
+  );
+}
+
 // Monograma S 7×7 con el píxel que se escapa (para favicon / nav).
 const S_GRID = ["0111111", "1100000", "1100000", "0111110", "0000011", "0000011", "1111110"];
 

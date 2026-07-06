@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter_Tight, Geist, Geist_Mono } from "next/font/google";
+import { Inter_Tight, Geist, Geist_Mono, Silkscreen } from "next/font/google";
 import "./globals.css";
 import { TRPCReactProvider } from "@/trpc/react";
 import { Aurora } from "@/components/Aurora";
@@ -20,6 +20,14 @@ const interTight = Inter_Tight({
   display: "swap",
 });
 
+// Fuente pixel para la marca del studio (wordmark + nav de la landing).
+const silkscreen = Silkscreen({
+  variable: "--font-pixel",
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Surcodia · cobros mensuales",
   description:
@@ -34,7 +42,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} ${interTight.variable} h-full`}
+      className={`${geistSans.variable} ${geistMono.variable} ${interTight.variable} ${silkscreen.variable} h-full`}
     >
       <body className="min-h-full flex flex-col antialiased">
         <Aurora />

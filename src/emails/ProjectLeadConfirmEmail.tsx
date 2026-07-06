@@ -8,8 +8,25 @@ export function ProjectLeadConfirmEmail({
   locale,
 }: {
   name: string;
-  locale: "es" | "en";
+  locale: "es" | "en" | "pt";
 }) {
+  if (locale === "pt") {
+    return (
+      <EmailShell preview="Recebemos sua mensagem — Surcodia Studio">
+        <Text style={styles.h1}>Recebido, {name} 👾</Text>
+        <Text style={styles.p}>
+          Obrigado por contar seu projeto. Isto é lido por uma pessoa real (Valentin).
+          Respondemos dentro do dia.
+        </Text>
+        <Section style={styles.callout}>
+          <Text style={styles.metaValue}>
+            Enquanto isso, se quiser acrescentar algo, é só responder este email.
+          </Text>
+        </Section>
+        <Text style={styles.small}>Surcodia Studio · software do sul.</Text>
+      </EmailShell>
+    );
+  }
   if (locale === "en") {
     return (
       <EmailShell preview="We got your message — Surcodia Studio">

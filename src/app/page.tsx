@@ -12,7 +12,7 @@ import {
   getFeaturedProjects,
   getStudioNiches,
 } from "@/lib/studio/content";
-import { CruxMark, PixelWord, SMonogram } from "@/components/studio/pixel";
+import { CruxMark, PixelWord, StudioBrand } from "@/components/studio/pixel";
 import { PixelBackdrop } from "@/components/studio/PixelBackdrop";
 import { Marquee } from "@/components/studio/Marquee";
 import { LangToggle } from "@/components/studio/LangToggle";
@@ -70,30 +70,27 @@ export default async function StudioLanding() {
       {/* ================= NAV ================= */}
       <header className="sticky top-0 z-40 border-b border-white/8 bg-[#0a0a0a]/85 backdrop-blur-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <SMonogram size={22} color="#fafafa" className="transition-transform group-hover:scale-110" />
-            <span className="text-[15px] font-semibold tracking-[-0.03em]">surcodia</span>
-            <span className="mt-0.5 font-mono text-[8.5px] uppercase tracking-[0.4em] text-white/45">
-              studio
-            </span>
+          <Link href="/" className="min-w-0 transition-opacity hover:opacity-85">
+            <StudioBrand />
           </Link>
           {/* Desktop nav (sm+) */}
           <nav className="hidden sm:flex items-center gap-1 sm:gap-2">
-            <a href="#nichos" className="px-3 py-1.5 text-xs text-white/55 transition hover:text-white">
+            <a href="#nichos" className="font-pixel px-3 py-1.5 text-[10px] text-white/55 transition hover:text-white">
               {s.navNiches}
             </a>
-            <a href="#proyectos" className="px-3 py-1.5 text-xs text-white/55 transition hover:text-white">
+            <a href="#proyectos" className="font-pixel px-3 py-1.5 text-[10px] text-white/55 transition hover:text-white">
               {s.navProjects}
             </a>
-            <a href="#contacto" className="px-3 py-1.5 text-xs text-white/55 transition hover:text-white">
+            <a href="#contacto" className="font-pixel px-3 py-1.5 text-[10px] text-white/55 transition hover:text-white">
               {s.navContact}
             </a>
             <LangToggle locale={locale} />
             <Link
-              href={user ? "/ingreso" : "/login"}
-              className="ml-1 border border-white/15 bg-white/[0.04] px-3.5 py-1.5 text-xs text-white/90 transition hover:border-white/35 hover:bg-white/[0.09]"
+              href="/contanos"
+              className="ml-1 inline-flex h-8 items-center justify-center gap-1.5 bg-[#0070F3] px-3.5 text-xs font-medium text-white transition hover:bg-[#0060d3]"
             >
-              {user ? s.navPanel : s.navClients}
+              {s.heroCtaA}
+              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </nav>
 

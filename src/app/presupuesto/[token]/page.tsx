@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Landmark, MessageCircle, Wallet } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatUsd } from "@/lib/format";
-import { SMonogram } from "@/components/studio/pixel";
+import { StudioBrand } from "@/components/studio/pixel";
 import { PixelBackdrop } from "@/components/studio/PixelBackdrop";
 import { DecideButtons } from "./_components/DecideButtons";
 
@@ -85,12 +85,8 @@ export default async function QuotePublicPage({
 
       <header className="sticky top-0 z-40 border-b border-white/8 bg-[#0a0a0a]/85 backdrop-blur-sm">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-3.5">
-          <Link href="/" className="flex items-center gap-2.5">
-            <SMonogram size={22} color="#fafafa" />
-            <span className="text-[15px] font-semibold tracking-[-0.03em]">surcodia</span>
-            <span className="mt-0.5 font-mono text-[8.5px] uppercase tracking-[0.4em] text-white/45">
-              studio
-            </span>
+          <Link href="/" className="min-w-0 transition-opacity hover:opacity-85">
+            <StudioBrand />
           </Link>
         </div>
       </header>

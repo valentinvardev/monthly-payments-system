@@ -36,7 +36,7 @@ export const leadsRouter = createTRPCRouter({
         problem: z.string().min(20).max(4000),
         budgetRange: z.enum(values(BUDGET_OPTIONS)),
         urgency: z.enum(values(URGENCY_OPTIONS)),
-        locale: z.enum(["es", "en"]).default("es"),
+        locale: z.enum(["es", "en", "pt"]).default("es"),
         website: z.string().max(200).optional(),
       }),
     )
@@ -85,10 +85,12 @@ export const leadsRouter = createTRPCRouter({
           subject:
             lead.locale === "en"
               ? "We got your message — Surcodia Studio"
-              : "Recibimos tu consulta — Surcodia Studio",
+              : lead.locale === "pt"
+                ? "Recebemos sua mensagem — Surcodia Studio"
+                : "Recibimos tu consulta — Surcodia Studio",
           template: ProjectLeadConfirmEmail({
             name: lead.name,
-            locale: lead.locale as "es" | "en",
+            locale: lead.locale as "es" | "en" | "pt",
           }),
         });
       });
