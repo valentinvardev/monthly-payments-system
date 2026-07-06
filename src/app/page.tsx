@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { existsSync } from "node:fs";
+import path from "node:path";
 import Image from "next/image";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
@@ -15,6 +17,7 @@ import { Marquee } from "@/components/studio/Marquee";
 import { LangToggle } from "@/components/studio/LangToggle";
 import { StudioMobileMenu } from "@/components/studio/StudioMobileMenu";
 import { TechBadges } from "@/components/studio/TechBadges";
+import { BelgranoSlider } from "@/components/studio/BelgranoSlider";
 
 export const metadata: Metadata = {
   title: "Surcodia Studio — Software del sur",
@@ -45,6 +48,12 @@ export default async function StudioLanding() {
     getFeaturedProjects(),
   ]);
   const s = t(locale);
+
+  // Fotos vendidas de Belgrano: se agregan soltando foto-1.jpg / foto-2.jpg /
+  // foto-3.jpg en public/belgrano/ — el slider muestra las que existan.
+  const belgranoPhotos = [1, 2, 3]
+    .map((n) => `/belgrano/foto-${n}.jpg`)
+    .filter((p) => existsSync(path.join(process.cwd(), "public", p)));
 
   return (
     <div className="relative min-h-screen overflow-x-clip bg-[#0a0a0a] text-[#fafafa]">
@@ -204,26 +213,40 @@ export default async function StudioLanding() {
 
         {/* ============ FRANJA BELGRANO (caso real, fotografía) ============ */}
         <section className="border-y border-white/10 bg-[#6CACE4] text-[#0a0a0a]">
-          <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-5 py-10 sm:flex-row sm:items-center">
-            <Image
-              src="/pixel/belgrano.png"
-              alt="Escudo pixel celeste de Belgrano de Córdoba"
-              width={88}
-              height={88}
-              unoptimized
-              className="pixelated shrink-0"
-            />
-            <div className="min-w-0">
-              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-[#0a0a0a]/60">
-                {s.belgranoTag}
-              </p>
-              <h3 className="mt-2 max-w-[28ch] font-display text-2xl font-semibold leading-tight tracking-[-0.02em] sm:text-3xl">
-                {s.belgranoTitle}
-              </h3>
-              <p className="mt-2 max-w-[52ch] text-sm font-medium text-[#0a0a0a]/70">
-                {s.belgranoSub}
-              </p>
+          <div className="mx-auto grid max-w-6xl items-center gap-8 px-5 py-12 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
+              <Image
+                src="/belgrano/escudo.png"
+                alt="Escudo del Club Atlético Belgrano de Córdoba"
+                width={96}
+                height={96}
+                unoptimized
+                className="shrink-0"
+              />
+              <div className="min-w-0">
+                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-[#0a0a0a]/60">
+                  {s.belgranoTag}
+                </p>
+                <h3 className="mt-2 max-w-[28ch] font-display text-2xl font-semibold leading-tight tracking-[-0.02em] sm:text-3xl">
+                  {s.belgranoTitle}
+                </h3>
+                <p className="mt-2 max-w-[52ch] text-sm font-medium text-[#0a0a0a]/70">
+                  {s.belgranoSub}
+                </p>
+                <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-[#0a0a0a]/60">
+                  {s.belgranoPhotosBy}{" "}
+                  <a
+                    href="https://ivanamaritano.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-[#0a0a0a]/85 underline decoration-[#0a0a0a]/35 underline-offset-2 transition hover:text-[#0a0a0a]"
+                  >
+                    Ivana Maritano — ivanamaritano.com
+                  </a>
+                </p>
+              </div>
             </div>
+            <BelgranoSlider photos={belgranoPhotos} placeholder={s.belgranoPlaceholder} />
           </div>
         </section>
 
@@ -268,8 +291,8 @@ export default async function StudioLanding() {
                       href={p.liveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-5 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-white/70 transition group-hover:text-white"
-                      style={{ color: undefined }}
+                      className="mt-5 inline-flex items-center justify-center gap-2 border border-white/20 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/[0.1]"
+                      style={{ borderColor: `${accent}66` }}
                     >
                       {s.projectsVisit}
                       <span aria-hidden style={{ color: accent }}>→</span>
