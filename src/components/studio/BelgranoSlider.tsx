@@ -54,7 +54,7 @@ export function BelgranoSlider({
           />
         ))}
         {badge && (
-          <span className="absolute left-0 top-3 inline-flex items-center gap-2 bg-[#0a0a0a] py-1.5 pl-3 pr-4 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-[#fafafa]">
+          <span className="absolute bottom-3 right-0 inline-flex items-center gap-2 bg-[#0a0a0a] py-1.5 pl-4 pr-3 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-[#fafafa]">
             <span className="inline-block h-2 w-2 bg-[#6CACE4]" />
             {badge}
           </span>

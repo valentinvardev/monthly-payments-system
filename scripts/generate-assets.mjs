@@ -34,6 +34,11 @@ const STYLE_DNA = (accent) =>
 const BANNER_DNA = (accent) =>
   `wide 8-bit pixel art scene, strict palette: near-black #0A0A0A, off-white #FAFAFA, one mid gray #8A8A86, single accent ${accent} under 10% of pixels, flat solid colors, no anti-aliasing, crisp pixel grid, minimalist composition with generous empty dark space on one side for text overlay, no text, no letters, no watermark`;
 
+// Banners de tarjeta: acá NO va espacio vacío — composición rica que llena
+// el frame de borde a borde (los de nicho se muestran con object-cover).
+const CARD_BANNER_DNA = (accent) =>
+  `wide 8-bit pixel art scene, rich detailed composition filling the ENTIRE frame edge to edge, background fully painted with pixel detail everywhere, no large empty or solid-black areas, strict palette: near-black #0A0A0A, off-white #FAFAFA, one mid gray #8A8A86, single accent ${accent} on roughly 15% of pixels, flat solid colors, no anti-aliasing, crisp pixel grid, no text, no letters, no watermark`;
+
 // grid = ancho lógico al que se reduce; scale = factor de re-escalado;
 // transparent = quitar el fondo (personajes sí, banners no).
 const CATALOG = {
@@ -117,7 +122,7 @@ const CATALOG = {
     grid: 240,
     scale: 6,
     prompt: (a) =>
-      `${BANNER_DNA(a)}. Scene: a pixel art stadium at night seen from the stands, tiny white camera flashes scattered in the crowd, one photographer silhouette in the foreground holding a camera with an accent-colored lens`,
+      `${CARD_BANNER_DNA(a)}. Scene: a packed football stadium at night that fills the whole frame — stands crowded with tiny pixel spectators from edge to edge, dozens of white camera flashes popping across the crowd, tall floodlight towers, a strip of green-gray pitch along the bottom, one photographer silhouette with an accent-colored camera lens in the foreground corner`,
   },
   "banner-ecommerce": {
     accent: ACCENT.purple,
@@ -125,7 +130,7 @@ const CATALOG = {
     grid: 240,
     scale: 6,
     prompt: (a) =>
-      `${BANNER_DNA(a)}. Scene: a tiny pixel storefront at night with one glowing accent storefront sign, a conveyor belt carrying small package boxes out the door toward the viewer`,
+      `${CARD_BANNER_DNA(a)}. Scene: a bustling pixel shopping street at night filling the entire frame — a row of small storefronts with glowing accent signs, shelves of tiny products visible through windows, a conveyor belt crossing the foreground carrying package boxes, stacked parcels, a tiny delivery cart, hanging cables and rooftops closing the top of the frame`,
   },
   "banner-ia": {
     accent: ACCENT.teal,
@@ -133,7 +138,7 @@ const CATALOG = {
     grid: 240,
     scale: 6,
     prompt: (a) =>
-      `${BANNER_DNA(a)}. Scene: a dark terminal room with three small CRT screens, each showing a single accent-colored cursor, a tiny friendly CRT-headed robot working alone at the middle screen`,
+      `${CARD_BANNER_DNA(a)}. Scene: a mission-control room wall-to-wall with technology filling the whole frame — a large wall of stacked CRT monitors each glowing with tiny accent-colored cursors and graphs, desks with keyboards and tangled cables in the foreground, server racks with blinking lights on both sides, one tiny friendly CRT-headed robot working at the central desk`,
   },
 };
 

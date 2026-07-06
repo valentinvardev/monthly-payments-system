@@ -29,6 +29,7 @@ const STRINGS = {
 
     nichesEyebrow: "01 · NICHOS",
     nichesTitle: "Tres mundos, un mismo estándar.",
+    nichesCta: "Ver proyectos",
 
     projectsEyebrow: "02 · PROYECTOS",
     projectsTitle: "Cosas reales, funcionando en producción.",
@@ -36,7 +37,7 @@ const STRINGS = {
 
     belgranoTag: "CASO REAL · FOTOGRAFÍA DEPORTIVA",
     belgranoTitle: "Vendimos las fotos del campeón de la Liga Argentina.",
-    belgranoSub: "Plataforma de venta de fotos con búsqueda por dorsal, para los hinchas de Belgrano de Córdoba.",
+    belgranoSub: "Búsqueda por dorsal y reconocimiento facial, para los hinchas y campeones.",
     belgranoPhotosBy: "Fotos:",
     belgranoPlaceholder: "3 FOTOS · PRÓXIMAMENTE",
     belgranoBadge: "COMPRADAS POR LOS JUGADORES",
@@ -74,6 +75,7 @@ const STRINGS = {
 
     nichesEyebrow: "01 · NICHES",
     nichesTitle: "Three worlds, one standard.",
+    nichesCta: "See projects",
 
     projectsEyebrow: "02 · WORK",
     projectsTitle: "Real things, running in production.",
@@ -81,7 +83,7 @@ const STRINGS = {
 
     belgranoTag: "REAL CASE · SPORTS PHOTOGRAPHY",
     belgranoTitle: "We sold the photos of the Argentine league champion.",
-    belgranoSub: "Photo marketplace with bib-number search, for the fans of Belgrano de Córdoba.",
+    belgranoSub: "Bib-number search and facial recognition, for the fans and the champions.",
     belgranoPhotosBy: "Photos:",
     belgranoPlaceholder: "3 PHOTOS · COMING SOON",
     belgranoBadge: "BOUGHT BY THE PLAYERS THEMSELVES",

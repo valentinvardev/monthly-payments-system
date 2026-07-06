@@ -192,8 +192,16 @@ export default async function StudioLanding() {
                     />
                     <h3 className="pr-8 text-lg font-semibold tracking-[-0.02em]">{name}</h3>
                     <p className="mt-3 text-[13.5px] leading-relaxed text-white/55">{tagline}</p>
-                    {art && (
-                      <div className="mt-5 flex justify-end">
+                    <div className="mt-5 flex items-end justify-between gap-3">
+                      <a
+                        href="#proyectos"
+                        className="inline-flex items-center gap-2 border border-white/20 bg-white/[0.04] px-4 py-2 text-[13px] font-medium text-white/90 transition hover:bg-white/[0.1]"
+                        style={{ borderColor: `${accent}66` }}
+                      >
+                        {s.nichesCta}
+                        <span aria-hidden style={{ color: accent }}>→</span>
+                      </a>
+                      {art && (
                         <Image
                           src={art.character}
                           alt=""
@@ -202,8 +210,8 @@ export default async function StudioLanding() {
                           unoptimized
                           className="pixelated opacity-85 transition-transform duration-300 group-hover:-translate-y-1"
                         />
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </article>
               );
