@@ -58,6 +58,14 @@ enum EmailKind {
   PAYMENT_REVIEW_REQUIRED
   WELCOME
   MAGIC_LINK_INFO
+  PROJECT_LEAD
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  ARCHIVED
+  CONVERTED
 }
 
 model User {
@@ -222,4 +230,28 @@ model ExchangeRate {
   fetchedAt DateTime @default(now())
 
   @@index([source, pair, fetchedAt])
+}
+
+// Lead del formulario público "Contanos tu proyecto" (/contanos).
+// Los campos de selección guardan slugs estables (no labels traducidos)
+// para poder filtrar/reportar sin importar el idioma del visitante.
+model ProjectLead {
+  id           String     @id @default(cuid())
+  name         String
+  email        String
+  company      String?
+  niche        String // fotografia | ecommerce | ia | otro
+  projectType  String // nuevo | tienda | sistema | automatizacion | mejora
+  currentState String // nada | redes | sitio | sistema
+  currentUrl   String?
+  problem      String
+  budgetRange  String // lt500 | 500-1500 | 1500-5000 | gt5000 | nose
+  urgency      String // ya | mes | trimestre | explorando
+  locale       String     @default("es")
+  status       LeadStatus @default(NEW)
+  notes        String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([status, createdAt])
 }
