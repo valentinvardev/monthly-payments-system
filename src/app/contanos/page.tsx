@@ -19,7 +19,7 @@ export default async function ContanosPage() {
     <div className="relative min-h-screen overflow-x-clip bg-[#0a0a0a] text-[#fafafa]">
       <PixelBackdrop />
 
-      <header className="sticky top-0 z-40 border-b border-white/8 bg-[#0a0a0a]/85 backdrop-blur-sm">
+      <header className="sticky top-0 z-40 border-b border-white/8 bg-[#0a0a0a] md:bg-[#0a0a0a]/85 md:backdrop-blur-sm">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-5 py-3.5">
           <Link href="/" className="min-w-0 transition-opacity hover:opacity-85">
             <StudioBrand />
