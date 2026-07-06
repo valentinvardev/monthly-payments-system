@@ -13,6 +13,8 @@ import { CruxMark, PixelWord, SMonogram } from "@/components/studio/pixel";
 import { PixelBackdrop } from "@/components/studio/PixelBackdrop";
 import { Marquee } from "@/components/studio/Marquee";
 import { LangToggle } from "@/components/studio/LangToggle";
+import { StudioMobileMenu } from "@/components/studio/StudioMobileMenu";
+import { TechBadges } from "@/components/studio/TechBadges";
 
 export const metadata: Metadata = {
   title: "Surcodia Studio — Software del sur",
@@ -58,14 +60,15 @@ export default async function StudioLanding() {
               studio
             </span>
           </Link>
-          <nav className="flex items-center gap-1 sm:gap-2">
-            <a href="#nichos" className="hidden sm:block px-3 py-1.5 text-xs text-white/55 transition hover:text-white">
+          {/* Desktop nav (sm+) */}
+          <nav className="hidden sm:flex items-center gap-1 sm:gap-2">
+            <a href="#nichos" className="px-3 py-1.5 text-xs text-white/55 transition hover:text-white">
               {s.navNiches}
             </a>
-            <a href="#proyectos" className="hidden sm:block px-3 py-1.5 text-xs text-white/55 transition hover:text-white">
+            <a href="#proyectos" className="px-3 py-1.5 text-xs text-white/55 transition hover:text-white">
               {s.navProjects}
             </a>
-            <a href="#contacto" className="hidden sm:block px-3 py-1.5 text-xs text-white/55 transition hover:text-white">
+            <a href="#contacto" className="px-3 py-1.5 text-xs text-white/55 transition hover:text-white">
               {s.navContact}
             </a>
             <LangToggle locale={locale} />
@@ -76,6 +79,18 @@ export default async function StudioLanding() {
               {user ? s.navPanel : s.navClients}
             </Link>
           </nav>
+
+          {/* Mobile: hamburguesa + sidebar */}
+          <StudioMobileMenu
+            items={[
+              { href: "#nichos", label: s.navNiches },
+              { href: "#proyectos", label: s.navProjects },
+              { href: "#contacto", label: s.navContact },
+            ]}
+            locale={locale}
+            loginHref={user ? "/ingreso" : "/login"}
+            loginLabel={user ? s.navPanel : s.navClients}
+          />
         </div>
       </header>
 
@@ -187,6 +202,31 @@ export default async function StudioLanding() {
           </div>
         </section>
 
+        {/* ============ FRANJA BELGRANO (caso real, fotografía) ============ */}
+        <section className="border-y border-white/10 bg-[#6CACE4] text-[#0a0a0a]">
+          <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-5 py-10 sm:flex-row sm:items-center">
+            <Image
+              src="/pixel/belgrano.png"
+              alt="Escudo pixel celeste de Belgrano de Córdoba"
+              width={88}
+              height={88}
+              unoptimized
+              className="pixelated shrink-0"
+            />
+            <div className="min-w-0">
+              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-[#0a0a0a]/60">
+                {s.belgranoTag}
+              </p>
+              <h3 className="mt-2 max-w-[28ch] font-display text-2xl font-semibold leading-tight tracking-[-0.02em] sm:text-3xl">
+                {s.belgranoTitle}
+              </h3>
+              <p className="mt-2 max-w-[52ch] text-sm font-medium text-[#0a0a0a]/70">
+                {s.belgranoSub}
+              </p>
+            </div>
+          </div>
+        </section>
+
         <div className="studio-dissolve" aria-hidden />
 
         {/* ================= PROYECTOS ================= */}
@@ -268,6 +308,12 @@ export default async function StudioLanding() {
             <p className="mt-6 border-l-2 border-[#0070F3] pl-4 font-display text-lg font-light italic text-white/80">
               {s.manifestoQuote}
             </p>
+            <div className="mt-10">
+              <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.3em] text-white/45">
+                {s.stackEyebrow}
+              </p>
+              <TechBadges />
+            </div>
           </div>
         </section>
 

@@ -16,46 +16,57 @@ export function PixelBackdrop() {
     if (!ctx) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let stars: { x: number; y: number; s: number; base: number; speed: number; phase: number; accent: boolean }[] = [];
+    const CELL = 4; // los píxeles viven en una grilla de 4px — el drift salta de celda en celda, bien retro
+    let stars: { x: number; y: number; s: number; base: number; speed: number; phase: number; vy: number; accent: boolean }[] = [];
     let raf = 0;
     let last = 0;
+    let lastDraw = 0;
 
     function seed() {
       const w = (canvas!.width = window.innerWidth);
       const h = (canvas!.height = window.innerHeight);
-      const count = Math.floor((w * h) / 16000);
-      stars = Array.from({ length: count }, () => {
-        const cell = 3;
-        return {
-          x: Math.floor((Math.random() * w) / cell) * cell,
-          y: Math.floor((Math.random() * h) / cell) * cell,
-          s: Math.random() < 0.82 ? 2 : 3,
-          base: 0.12 + Math.random() * 0.5,
-          speed: 0.3 + Math.random() * 0.9,
-          phase: Math.random() * Math.PI * 2,
-          accent: Math.random() < 0.03,
-        };
-      });
+      const count = Math.floor((w * h) / 11000);
+      stars = Array.from({ length: count }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        s: Math.random() < 0.72 ? CELL : Math.random() < 0.9 ? CELL * 1.5 : CELL * 2,
+        base: 0.14 + Math.random() * 0.55,
+        speed: 0.3 + Math.random() * 0.9,
+        phase: Math.random() * Math.PI * 2,
+        vy: 4 + Math.random() * 14, // px/segundo hacia arriba — deriva lenta
+        accent: Math.random() < 0.05,
+      }));
     }
 
-    function draw(t: number) {
+    function draw(t: number, dt: number) {
       const w = canvas!.width;
       const h = canvas!.height;
       ctx!.clearRect(0, 0, w, h);
       for (const st of stars) {
-        const tw = reduced ? 1 : 0.55 + 0.45 * Math.sin(t / 1000 * st.speed + st.phase);
+        if (!reduced) {
+          st.y -= st.vy * dt;
+          if (st.y < -CELL * 2) {
+            st.y = h + CELL;
+            st.x = Math.random() * w;
+          }
+        }
+        const tw = reduced ? 1 : 0.5 + 0.5 * Math.sin((t / 1000) * st.speed + st.phase);
         ctx!.globalAlpha = st.base * tw;
         ctx!.fillStyle = st.accent ? "#0070F3" : "#FAFAFA";
-        ctx!.fillRect(st.x, st.y, st.s, st.s);
+        // Snap a la grilla al dibujar: el movimiento avanza en saltos de
+        // celda, no suave — es lo que lo hace sentir pixel-art y no "polvo".
+        ctx!.fillRect(Math.round(st.x / CELL) * CELL, Math.round(st.y / CELL) * CELL, st.s, st.s);
       }
       ctx!.globalAlpha = 1;
     }
 
     function loop(t: number) {
-      // ~24 fps alcanza para un titileo — no quemamos batería.
-      if (t - last > 40) {
+      // ~30 fps alcanza — no quemamos batería.
+      if (t - lastDraw > 33) {
+        const dt = last ? Math.min((t - last) / 1000, 0.1) : 0;
         last = t;
-        draw(t);
+        lastDraw = t;
+        draw(t, dt);
       }
       raf = requestAnimationFrame(loop);
     }
@@ -70,7 +81,7 @@ export function PixelBackdrop() {
 
     seed();
     if (reduced) {
-      draw(0);
+      draw(0, 0);
     } else {
       raf = requestAnimationFrame(loop);
     }

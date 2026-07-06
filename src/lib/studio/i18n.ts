@@ -34,6 +34,12 @@ const STRINGS = {
     projectsTitle: "Cosas reales, funcionando en producción.",
     projectsVisit: "Visitar",
 
+    belgranoTag: "CASO REAL · FOTOGRAFÍA DEPORTIVA",
+    belgranoTitle: "Vendimos las fotos del campeón de la Liga Argentina.",
+    belgranoSub: "Plataforma de venta de fotos con búsqueda por dorsal, para los hinchas de Belgrano de Córdoba.",
+
+    stackEyebrow: "CON QUÉ CONSTRUIMOS",
+
     manifestoEyebrow: "03 · MANIFIESTO",
     manifestoTitle: "Sur + codia.",
     manifestoBody:
@@ -69,6 +75,12 @@ const STRINGS = {
     projectsEyebrow: "02 · WORK",
     projectsTitle: "Real things, running in production.",
     projectsVisit: "Visit",
+
+    belgranoTag: "REAL CASE · SPORTS PHOTOGRAPHY",
+    belgranoTitle: "We sold the photos of the Argentine league champion.",
+    belgranoSub: "Photo marketplace with bib-number search, for the fans of Belgrano de Córdoba.",
+
+    stackEyebrow: "WHAT WE BUILD WITH",
 
     manifestoEyebrow: "03 · MANIFESTO",
     manifestoTitle: "Sur + codia.",
