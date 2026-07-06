@@ -104,7 +104,7 @@ const CATALOG = {
     scale: 6,
     transparent: true,
     prompt: (a) =>
-      `${STYLE_DNA(a)}. Scene as a single sprite: a tall thin pixel construction crane lifting one giant glowing pixel block in accent color ${a} into the sky, placing it as the final star of the Southern Cross constellation formed by four oversized floating white pixel blocks, a tiny robot builder with a hard hat standing at the crane base looking up, one thin cable connecting crane to the glowing block, composition taller than wide inside the square`,
+      `${STYLE_DNA(a)}. Scene as a single sprite: a tall thin pixel construction crane lifting one giant glowing CUBE in accent color ${a} into the sky, placing it as the final piece of a constellation formed by four oversized floating white SQUARE CUBES (strictly square blocks with hard flat faces, like minecraft blocks or giant pixels, absolutely no spheres, no round shapes), a tiny robot builder with a hard hat standing at the crane base looking up, one thin cable connecting crane to the glowing cube, composition taller than wide inside the square`,
   },
   // Escudo pixel estilo Belgrano (celeste) para la franja de la landing.
   // Interpretación pixel-art, no el escudo oficial — si Valentin quiere el

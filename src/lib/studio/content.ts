@@ -64,7 +64,7 @@ export const ACCENT_HEX: Record<string, string> = {
 // Assets pixel por nicho (generados con scripts/generate-assets.mjs).
 // PIXEL_V rompe el caché de Cloudflare/navegador cuando regeneramos un
 // asset manteniendo el nombre de archivo — subilo en 1 cada vez.
-export const PIXEL_V = "?v=3";
+export const PIXEL_V = "?v=4";
 
 export const NICHE_ART: Record<string, { banner: string; character: string }> = {
   "fotografia-eventos": {
