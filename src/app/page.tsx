@@ -6,7 +6,6 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { getLocale, t } from "@/lib/studio/i18n";
 import {
-  ACCENT_HEX,
   NICHE_ART,
   PIXEL_V,
   getFeaturedProjects,
@@ -17,8 +16,9 @@ import { PixelBackdrop } from "@/components/studio/PixelBackdrop";
 import { Marquee } from "@/components/studio/Marquee";
 import { LangToggle } from "@/components/studio/LangToggle";
 import { StudioMobileMenu } from "@/components/studio/StudioMobileMenu";
-import { TechBadges } from "@/components/studio/TechBadges";
+import { StackBadge, TechBadges } from "@/components/studio/TechBadges";
 import { BelgranoSlider } from "@/components/studio/BelgranoSlider";
+import { PreviewModal } from "@/components/studio/PreviewModal";
 
 export const metadata: Metadata = {
   title: "Surcodia Studio — Software del sur",
@@ -55,6 +55,12 @@ export default async function StudioLanding() {
   const belgranoPhotos = [1, 2, 3]
     .map((n) => `/belgrano/foto-${n}.jpg`)
     .filter((p) => existsSync(path.join(process.cwd(), "public", p)));
+
+  // Capturas de proyectos (scripts las generan a public/previews/<slug>.jpg).
+  const previewOf = (slug: string) => {
+    const p = `/previews/${slug}.jpg`;
+    return existsSync(path.join(process.cwd(), "public", p)) ? p : null;
+  };
 
   return (
     <div className="relative min-h-screen overflow-x-clip bg-[#0a0a0a] text-[#fafafa]">
@@ -121,13 +127,13 @@ export default async function StudioLanding() {
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Link
                 href="/contanos"
-                className="border border-[#0070F3] bg-[#0070F3] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#0060d3]"
+                className="inline-flex h-11 items-center justify-center rounded-md bg-[#0070F3] px-5 text-sm font-medium text-white transition hover:bg-[#0060d3]"
               >
                 {s.heroCtaA}
               </Link>
               <a
                 href="#proyectos"
-                className="border border-white/18 px-5 py-2.5 text-sm text-white/85 transition hover:border-white/40 hover:text-white"
+                className="inline-flex h-11 items-center justify-center rounded-md border border-white/12 bg-[#161616] px-5 text-sm text-white/90 transition hover:bg-[#1f1f1f]"
               >
                 {s.heroCtaB}
               </a>
@@ -162,21 +168,15 @@ export default async function StudioLanding() {
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {niches.map((n) => {
               const art = NICHE_ART[n.slug];
-              const accent = ACCENT_HEX[n.color] ?? ACCENT_HEX.blue;
               const name = locale === "en" && n.nameEn ? n.nameEn : n.name;
               const tagline = locale === "en" && n.taglineEn ? n.taglineEn : n.tagline;
               return (
                 <article
                   key={n.slug}
-                  className="group relative border border-white/10 bg-[#0a0a0a] transition-colors duration-300"
-                  style={{ ["--acc" as string]: accent }}
+                  className="group flex flex-col overflow-hidden rounded-lg border border-white/12 bg-[#0f0f0f] transition-colors hover:border-white/25"
                 >
-                  <div
-                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                    style={{ boxShadow: `inset 0 0 0 1px ${accent}` }}
-                  />
                   {art && (
-                    <div className="relative aspect-[16/9] overflow-hidden border-b border-white/10">
+                    <div className="relative aspect-[16/9] overflow-hidden border-b border-white/10 bg-[#0a0a0a]">
                       <Image
                         src={art.banner}
                         alt=""
@@ -186,30 +186,25 @@ export default async function StudioLanding() {
                       />
                     </div>
                   )}
-                  <div className="relative p-6">
-                    <span
-                      className="absolute right-6 top-6 inline-block h-2 w-2"
-                      style={{ backgroundColor: accent }}
-                    />
-                    <h3 className="pr-8 text-lg font-semibold tracking-[-0.02em]">{name}</h3>
-                    <p className="mt-3 text-[13.5px] leading-relaxed text-white/55">{tagline}</p>
-                    <div className="mt-5 flex items-end justify-between gap-3">
+                  <div className="flex flex-1 flex-col p-6">
+                    <h3 className="text-lg font-semibold tracking-[-0.02em]">{name}</h3>
+                    <p className="mt-2.5 text-[13.5px] leading-relaxed text-white/55">{tagline}</p>
+                    <div className="mt-auto flex items-end justify-between gap-3 pt-6">
                       <a
                         href="#proyectos"
-                        className="inline-flex items-center gap-2 border border-white/20 bg-white/[0.04] px-4 py-2 text-[13px] font-medium text-white/90 transition hover:bg-white/[0.1]"
-                        style={{ borderColor: `${accent}66` }}
+                        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-white/12 bg-[#161616] px-4 text-[13px] font-medium text-white/90 transition hover:bg-[#1f1f1f]"
                       >
                         {s.nichesCta}
-                        <span aria-hidden style={{ color: accent }}>→</span>
+                        <span aria-hidden className="text-white/50">→</span>
                       </a>
                       {art && (
                         <Image
                           src={art.character}
                           alt=""
-                          width={72}
-                          height={72}
+                          width={64}
+                          height={64}
                           unoptimized
-                          className="pixelated opacity-85 transition-transform duration-300 group-hover:-translate-y-1"
+                          className="pixelated -mb-1 opacity-85 transition-transform duration-300 group-hover:-translate-y-1"
                         />
                       )}
                     </div>
@@ -275,58 +270,78 @@ export default async function StudioLanding() {
           </h2>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {projects.map((p) => {
-              const accent = ACCENT_HEX[p.color] ?? ACCENT_HEX.blue;
               const short = locale === "en" && p.shortEn ? p.shortEn : p.short;
+              const preview = previewOf(p.slug);
               return (
                 <article
                   key={p.slug}
-                  className="group flex flex-col border border-white/10 bg-white/[0.02] p-6 transition-colors hover:bg-white/[0.04]"
+                  className="group flex flex-col overflow-hidden rounded-lg border border-white/12 bg-[#0f0f0f] transition-colors hover:border-white/25"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-base font-semibold tracking-[-0.02em]">{p.name}</h3>
-                    <span className="mt-1.5 inline-block h-2 w-2 shrink-0" style={{ backgroundColor: accent }} />
-                  </div>
-                  <p className="mt-3 flex-1 text-[13.5px] leading-relaxed text-white/55">{short}</p>
-                  {p.stack.length > 0 && (
-                    <div className="mt-5 flex flex-wrap gap-1.5">
-                      {p.stack.slice(0, 4).map((tech) => (
-                        <span
-                          key={tech}
-                          className="border border-white/10 px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.12em] text-white/45"
-                        >
-                          {tech}
+                  <div className="relative aspect-[16/10] overflow-hidden border-b border-white/10 bg-[#161616]">
+                    {preview ? (
+                      <Image
+                        src={preview}
+                        alt={`Captura de ${p.name}`}
+                        fill
+                        unoptimized
+                        className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/35">
+                          {s.previewSoon}
                         </span>
-                      ))}
-                    </div>
-                  )}
-                  {p.liveUrl && (
-                    <a
-                      href={p.liveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-5 inline-flex items-center justify-center gap-2 border border-white/20 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-white/90 transition hover:bg-white/[0.1]"
-                      style={{ borderColor: `${accent}66` }}
-                    >
-                      {s.projectsVisit}
-                      <span aria-hidden style={{ color: accent }}>→</span>
-                    </a>
-                  )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-1 flex-col p-6">
+                    <h3 className="text-base font-semibold tracking-[-0.02em]">{p.name}</h3>
+                    <p className="mt-2.5 text-[13.5px] leading-relaxed text-white/55">{short}</p>
+                    {p.stack.length > 0 && (
+                      <div className="mt-4 flex flex-wrap gap-1.5">
+                        {p.stack.slice(0, 5).map((tech) => (
+                          <StackBadge key={tech} name={tech} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-end gap-2 border-t border-white/10 bg-[#0a0a0a] px-6 py-4">
+                    {preview && (
+                      <PreviewModal
+                        title={p.name}
+                        img={preview}
+                        liveUrl={p.liveUrl}
+                        triggerLabel={s.projectsPreview}
+                        openLabel={s.projectsOpen}
+                      />
+                    )}
+                    {p.liveUrl && (
+                      <a
+                        href={p.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex h-9 items-center justify-center rounded-md bg-[#ededed] px-4 text-[13px] font-medium text-[#0a0a0a] transition hover:bg-white"
+                      >
+                        {s.projectsVisit}
+                      </a>
+                    )}
+                  </div>
                 </article>
               );
             })}
           </div>
         </section>
 
-        <Marquee items={MARQUEE_ITEMS.slice().reverse()} accent="#7928CA" />
+        <Marquee items={MARQUEE_ITEMS.slice().reverse()} />
 
         {/* ================= MANIFIESTO ================= */}
         <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-20 lg:grid-cols-[0.7fr_1.3fr]">
           <div className="flex justify-center lg:justify-start">
             <Image
-              src={`/pixel/hornero.png${PIXEL_V}`}
-              alt="El Hornero — el pájaro constructor, mascota pixel de Surcodia"
-              width={230}
-              height={230}
+              src={`/pixel/constructor.png${PIXEL_V}`}
+              alt="Una grúa pixel construyendo la Cruz del Sur"
+              width={340}
+              height={340}
               unoptimized
               className="pixelated"
             />
@@ -376,7 +391,7 @@ export default async function StudioLanding() {
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
                 href="/contanos"
-                className="inline-block border border-[#0070F3] bg-[#0070F3] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#0060d3]"
+                className="inline-flex h-12 items-center justify-center rounded-md bg-[#0070F3] px-6 text-sm font-medium text-white transition hover:bg-[#0060d3]"
               >
                 {s.heroCtaA}
               </Link>

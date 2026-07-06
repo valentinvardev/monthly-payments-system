@@ -33,7 +33,10 @@ const STRINGS = {
 
     projectsEyebrow: "02 · PROYECTOS",
     projectsTitle: "Cosas reales, funcionando en producción.",
-    projectsVisit: "Ver proyecto",
+    projectsVisit: "Visitar",
+    projectsPreview: "Ver preview",
+    projectsOpen: "Abrir sitio",
+    previewSoon: "Captura próximamente",
 
     belgranoTag: "CASO REAL · FOTOGRAFÍA DEPORTIVA",
     belgranoTitle: "Vendimos las fotos del campeón de la Liga Argentina.",
@@ -79,7 +82,10 @@ const STRINGS = {
 
     projectsEyebrow: "02 · WORK",
     projectsTitle: "Real things, running in production.",
-    projectsVisit: "View project",
+    projectsVisit: "Visit",
+    projectsPreview: "Preview",
+    projectsOpen: "Open site",
+    previewSoon: "Screenshot coming soon",
 
     belgranoTag: "REAL CASE · SPORTS PHOTOGRAPHY",
     belgranoTitle: "We sold the photos of the Argentine league champion.",

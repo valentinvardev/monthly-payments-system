@@ -49,7 +49,7 @@ const CATALOG = {
     scale: 8,
     transparent: true,
     prompt: (a) =>
-      `${STYLE_DNA(a)}. Character: a relaxed south american software developer sitting cross-legged with a laptop on his lap, wearing a plain hoodie, holding a mate (traditional argentine gourd drink with metal straw) in one hand, small steam pixels rising from the mate in accent color ${a}, face lit by the laptop screen glow (2-3 accent pixels on the face), calm confident expression`,
+      `${STYLE_DNA(a)}. Character: a friendly robot with an old CRT monitor as its head sitting cross-legged with a laptop on its lap, two calm accent-color ${a} pixel eyes glowing on the screen, holding a mate (traditional argentine gourd drink with metal straw) in one metal hand, small steam pixels rising from the mate in accent color, relaxed confident pose, subtle bolts and panel lines on the body`,
   },
   hornero: {
     accent: ACCENT.blue,
@@ -96,6 +96,16 @@ const CATALOG = {
     prompt: (a) =>
       `${STYLE_DNA(a)}. Character: a shopping cart with rocket thrusters instead of back wheels, thruster flames as 4-6 pixels in accent color ${a}, one single package box inside the cart, slight forward tilt suggesting speed, tiny motion lines made of 3 gray pixels behind it`,
   },
+  // Manifiesto: la grúa construyendo la Cruz del Sur — "el futuro se programa".
+  constructor: {
+    accent: ACCENT.blue,
+    aspect: "1:1",
+    grid: 128,
+    scale: 6,
+    transparent: true,
+    prompt: (a) =>
+      `${STYLE_DNA(a)}. Scene as a single sprite: a tall thin pixel construction crane lifting one giant glowing pixel block in accent color ${a} into the sky, placing it as the final star of the Southern Cross constellation formed by four oversized floating white pixel blocks, a tiny robot builder with a hard hat standing at the crane base looking up, one thin cable connecting crane to the glowing block, composition taller than wide inside the square`,
+  },
   // Escudo pixel estilo Belgrano (celeste) para la franja de la landing.
   // Interpretación pixel-art, no el escudo oficial — si Valentin quiere el
   // real, reemplaza public/pixel/belgrano.png a mano.
@@ -130,7 +140,7 @@ const CATALOG = {
     grid: 240,
     scale: 6,
     prompt: (a) =>
-      `${CARD_BANNER_DNA(a)}. Scene: a bustling pixel shopping street at night filling the entire frame — a row of small storefronts with glowing accent signs, shelves of tiny products visible through windows, a conveyor belt crossing the foreground carrying package boxes, stacked parcels, a tiny delivery cart, hanging cables and rooftops closing the top of the frame`,
+      `${CARD_BANNER_DNA(a)}. Scene: a calm minimal night street with ONE small storefront on the left third with a softly glowing accent sign, a short conveyor belt in the lower foreground carrying exactly three well-spaced package boxes, one tiny parked delivery cart on the far right, generous breathing room between every element, upper half is a quiet night sky fully painted with subtle sparse dithering and a few single-pixel stars (no pure black voids), uncluttered, spacious`,
   },
   "banner-ia": {
     accent: ACCENT.teal,
@@ -138,7 +148,7 @@ const CATALOG = {
     grid: 240,
     scale: 6,
     prompt: (a) =>
-      `${CARD_BANNER_DNA(a)}. Scene: a mission-control room wall-to-wall with technology filling the whole frame — a large wall of stacked CRT monitors each glowing with tiny accent-colored cursors and graphs, desks with keyboards and tangled cables in the foreground, server racks with blinking lights on both sides, one tiny friendly CRT-headed robot working at the central desk`,
+      `${CARD_BANNER_DNA(a)}. Scene: a spacious DARK server room at night — near-black walls, floor and ceiling with subtle dither texture, one tall dark server rack on the far left and one on the far right with sparse blinking accent lights as the main light sources, a single small desk in the center with ONE glowing monitor showing a single accent cursor, the tiny friendly CRT-headed robot sitting at it lit only by the screen glow, wide dark empty floor with faint dithered tiles, minimal and breathable, dark moody scene where the accent lights pop`,
   },
 };
 
