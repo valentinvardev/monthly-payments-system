@@ -78,9 +78,9 @@ const T = {
 } as const;
 
 const NICHE_ART: Record<string, string> = {
-  fotografia: "/pixel/camara.png",
-  ecommerce: "/pixel/changuito.png",
-  ia: "/pixel/agente.png",
+  fotografia: "/pixel/camara.png?v=2",
+  ecommerce: "/pixel/changuito.png?v=2",
+  ia: "/pixel/agente.png?v=2",
 };
 
 type Draft = {
@@ -162,7 +162,7 @@ export function IntakeForm({ locale }: { locale: Locale }) {
     return (
       <div className="reveal flex flex-col items-center py-16 text-center">
         <Image
-          src="/pixel/carpincho.png"
+          src="/pixel/carpincho.png?v=2"
           alt=""
           width={200}
           height={200}

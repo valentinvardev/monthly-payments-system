@@ -8,6 +8,7 @@ import { getLocale, t } from "@/lib/studio/i18n";
 import {
   ACCENT_HEX,
   NICHE_ART,
+  PIXEL_V,
   getFeaturedProjects,
   getStudioNiches,
 } from "@/lib/studio/content";
@@ -137,7 +138,7 @@ export default async function StudioLanding() {
               <CruxMark size={56} color="#fafafa" />
             </div>
             <Image
-              src="/pixel/dev-sur.png"
+              src={`/pixel/dev-sur.png${PIXEL_V}`}
               alt="El Dev del Sur — mascota pixel de Surcodia tomando mate con su laptop"
               width={340}
               height={340}
@@ -322,7 +323,7 @@ export default async function StudioLanding() {
         <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-20 lg:grid-cols-[0.7fr_1.3fr]">
           <div className="flex justify-center lg:justify-start">
             <Image
-              src="/pixel/hornero.png"
+              src={`/pixel/hornero.png${PIXEL_V}`}
               alt="El Hornero — el pájaro constructor, mascota pixel de Surcodia"
               width={230}
               height={230}
@@ -356,7 +357,7 @@ export default async function StudioLanding() {
         <section id="contacto" className="relative scroll-mt-20 border-t border-white/8">
           <div className="absolute inset-0 opacity-60">
             <Image
-              src="/pixel/hero-cielo.png"
+              src={`/pixel/hero-cielo.png${PIXEL_V}`}
               alt=""
               fill
               unoptimized

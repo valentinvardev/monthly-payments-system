@@ -62,8 +62,21 @@ export const ACCENT_HEX: Record<string, string> = {
 };
 
 // Assets pixel por nicho (generados con scripts/generate-assets.mjs).
+// PIXEL_V rompe el caché de Cloudflare/navegador cuando regeneramos un
+// asset manteniendo el nombre de archivo — subilo en 1 cada vez.
+export const PIXEL_V = "?v=2";
+
 export const NICHE_ART: Record<string, { banner: string; character: string }> = {
-  "fotografia-eventos": { banner: "/pixel/banner-fotografia.png", character: "/pixel/camara.png" },
-  "e-commerce": { banner: "/pixel/banner-ecommerce.png", character: "/pixel/changuito.png" },
-  "ia-herramientas": { banner: "/pixel/banner-ia.png", character: "/pixel/agente.png" },
+  "fotografia-eventos": {
+    banner: `/pixel/banner-fotografia.png${PIXEL_V}`,
+    character: `/pixel/camara.png${PIXEL_V}`,
+  },
+  "e-commerce": {
+    banner: `/pixel/banner-ecommerce.png${PIXEL_V}`,
+    character: `/pixel/changuito.png${PIXEL_V}`,
+  },
+  "ia-herramientas": {
+    banner: `/pixel/banner-ia.png${PIXEL_V}`,
+    character: `/pixel/agente.png${PIXEL_V}`,
+  },
 };
