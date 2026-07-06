@@ -16,6 +16,11 @@ export function PixelBackdrop() {
     if (!ctx) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // En touch/pantalla chica el loop de canvas compite con el scroll y el
+    // render de la página — ahí el cielo queda ESTÁTICO (se dibuja una vez).
+    const lowPower =
+      window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768;
+    const animate = !reduced && !lowPower;
     const CELL = 4; // los píxeles viven en una grilla de 4px — el drift salta de celda en celda, bien retro
     let stars: { x: number; y: number; s: number; base: number; speed: number; phase: number; vy: number; accent: boolean }[] = [];
     let raf = 0;
@@ -25,7 +30,7 @@ export function PixelBackdrop() {
     function seed() {
       const w = (canvas!.width = window.innerWidth);
       const h = (canvas!.height = window.innerHeight);
-      const count = Math.floor((w * h) / 11000);
+      const count = Math.floor((w * h) / (animate ? 11000 : 15000));
       stars = Array.from({ length: count }, () => ({
         x: Math.random() * w,
         y: Math.random() * h,
@@ -43,14 +48,14 @@ export function PixelBackdrop() {
       const h = canvas!.height;
       ctx!.clearRect(0, 0, w, h);
       for (const st of stars) {
-        if (!reduced) {
+        if (animate) {
           st.y -= st.vy * dt;
           if (st.y < -CELL * 2) {
             st.y = h + CELL;
             st.x = Math.random() * w;
           }
         }
-        const tw = reduced ? 1 : 0.5 + 0.5 * Math.sin((t / 1000) * st.speed + st.phase);
+        const tw = animate ? 0.5 + 0.5 * Math.sin((t / 1000) * st.speed + st.phase) : 1;
         ctx!.globalAlpha = st.base * tw;
         ctx!.fillStyle = st.accent ? "#0070F3" : "#FAFAFA";
         // Snap a la grilla al dibujar: el movimiento avanza en saltos de
@@ -74,22 +79,32 @@ export function PixelBackdrop() {
     function onVisibility() {
       if (document.hidden) {
         cancelAnimationFrame(raf);
-      } else if (!reduced) {
+      } else if (animate) {
         raf = requestAnimationFrame(loop);
       }
     }
 
-    seed();
-    if (reduced) {
-      draw(0, 0);
-    } else {
-      raf = requestAnimationFrame(loop);
+    function onResize() {
+      seed();
+      if (!animate) draw(0, 0);
     }
-    window.addEventListener("resize", seed);
+
+    seed();
+    let startTimer = 0;
+    if (animate) {
+      // Arranque diferido: que la animación no compita con el primer render.
+      startTimer = window.setTimeout(() => {
+        raf = requestAnimationFrame(loop);
+      }, 500);
+    } else {
+      draw(0, 0);
+    }
+    window.addEventListener("resize", onResize);
     document.addEventListener("visibilitychange", onVisibility);
     return () => {
+      clearTimeout(startTimer);
       cancelAnimationFrame(raf);
-      window.removeEventListener("resize", seed);
+      window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);

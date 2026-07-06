@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Landmark, MessageCircle, Wallet } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatUsd } from "@/lib/format";
 import { SMonogram } from "@/components/studio/pixel";
@@ -22,6 +23,12 @@ const T = {
     rejected: "Rechazaste este presupuesto. Si cambiás de idea, escribinos.",
     total: "Total",
     footer: "¿Dudas? Respondé el mail del presupuesto y te contestamos en el día.",
+    nextTitle: "¿Cómo seguimos?",
+    nextSub:
+      "Podés adelantar el pago por cualquiera de estos medios, o coordinarlo directamente con nosotros.",
+    nextSubNoMethods: "Coordinemos el pago y los próximos pasos por mensaje.",
+    nextContact: "Coordinar por mensaje",
+    holder: "Titular",
   },
   en: {
     eyebrow: "PROPOSAL",
@@ -32,6 +39,12 @@ const T = {
     rejected: "You declined this proposal. If you change your mind, write to us.",
     total: "Total",
     footer: "Questions? Reply to the proposal email and we'll answer today.",
+    nextTitle: "What's next?",
+    nextSub:
+      "You can get the payment going through any of these methods, or arrange it directly with us.",
+    nextSubNoMethods: "Let's arrange payment and next steps by message.",
+    nextContact: "Arrange by message",
+    holder: "Holder",
   },
 } as const;
 
@@ -52,6 +65,19 @@ export default async function QuotePublicPage({
   const total = quote.items.reduce((acc, i) => acc + Number(i.amountUsd), 0);
   const expired =
     quote.status === "SENT" && quote.validUntil && quote.validUntil.getTime() < Date.now();
+
+  // Aceptado → mostramos los medios de pago configurados (los mismos del
+  // portal de clientes) + la vía de contacto para acordar por mensaje.
+  const paymentMethods =
+    quote.status === "ACCEPTED"
+      ? await prisma.paymentMethodConfig.findMany({
+          where: { active: true },
+          orderBy: { sortOrder: "asc" },
+        })
+      : [];
+  const contactHref = `mailto:hola@surcodia.com?subject=${encodeURIComponent(
+    `${locale === "en" ? "Proposal accepted" : "Presupuesto aceptado"} — ${quote.title}`,
+  )}`;
 
   return (
     <div className="relative min-h-screen overflow-x-clip bg-[#0a0a0a] text-[#fafafa]">
@@ -150,6 +176,92 @@ export default async function QuotePublicPage({
 
         {quote.status === "SENT" && !expired && (
           <DecideButtons token={quote.token} locale={locale} />
+        )}
+
+        {quote.status === "ACCEPTED" && (
+          <section className="mt-10">
+            <h2 className="font-display text-xl font-medium tracking-[-0.02em]">
+              {s.nextTitle}
+            </h2>
+            <p className="mt-2 max-w-[52ch] text-sm text-white/55">
+              {paymentMethods.length > 0 ? s.nextSub : s.nextSubNoMethods}
+            </p>
+
+            {paymentMethods.length > 0 && (
+              <div className="mt-5 space-y-3">
+                {paymentMethods.map((m) => {
+                  const d = m.details as Record<string, string | undefined>;
+                  return (
+                    <div key={m.id} className="border border-white/12 bg-[#0d0d0c] p-5">
+                      <div className="flex items-center gap-2.5">
+                        {m.kind === "BANK_ACCOUNT" ? (
+                          <Landmark className="h-4 w-4 text-[#0070F3]" />
+                        ) : (
+                          <Wallet className="h-4 w-4 text-[#17C9A5]" />
+                        )}
+                        <p className="text-sm font-semibold text-white/95">{m.label}</p>
+                      </div>
+                      <div className="mt-3 space-y-1 text-[13px] text-white/60">
+                        {m.kind === "BANK_ACCOUNT" ? (
+                          <>
+                            {d.cbu && (
+                              <p>
+                                <span className="text-white/40">CBU</span>{" "}
+                                <span className="font-mono text-white/85">{d.cbu}</span>
+                              </p>
+                            )}
+                            {d.alias && (
+                              <p>
+                                <span className="text-white/40">Alias</span>{" "}
+                                <span className="font-mono text-white/85">{d.alias}</span>
+                              </p>
+                            )}
+                            {d.accountHolder && (
+                              <p>
+                                <span className="text-white/40">{s.holder}</span>{" "}
+                                <span className="text-white/85">{d.accountHolder}</span>
+                                {d.taxId && (
+                                  <>
+                                    {" · "}
+                                    <span className="font-mono text-white/70">{d.taxId}</span>
+                                  </>
+                                )}
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <p>
+                              <span className="font-semibold text-white/85">{d.asset}</span>
+                              {d.network && (
+                                <span className="ml-2 border border-white/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-white/55">
+                                  {d.network}
+                                </span>
+                              )}
+                            </p>
+                            {d.address && (
+                              <p className="break-all font-mono text-white/85">{d.address}</p>
+                            )}
+                          </>
+                        )}
+                        {m.instructions && (
+                          <p className="pt-1 text-[12px] italic text-white/45">{m.instructions}</p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <a
+              href={contactHref}
+              className="mt-5 inline-flex items-center gap-2.5 border border-white/20 bg-white/[0.05] px-5 py-3 text-sm font-medium text-white/90 transition hover:border-white/40 hover:bg-white/[0.09]"
+            >
+              <MessageCircle className="h-4 w-4 text-[#0070F3]" />
+              {s.nextContact}
+            </a>
+          </section>
         )}
 
         <p className="mt-10 text-center font-mono text-[10px] uppercase tracking-[0.18em] text-white/35">

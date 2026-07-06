@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { TRPCError } from "@trpc/server";
 import {
   adminProcedure,
@@ -239,22 +240,26 @@ export const quotesRouter = createTRPCRouter({
         },
       });
 
-      await sendEmail({
-        kind: "QUOTE_DECIDED",
-        to: env.ADMIN_EMAIL,
-        subject:
-          input.decision === "ACCEPTED"
-            ? `✅ ${quote.name} aceptó — ${quote.title}`
-            : `❌ ${quote.name} rechazó — ${quote.title}`,
-        template: QuoteDecidedEmail({
-          name: quote.name,
-          title: quote.title,
-          totalUsd: total(quote.items),
-          accepted: input.decision === "ACCEPTED",
-          reason: input.reason,
-          adminUrl: `${appUrl()}/dashboard/quotes/${quote.id}`,
+      // El aviso al admin sale después de responder — el que aceptó no
+      // tiene por qué esperar el round-trip a Resend.
+      after(() =>
+        sendEmail({
+          kind: "QUOTE_DECIDED",
+          to: env.ADMIN_EMAIL,
+          subject:
+            input.decision === "ACCEPTED"
+              ? `✅ ${quote.name} aceptó — ${quote.title}`
+              : `❌ ${quote.name} rechazó — ${quote.title}`,
+          template: QuoteDecidedEmail({
+            name: quote.name,
+            title: quote.title,
+            totalUsd: total(quote.items),
+            accepted: input.decision === "ACCEPTED",
+            reason: input.reason,
+            adminUrl: `${appUrl()}/dashboard/quotes/${quote.id}`,
+          }),
         }),
-      });
+      );
 
       revalidatePath("/dashboard/quotes");
       return { status: updated.status };
