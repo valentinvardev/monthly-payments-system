@@ -9,9 +9,11 @@ import Image from "next/image";
 export function BelgranoSlider({
   photos,
   placeholder,
+  badge,
 }: {
   photos: string[];
   placeholder: string;
+  badge?: string;
 }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -51,6 +53,12 @@ export function BelgranoSlider({
             style={{ opacity: i === index ? 1 : 0 }}
           />
         ))}
+        {badge && (
+          <span className="absolute left-0 top-3 inline-flex items-center gap-2 bg-[#0a0a0a] py-1.5 pl-3 pr-4 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-[#fafafa]">
+            <span className="inline-block h-2 w-2 bg-[#6CACE4]" />
+            {badge}
+          </span>
+        )}
       </div>
       {photos.length > 1 && (
         <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-2">

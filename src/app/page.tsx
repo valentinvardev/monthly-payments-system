@@ -246,7 +246,11 @@ export default async function StudioLanding() {
                 </p>
               </div>
             </div>
-            <BelgranoSlider photos={belgranoPhotos} placeholder={s.belgranoPlaceholder} />
+            <BelgranoSlider
+              photos={belgranoPhotos}
+              placeholder={s.belgranoPlaceholder}
+              badge={s.belgranoBadge}
+            />
           </div>
         </section>
 

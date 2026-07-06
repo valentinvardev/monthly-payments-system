@@ -39,6 +39,7 @@ const STRINGS = {
     belgranoSub: "Plataforma de venta de fotos con búsqueda por dorsal, para los hinchas de Belgrano de Córdoba.",
     belgranoPhotosBy: "Fotos:",
     belgranoPlaceholder: "3 FOTOS · PRÓXIMAMENTE",
+    belgranoBadge: "COMPRADAS POR LOS JUGADORES",
 
     stackEyebrow: "CON QUÉ CONSTRUIMOS",
 
@@ -83,6 +84,7 @@ const STRINGS = {
     belgranoSub: "Photo marketplace with bib-number search, for the fans of Belgrano de Córdoba.",
     belgranoPhotosBy: "Photos:",
     belgranoPlaceholder: "3 PHOTOS · COMING SOON",
+    belgranoBadge: "BOUGHT BY THE PLAYERS THEMSELVES",
 
     stackEyebrow: "WHAT WE BUILD WITH",
 
