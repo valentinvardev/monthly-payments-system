@@ -46,3 +46,6 @@ next-env.d.ts
 # Brand asset bundles (kept locally, not versioned)
 Logos*.zip
 *-logos.zip
+
+# assets crudos de generación IA (los finales pixelizados sí se commitean)
+/public/pixel/raw/
