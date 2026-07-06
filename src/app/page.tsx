@@ -381,14 +381,20 @@ export default async function StudioLanding() {
               {s.aboutTitle}
             </h2>
             <div className="mt-8 flex flex-col gap-8 sm:flex-row sm:items-start">
-              <Image
-                src="/valentin.jpg"
-                alt="Valentín Varela, fundador de Surcodia"
-                width={128}
-                height={128}
-                unoptimized
-                className="h-32 w-32 shrink-0 rounded-lg border border-white/12 object-cover"
-              />
+              {/* Capa transparente encima: bloquea drag / click-derecho
+                  directo sobre la foto (no es DRM, pero evita el copiado
+                  casual). La imagen queda pointer-events-none debajo. */}
+              <div className="relative h-24 w-24 shrink-0 select-none">
+                <Image
+                  src="/valentin.jpg"
+                  alt="Valentín Varela, fundador de Surcodia"
+                  fill
+                  unoptimized
+                  draggable={false}
+                  className="pointer-events-none select-none rounded-full border border-white/12 object-cover"
+                />
+                <span aria-hidden className="absolute inset-0 z-10 rounded-full" />
+              </div>
               <div className="min-w-0">
                 <p className="max-w-[58ch] text-[15px] leading-relaxed text-white/60">
                   {s.aboutP1}
