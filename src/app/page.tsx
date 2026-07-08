@@ -9,7 +9,7 @@ import { getLocale, t } from "@/lib/studio/i18n";
 import {
   NICHE_ART,
   PIXEL_V,
-  getFeaturedProjects,
+  getAllProjects,
   getStudioNiches,
 } from "@/lib/studio/content";
 import { CruxMark, PixelWord, StudioBrand } from "@/components/studio/pixel";
@@ -17,9 +17,9 @@ import { PixelBackdrop } from "@/components/studio/PixelBackdrop";
 import { Marquee } from "@/components/studio/Marquee";
 import { LangToggle } from "@/components/studio/LangToggle";
 import { StudioMobileMenu } from "@/components/studio/StudioMobileMenu";
-import { StackBadge, TechBadges } from "@/components/studio/TechBadges";
+import { TechBadges } from "@/components/studio/TechBadges";
 import { BelgranoSlider } from "@/components/studio/BelgranoSlider";
-import { PreviewModal } from "@/components/studio/PreviewModal";
+import { ProjectItem, ProjectMiniLogos } from "@/components/studio/ProjectItem";
 
 export const metadata: Metadata = {
   title: "Surcodia Studio — Software del sur",
@@ -47,9 +47,13 @@ export default async function StudioLanding() {
     getCurrentUser(),
     getLocale(),
     getStudioNiches(),
-    getFeaturedProjects(),
+    getAllProjects(),
   ]);
   const s = t(locale);
+
+  // Proyectos agrupados por nicho, para los mini-logos de cada tarjeta.
+  const projectsOfNiche = (nicheId: number) =>
+    projects.filter((p) => p.nicheId === nicheId);
 
   // Fotos vendidas de Belgrano: se agregan soltando foto-1.jpg / foto-2.jpg /
   // foto-3.jpg en public/belgrano/ — el slider muestra las que existan.
@@ -188,7 +192,10 @@ export default async function StudioLanding() {
                   <div className="flex flex-1 flex-col p-6">
                     <h3 className="text-lg font-semibold tracking-[-0.02em]">{name}</h3>
                     <p className="mt-2.5 text-[13.5px] leading-relaxed text-white/55">{tagline}</p>
-                    <div className="mt-auto flex items-end justify-between gap-3 pt-6">
+                    <div className="mt-4">
+                      <ProjectMiniLogos projects={projectsOfNiche(n.id)} />
+                    </div>
+                    <div className="mt-auto flex items-end justify-between gap-3 pt-5">
                       <a
                         href="#proyectos"
                         className="inline-flex h-9 items-center justify-center gap-1.5 border border-white/12 bg-[#161616] px-4 font-pixel text-[10px] text-white/90 transition hover:bg-[#1f1f1f]"
@@ -267,68 +274,16 @@ export default async function StudioLanding() {
           <h2 className="mt-3 font-display text-3xl font-medium tracking-[-0.025em]">
             {s.projectsTitle}
           </h2>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {projects.map((p) => {
-              const short = locale === "en" && p.shortEn ? p.shortEn : p.short;
-              const preview = previewOf(p.slug);
-              return (
-                <article
-                  key={p.slug}
-                  className="group flex flex-col overflow-hidden rounded-lg border border-white/12 bg-[#0f0f0f] transition-colors hover:border-white/25"
-                >
-                  <div className="relative aspect-[16/10] overflow-hidden border-b border-white/10 bg-[#161616]">
-                    {preview ? (
-                      <Image
-                        src={preview}
-                        alt={`Captura de ${p.name}`}
-                        fill
-                        unoptimized
-                        className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center">
-                        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/35">
-                          {s.previewSoon}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-1 flex-col p-6">
-                    <h3 className="text-base font-semibold tracking-[-0.02em]">{p.name}</h3>
-                    <p className="mt-2.5 text-[13.5px] leading-relaxed text-white/55">{short}</p>
-                    {p.stack.length > 0 && (
-                      <div className="mt-4 flex flex-wrap gap-1.5">
-                        {p.stack.slice(0, 5).map((tech) => (
-                          <StackBadge key={tech} name={tech} />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-end gap-2 border-t border-white/10 bg-[#0a0a0a] px-6 py-4">
-                    {preview && (
-                      <PreviewModal
-                        title={p.name}
-                        img={preview}
-                        liveUrl={p.liveUrl}
-                        triggerLabel={s.projectsPreview}
-                        openLabel={s.projectsOpen}
-                      />
-                    )}
-                    {p.liveUrl && (
-                      <a
-                        href={p.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex h-9 items-center justify-center gap-1.5 bg-[#ededed] px-4 font-pixel text-[10px] text-[#0a0a0a] transition hover:bg-white"
-                      >
-                        {s.projectsVisit}
-                        <ArrowUpRight className="h-3.5 w-3.5" />
-                      </a>
-                    )}
-                  </div>
-                </article>
-              );
-            })}
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {projects.map((p) => (
+              <ProjectItem
+                key={p.slug}
+                p={p}
+                preview={previewOf(p.slug)}
+                locale={locale}
+                s={s}
+              />
+            ))}
           </div>
         </section>
 

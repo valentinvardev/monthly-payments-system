@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 // Prisma de acá (evita que un `db push` de un repo pise al otro).
 
 export type StudioNiche = {
+  id: number;
   slug: string;
   name: string;
   nameEn: string | null;
@@ -18,17 +19,28 @@ export type StudioNiche = {
 export type StudioProject = {
   slug: string;
   name: string;
+  icon: string;
   color: string;
+  logoUrl: string | null;
+  statusLabel: string;
+  statusColor: string;
   short: string;
   shortEn: string | null;
+  long: string | null;
+  longEn: string | null;
+  features: string[];
+  featuresEn: string[];
   stack: string[];
   liveUrl: string | null;
+  repoUrl: string | null;
+  featured: boolean;
+  nicheId: number | null;
 };
 
 export async function getStudioNiches(): Promise<StudioNiche[]> {
   try {
     return await prisma.$queryRaw<StudioNiche[]>`
-      SELECT slug, name, "nameEn", tagline, "taglineEn", icon, color
+      SELECT id, slug, name, "nameEn", tagline, "taglineEn", icon, color
       FROM personal_site."Niche"
       ORDER BY "sortOrder" ASC
     `;
@@ -37,29 +49,21 @@ export async function getStudioNiches(): Promise<StudioNiche[]> {
   }
 }
 
-export async function getFeaturedProjects(): Promise<StudioProject[]> {
+export async function getAllProjects(): Promise<StudioProject[]> {
   try {
     return await prisma.$queryRaw<StudioProject[]>`
-      SELECT slug, name, color, short, "shortEn", stack, "liveUrl"
+      SELECT slug, name, icon, color, "logoUrl", "statusLabel", "statusColor",
+             short, "shortEn", long, "longEn", features, "featuresEn",
+             stack, "liveUrl", "repoUrl", featured, "nicheId"
       FROM personal_site."Project"
-      WHERE featured = true
-      ORDER BY "sortOrder" ASC
+      ORDER BY featured DESC, "sortOrder" ASC
     `;
   } catch {
     return [];
   }
 }
 
-// Acentos Geist compartidos con el sitio personal (Niche.color / Project.color).
-export const ACCENT_HEX: Record<string, string> = {
-  blue: "#0070F3",
-  purple: "#7928CA",
-  teal: "#17C9A5",
-  green: "#2EA043",
-  amber: "#F5A623",
-  red: "#E5484D",
-  gray: "#8A8A86",
-};
+export { ACCENT_HEX } from "./accents";
 
 // Assets pixel por nicho (generados con scripts/generate-assets.mjs).
 // PIXEL_V rompe el caché de Cloudflare/navegador cuando regeneramos un
