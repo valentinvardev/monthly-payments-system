@@ -27,9 +27,6 @@ export default function LoginPage() {
           <h1 className="font-display text-3xl font-medium tracking-tight text-foreground">
             Surcodia
           </h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Cobros mensuales tan claros como un día austral.
-          </p>
         </header>
 
         <Suspense fallback={<div className="h-32" />}>
