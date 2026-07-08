@@ -52,28 +52,6 @@ function Glyph({
   );
 }
 
-const STATUS_HEX: Record<string, string> = {
-  green: "#2EA043",
-  amber: "#F5A623",
-  red: "#E5484D",
-  blue: "#0070F3",
-  purple: "#7928CA",
-  gray: "#8a8a86",
-};
-
-function StatusPill({ label, color }: { label: string; color: string }) {
-  const hex = STATUS_HEX[color] ?? STATUS_HEX.gray;
-  return (
-    <span
-      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em]"
-      style={{ borderColor: `${hex}55`, color: hex, backgroundColor: `${hex}14` }}
-    >
-      <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: hex }} />
-      {label}
-    </span>
-  );
-}
-
 // Tarjeta compacta + drawer lateral (dialog nativo, top layer) con el
 // detalle completo: descripción larga, puntos clave, stack y acciones.
 export function ProjectItem({
@@ -111,10 +89,7 @@ export function ProjectItem({
         onClick={() => setOpen(true)}
         className="group flex h-full flex-col rounded-lg border border-white/12 bg-[#0f0f0f] p-5 text-left transition-colors hover:border-white/25"
       >
-        <div className="flex items-start justify-between gap-3">
-          <Glyph p={p} />
-          <StatusPill label={p.statusLabel} color={p.statusColor} />
-        </div>
+        <Glyph p={p} />
         <h3 className="mt-4 text-[15px] font-semibold tracking-[-0.02em] text-white/95">
           {p.name}
         </h3>
@@ -148,12 +123,9 @@ export function ProjectItem({
           <header className="sticky top-0 flex items-start justify-between gap-4 border-b border-white/10 bg-[#0f0f0f] px-6 py-5">
             <div className="flex min-w-0 items-center gap-4">
               <Glyph p={p} size={52} />
-              <div className="min-w-0">
-                <h2 className="truncate text-base font-semibold tracking-[-0.02em]">{p.name}</h2>
-                <div className="mt-1">
-                  <StatusPill label={p.statusLabel} color={p.statusColor} />
-                </div>
-              </div>
+              <h2 className="min-w-0 truncate text-base font-semibold tracking-[-0.02em]">
+                {p.name}
+              </h2>
             </div>
             <button
               type="button"
