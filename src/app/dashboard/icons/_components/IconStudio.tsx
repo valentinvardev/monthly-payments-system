@@ -7,13 +7,51 @@ import { trpc } from "@/trpc/react";
 // Se genera UN elemento por vez (el server además fuerza "exactly one
 // isolated icon" en el sufijo). El estilo va separado para poder
 // cambiar el elemento sin reescribir todo.
-const ELEMENTS = [
-  { label: "Luna", prompt: "a crescent moon with a small decorative swirl" },
-  { label: "Sol", prompt: "a sun with wavy rays" },
-  { label: "Estrella", prompt: "a five-pointed star" },
-  { label: "Cometa", prompt: "a shooting comet with a flowing tail" },
-  { label: "Destello", prompt: "a four-pointed sparkle" },
+const ELEMENT_GROUPS: { group: string; items: { label: string; prompt: string }[] }[] = [
+  {
+    group: "Celestiales",
+    items: [
+      { label: "Luna", prompt: "a crescent moon with a small decorative swirl" },
+      { label: "Sol", prompt: "a sun with wavy rays" },
+      { label: "Estrella", prompt: "a five-pointed star" },
+      { label: "Cometa", prompt: "a shooting comet with a flowing tail" },
+      { label: "Destello", prompt: "a four-pointed sparkle" },
+      { label: "Eclipse", prompt: "a sun and crescent moon merged into one celestial eclipse symbol" },
+      { label: "Planeta", prompt: "a ringed planet like saturn" },
+      { label: "Constelación", prompt: "a small constellation of five connected stars" },
+    ],
+  },
+  {
+    group: "Tarot",
+    items: [
+      { label: "Carta", prompt: "an ornate tarot card back with a symmetrical mystical pattern" },
+      { label: "Basto", prompt: "an upright wooden wand with small sprouting leaves, tarot wands suit symbol" },
+      { label: "Copa", prompt: "an ornate chalice cup, tarot cups suit symbol" },
+      { label: "Espada", prompt: "an ornate upright sword, tarot swords suit symbol" },
+      { label: "Oro", prompt: "a coin engraved with a pentacle star, tarot pentacles suit symbol" },
+      { label: "Corona", prompt: "an ornate queen's crown with small gems" },
+    ],
+  },
+  {
+    group: "Magia",
+    items: [
+      { label: "Bola de cristal", prompt: "a crystal ball on a small ornate stand with sparkles inside" },
+      { label: "Cristal", prompt: "a pointed crystal gem cluster" },
+      { label: "Ojo místico", prompt: "a mystic all-seeing eye with lashes and small sparkles" },
+      { label: "Mano", prompt: "a palmistry hand with an eye in the palm and moon symbols" },
+      { label: "Poción", prompt: "a corked potion bottle with liquid and rising bubbles" },
+      { label: "Vela", prompt: "a lit candle with melting wax and a glowing flame" },
+      { label: "Llave", prompt: "an ornate vintage skeleton key" },
+      { label: "Varita", prompt: "a magic wand with a star tip and a sparkle trail" },
+      { label: "Libro", prompt: "an open spellbook with glowing symbols floating above" },
+      { label: "Mariposa lunar", prompt: "a moth with crescent moon markings on its wings" },
+      { label: "Reloj de arena", prompt: "an hourglass with flowing sand and tiny stars" },
+      { label: "Serpiente", prompt: "an elegantly coiled snake" },
+    ],
+  },
 ];
+
+const ELEMENTS = ELEMENT_GROUPS.flatMap((g) => g.items);
 
 const DEFAULT_STYLE =
   "flat vector icon, vibrant Lisa Frank style rainbow gradient fill (pink, purple, cyan, green, yellow), soft rounded shapes, playful 90s sticker aesthetic, clean smooth edges";
@@ -58,24 +96,31 @@ export function IconStudio() {
           <span className="block text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/80">
             Elemento (uno por vez)
           </span>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {ELEMENTS.map((e) => (
-              <button
-                key={e.label}
-                type="button"
-                onClick={() => {
-                  setElement(e.prompt);
-                  setElementLabel(e.label);
-                }}
-                className={[
-                  "rounded-full border px-3.5 py-1.5 text-xs font-medium transition",
-                  element === e.prompt
-                    ? "border-white/40 bg-white/[0.12] text-foreground"
-                    : "border-white/12 bg-white/[0.03] text-muted-foreground hover:border-white/25 hover:text-foreground",
-                ].join(" ")}
-              >
-                {e.label}
-              </button>
+          <div className="mt-2 space-y-2.5">
+            {ELEMENT_GROUPS.map((g) => (
+              <div key={g.group} className="flex flex-wrap items-center gap-2">
+                <span className="w-24 shrink-0 font-mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground/60">
+                  {g.group}
+                </span>
+                {g.items.map((e) => (
+                  <button
+                    key={e.label}
+                    type="button"
+                    onClick={() => {
+                      setElement(e.prompt);
+                      setElementLabel(e.label);
+                    }}
+                    className={[
+                      "rounded-full border px-3 py-1.5 text-xs font-medium transition",
+                      element === e.prompt
+                        ? "border-white/40 bg-white/[0.12] text-foreground"
+                        : "border-white/12 bg-white/[0.03] text-muted-foreground hover:border-white/25 hover:text-foreground",
+                    ].join(" ")}
+                  >
+                    {e.label}
+                  </button>
+                ))}
+              </div>
             ))}
           </div>
           <input
