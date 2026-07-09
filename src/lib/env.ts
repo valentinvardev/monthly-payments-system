@@ -16,6 +16,7 @@ const serverSchema = z.object({
   MERCADOPAGO_ACCESS_TOKEN: z.string().min(1).optional(),
   MERCADOPAGO_WEBHOOK_SECRET: z.string().min(1).optional(),
   CRON_SECRET: z.string().min(1).optional(),
+  GOOGLE_AI_KEY: z.string().min(1).optional(),
 });
 
 const clientSchema = z.object({
@@ -36,6 +37,7 @@ const processEnv = {
   MERCADOPAGO_ACCESS_TOKEN: process.env.MERCADOPAGO_ACCESS_TOKEN,
   MERCADOPAGO_WEBHOOK_SECRET: process.env.MERCADOPAGO_WEBHOOK_SECRET,
   CRON_SECRET: process.env.CRON_SECRET,
+  GOOGLE_AI_KEY: process.env.GOOGLE_AI_KEY,
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
 };
