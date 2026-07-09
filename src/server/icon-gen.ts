@@ -42,7 +42,7 @@ function removeBackground(img: InstanceType<typeof Jimp>, tolerance = 90) {
   }
 }
 
-export async function generateIcon(prompt: string): Promise<string> {
+export async function generateIcon(prompt: string): Promise<Buffer> {
   if (!env.GOOGLE_AI_KEY) {
     throw new Error("Falta GOOGLE_AI_KEY en el .env del servidor");
   }
@@ -80,6 +80,5 @@ export async function generateIcon(prompt: string): Promise<string> {
   const image = await Jimp.read(Buffer.from(img.inlineData.data, "base64"));
   removeBackground(image);
   image.resize(OUTPUT_SIZE, OUTPUT_SIZE);
-  const png = await image.getBufferAsync(Jimp.MIME_PNG);
-  return `data:image/png;base64,${png.toString("base64")}`;
+  return image.getBufferAsync(Jimp.MIME_PNG);
 }

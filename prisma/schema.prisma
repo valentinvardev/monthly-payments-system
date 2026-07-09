@@ -232,6 +232,20 @@ model EmailLog {
   @@index([kind, sentAt])
 }
 
+// Ícono generado con Gemini desde /dashboard/icons. El PNG vive en el
+// bucket público "generated-icons" de Supabase Storage; acá queda el
+// prompt usado para poder reproducir el estilo.
+model GeneratedIcon {
+  id        String   @id @default(cuid())
+  label     String
+  prompt    String
+  path      String
+  url       String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 model ExchangeRate {
   id        String   @id @default(cuid())
   source    String

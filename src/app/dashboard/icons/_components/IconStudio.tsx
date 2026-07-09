@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Sparkles } from "lucide-react";
+import { Download, Sparkles, Trash2 } from "lucide-react";
 import { trpc } from "@/trpc/react";
 
 // Se genera UN elemento por vez (el server además fuerza "exactly one
@@ -56,26 +56,28 @@ const ELEMENTS = ELEMENT_GROUPS.flatMap((g) => g.items);
 const DEFAULT_STYLE =
   "flat vector icon, vibrant Lisa Frank style rainbow gradient fill (pink, purple, cyan, green, yellow), soft rounded shapes, playful 90s sticker aesthetic, clean smooth edges";
 
-type Result = { id: number; src: string; label: string };
-
 export function IconStudio() {
   const [element, setElement] = useState(ELEMENTS[0].prompt);
   const [elementLabel, setElementLabel] = useState(ELEMENTS[0].label);
   const [style, setStyle] = useState(DEFAULT_STYLE);
   const [count, setCount] = useState(2);
-  const [results, setResults] = useState<Result[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  const utils = trpc.useUtils();
+  // Galería persistente: todo lo generado queda en Supabase Storage + DB.
+  const gallery = trpc.icons.list.useQuery();
+
   const gen = trpc.icons.generate.useMutation({
     onSuccess: (res) => {
-      setResults((prev) => [
-        ...res.images.map((src, i) => ({ id: Date.now() + i, src, label: elementLabel })),
-        ...prev,
-      ]);
       setWarnings(res.errors);
+      void utils.icons.list.invalidate();
     },
     onError: (e) => setError(e.message),
+  });
+
+  const del = trpc.icons.delete.useMutation({
+    onSuccess: () => void utils.icons.list.invalidate(),
   });
 
   const composed = `${element.trim()}, ${style.trim()}`;
@@ -83,7 +85,7 @@ export function IconStudio() {
   function onGenerate() {
     setError(null);
     setWarnings([]);
-    gen.mutate({ prompt: composed, count });
+    gen.mutate({ prompt: composed, label: elementLabel, count });
   }
 
   return (
@@ -199,15 +201,16 @@ export function IconStudio() {
         </div>
       )}
 
-      {results.length > 0 && (
+      {(gallery.data?.length ?? 0) > 0 && (
         <section className="space-y-3">
           <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/70">
-            {results.length} generados en esta sesión · 500×500 PNG transparente
+            {gallery.data!.length} guardados · 500×500 PNG transparente · Supabase Storage
           </p>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {results.map((r, i) => (
+            {gallery.data!.map((r) => (
               <figure
                 key={r.id}
+                title={r.prompt}
                 className="group relative overflow-hidden rounded-2xl border border-white/10"
                 style={{
                   backgroundImage:
@@ -216,17 +219,27 @@ export function IconStudio() {
                 }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={r.src} alt={`Ícono ${r.label} ${i + 1}`} className="h-auto w-full" />
+                <img src={r.url} alt={`Ícono ${r.label}`} loading="lazy" className="h-auto w-full" />
                 <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-white/80">
                   {r.label}
                 </span>
-                <a
-                  href={r.src}
-                  download={`icono-${r.label.toLowerCase()}-${r.id}.png`}
-                  className="absolute bottom-2 right-2 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/70 px-3 py-1.5 text-[11px] font-medium text-white opacity-0 transition group-hover:opacity-100"
-                >
-                  <Download className="h-3 w-3" /> PNG
-                </a>
+                <div className="absolute bottom-2 right-2 flex items-center gap-1.5 opacity-0 transition group-hover:opacity-100">
+                  <a
+                    href={`${r.url}?download=icono-${r.label.toLowerCase().replace(/\s+/g, "-")}.png`}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/70 px-3 py-1.5 text-[11px] font-medium text-white"
+                  >
+                    <Download className="h-3 w-3" /> PNG
+                  </a>
+                  <button
+                    type="button"
+                    disabled={del.isPending}
+                    onClick={() => del.mutate({ id: r.id })}
+                    title="Borrar"
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-black/70 text-white/80 transition hover:border-rose-300/50 hover:text-rose-200 disabled:opacity-50"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </div>
               </figure>
             ))}
           </div>
