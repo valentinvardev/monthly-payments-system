@@ -11,9 +11,9 @@ import { env } from "@/lib/env";
 const MODEL = "gemini-2.5-flash-image";
 const OUTPUT_SIZE = 500;
 
-// Sufijo fijo: centrado, 1:1 y fondo blanco liso para poder recortar.
+// Sufijo fijo: UN ícono aislado, centrado, 1:1, fondo blanco recortable.
 const PROMPT_SUFFIX =
-  ", single centered composition with margin around it, plain solid pure white background (#FFFFFF), no shadows on the background, no text, no letters, no watermark, high quality, 1:1 aspect ratio";
+  ". EXACTLY ONE single isolated icon, never a set, never a collection, never a grid or pattern of multiple icons, one object only, centered with generous margin around it, plain solid pure white background (#FFFFFF), no frame, no border lines, no shadows on the background, no text, no letters, no watermark, high quality, 1:1 aspect ratio";
 
 function removeBackground(img: InstanceType<typeof Jimp>, tolerance = 90) {
   const { width: w, height: h, data } = img.bitmap;
