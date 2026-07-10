@@ -29,9 +29,12 @@ const silkscreen = Silkscreen({
 });
 
 export const metadata: Metadata = {
-  title: "Surcodia · cobros mensuales",
+  title: {
+    default: "Surcodia Studio",
+    template: "%s · Surcodia",
+  },
   description:
-    "Gestión de cobros recurrentes y portal de autogestión para tus clientes. Surcodia.",
+    "Estudio de desarrollo de software: e-commerce, plataformas para fotógrafos y herramientas con IA.",
 };
 
 export default function RootLayout({
