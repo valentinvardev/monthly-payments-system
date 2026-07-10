@@ -264,19 +264,25 @@ dialog.mobile-nav-dialog {
   color: inherit;
   overflow: hidden;
 }
+/* En TELÉFONO: scrim sólido, sin blur y SIN animaciones. Animar el
+   top-layer (aside con transform o ::backdrop con blur) glitchea en
+   GPUs móviles: paneles negros, invisibles o clavados fuera de
+   pantalla. Apertura instantánea = confiable. */
 dialog.mobile-nav-dialog::backdrop {
-  background: oklch(0.06 0.02 240 / 0.55);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  backdrop-filter: blur(16px) saturate(140%);
-  animation: mobile-nav-fade 240ms ease both;
+  background: oklch(0.06 0.02 240 / 0.72);
 }
 
-/* Slide-in del panel lateral (menú mobile y drawer de proyectos).
-   SIN fill-mode: si el navegador no corre la animación (low-power,
-   pestaña de fondo), el panel queda en su posición natural — visible.
-   Con `both` quedaba clavado fuera de pantalla. */
-dialog.mobile-nav-dialog[open] > aside {
-  animation: mobile-nav-slide 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
+/* En DESKTOP (md+): fade del backdrop con blur + slide del panel. */
+@media (min-width: 768px) {
+  dialog.mobile-nav-dialog::backdrop {
+    background: oklch(0.06 0.02 240 / 0.55);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+    animation: mobile-nav-fade 240ms ease;
+  }
+  dialog.mobile-nav-dialog[open] > aside {
+    animation: mobile-nav-slide 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
 }
 @keyframes mobile-nav-slide {
   from { transform: translateX(100%); }
