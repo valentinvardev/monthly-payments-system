@@ -65,9 +65,12 @@ export function MobileNav({
         }}
         className="mobile-nav-dialog"
       >
+        {/* Fondo SÓLIDO a propósito: animar transform sobre un elemento
+            con backdrop-filter (glass) glitchea en GPUs de teléfono —
+            el panel se pinta negro o no aparece. */}
         <aside
           onClick={(e) => e.stopPropagation()}
-          className="ml-auto flex h-full w-[86%] max-w-[320px] flex-col glass-strong rounded-l-3xl rounded-r-none"
+          className="ml-auto flex h-full w-[86%] max-w-[320px] flex-col rounded-l-3xl rounded-r-none border-l border-white/10 bg-[oklch(0.16_0.015_245)]"
         >
           <header className="flex items-center justify-between border-b border-white/8 px-5 py-4">
             <span
