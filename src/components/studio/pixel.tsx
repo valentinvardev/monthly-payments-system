@@ -124,7 +124,9 @@ export function StudioBrand() {
 }
 
 // Monograma S 7×7 con el píxel que se escapa (para favicon / nav).
-const S_GRID = ["0111111", "1100000", "1100000", "0111110", "0000011", "0000011", "1111110"];
+// Exportado para que el exportador de logos del panel dibuje el PNG
+// con exactamente la misma grilla.
+export const S_GRID = ["0111111", "1100000", "1100000", "0111110", "0000011", "0000011", "1111110"];
 
 export function SMonogram({
   size = 28,

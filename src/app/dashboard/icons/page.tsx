@@ -1,4 +1,5 @@
 import { IconStudio } from "./_components/IconStudio";
+import { LogoExport } from "./_components/LogoExport";
 
 export default function IconsPage() {
   return (
@@ -15,6 +16,8 @@ export default function IconsPage() {
           (flood-fill desde los bordes) y sale un PNG transparente de 500×500.
         </p>
       </header>
+
+      <LogoExport />
 
       <IconStudio />
     </div>
