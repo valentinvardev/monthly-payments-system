@@ -204,6 +204,32 @@ export default async function ModeloHibridoPage() {
           </p>
         </section>
 
+        {/* ---------------- COSTO ESTIMADO ---------------- */}
+        <section
+          className="reveal mt-10 rounded-lg border border-white/12 bg-[#0f0f0f] p-6 sm:p-7"
+          style={{ animationDelay: "80ms" }}
+        >
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-baseline gap-4">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/45">
+                  Costo estimado
+                </p>
+                <p className="mt-2 font-display text-4xl font-medium tracking-[-0.03em]">
+                  <span className="text-white/50">desde</span>{" "}
+                  <span className="tabular-nums text-[#0070F3]">USD 50</span>
+                  <span className="text-xl font-light text-white/50"> /mes</span>
+                </p>
+              </div>
+            </div>
+            <p className="max-w-[42ch] text-[13.5px] leading-relaxed text-white/55">
+              Incluye la plataforma funcionando, el panel para administrarla y el mantenimiento.
+              El monto final depende de qué piezas necesites y del volumen: te lo confirmamos en
+              la propuesta, sin sorpresas después.
+            </p>
+          </div>
+        </section>
+
         <div className="mt-14 grid gap-12 lg:grid-cols-[220px_1fr]">
           {/* ---------------- ÍNDICE ---------------- */}
           <TocNav sections={SECTIONS} />
