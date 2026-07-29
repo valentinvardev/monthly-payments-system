@@ -96,6 +96,43 @@ const CATALOG = {
     prompt: (a) =>
       `${STYLE_DNA(a)}. Character: a shopping cart with rocket thrusters instead of back wheels, thruster flames as 4-6 pixels in accent color ${a}, one single package box inside the cart, slight forward tilt suggesting speed, tiny motion lines made of 3 gray pixels behind it`,
   },
+  // ---- Ilustraciones de la página de modelo híbrido ----
+  "hibrido-tienda": {
+    accent: ACCENT.purple,
+    aspect: "1:1",
+    grid: 96,
+    scale: 8,
+    transparent: true,
+    prompt: (a) =>
+      `${STYLE_DNA(a)}. Object: a small shop counter with a cash register, two neatly stacked product boxes beside it and a tiny shopping bag, one accent ${a} price tag hanging, clean and uncluttered`,
+  },
+  "hibrido-curso": {
+    accent: ACCENT.blue,
+    aspect: "1:1",
+    grid: 96,
+    scale: 8,
+    transparent: true,
+    prompt: (a) =>
+      `${STYLE_DNA(a)}. Object: a stack of three books with a graduation-style bookmark, a small play button badge in accent ${a} floating over the top book, and a tiny progress bar below partially filled in accent color`,
+  },
+  "hibrido-membresia": {
+    accent: ACCENT.teal,
+    aspect: "1:1",
+    grid: 96,
+    scale: 8,
+    transparent: true,
+    prompt: (a) =>
+      `${STYLE_DNA(a)}. Object: a membership key card with a small circle emblem, surrounded by three tiny simplified person silhouettes arranged as a community around it, one accent ${a} glowing dot on the card`,
+  },
+  "hibrido-agenda": {
+    accent: ACCENT.amber ?? "#F5A623",
+    aspect: "1:1",
+    grid: 96,
+    scale: 8,
+    transparent: true,
+    prompt: (a) =>
+      `${STYLE_DNA(a)}. Object: a wall calendar with a few marked days, a small clock overlapping its corner, and one accent ${a} highlighted booked slot`,
+  },
   // Manifiesto: la terminal retro trabajando sola de noche.
   terminal: {
     accent: ACCENT.blue,

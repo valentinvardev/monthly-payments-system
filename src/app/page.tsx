@@ -85,6 +85,12 @@ export default async function StudioLanding() {
             <a href="#proyectos" className="font-pixel px-3 py-1.5 text-[10px] text-white/55 transition hover:text-white">
               {s.navProjects}
             </a>
+            <Link
+              href="/modelo-hibrido"
+              className="font-pixel px-3 py-1.5 text-[10px] text-white/55 transition hover:text-white"
+            >
+              Modelo híbrido
+            </Link>
             <a href="#contacto" className="font-pixel px-3 py-1.5 text-[10px] text-white/55 transition hover:text-white">
               {s.navContact}
             </a>
@@ -103,6 +109,7 @@ export default async function StudioLanding() {
             items={[
               { href: "#nichos", label: s.navNiches },
               { href: "#proyectos", label: s.navProjects },
+              { href: "/modelo-hibrido", label: "Modelo híbrido" },
               { href: "#contacto", label: s.navContact },
             ]}
             locale={locale}

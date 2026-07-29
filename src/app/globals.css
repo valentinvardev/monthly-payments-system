@@ -264,6 +264,15 @@ dialog.mobile-nav-dialog {
   color: inherit;
   overflow: hidden;
 }
+/* Panel SIEMPRE pegado a la derecha por flexbox — no dependemos de
+   ml-auto/márgenes, que en algunos navegadores móviles no empujan
+   dentro del top-layer y dejaban el panel a la izquierda con un
+   hueco en el medio. */
+dialog.mobile-nav-dialog[open] {
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+}
 /* En TELÉFONO: scrim sólido, sin blur y SIN animaciones. Animar el
    top-layer (aside con transform o ::backdrop con blur) glitchea en
    GPUs móviles: paneles negros, invisibles o clavados fuera de
