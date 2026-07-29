@@ -133,6 +133,42 @@ const CATALOG = {
     prompt: (a) =>
       `${STYLE_DNA(a)}. Object: a wall calendar with a few marked days, a small clock overlapping its corner, and one accent ${a} highlighted booked slot`,
   },
+  "modelo-checkout": {
+    accent: ACCENT.purple,
+    aspect: "1:1",
+    grid: 96,
+    scale: 8,
+    transparent: true,
+    prompt: (a) =>
+      `${STYLE_DNA(a)}. Object: a credit card overlapping a small payment terminal, one accent ${a} checkmark badge floating at the top right, clean and uncluttered`,
+  },
+  "modelo-envios": {
+    accent: ACCENT.purple,
+    aspect: "1:1",
+    grid: 96,
+    scale: 8,
+    transparent: true,
+    prompt: (a) =>
+      `${STYLE_DNA(a)}. Object: a small delivery van seen from the side with one package box beside it and a tiny accent ${a} location pin above, clean and uncluttered`,
+  },
+  "modelo-medicion": {
+    accent: ACCENT.teal,
+    aspect: "1:1",
+    grid: 96,
+    scale: 8,
+    transparent: true,
+    prompt: (a) =>
+      `${STYLE_DNA(a)}. Object: a simple bar chart of four ascending bars with an accent ${a} trend arrow rising above them, and a tiny magnifying glass at the lower left, clean and uncluttered`,
+  },
+  "modelo-email": {
+    accent: ACCENT.blue,
+    aspect: "1:1",
+    grid: 96,
+    scale: 8,
+    transparent: true,
+    prompt: (a) =>
+      `${STYLE_DNA(a)}. Object: a closed envelope with a small accent ${a} paper plane flying out of its top right corner, and two tiny stacked envelopes behind it, clean and uncluttered`,
+  },
   // Manifiesto: la terminal retro trabajando sola de noche.
   terminal: {
     accent: ACCENT.blue,

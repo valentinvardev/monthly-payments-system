@@ -85,12 +85,12 @@ export default async function StudioLanding() {
             <a href="#proyectos" className="font-pixel px-3 py-1.5 text-[10px] text-white/55 transition hover:text-white">
               {s.navProjects}
             </a>
-            <Link
-              href="/modelo-hibrido"
+            <a
+              href="#modelos"
               className="font-pixel px-3 py-1.5 text-[10px] text-white/55 transition hover:text-white"
             >
-              Modelo híbrido
-            </Link>
+              Modelos
+            </a>
             <a href="#contacto" className="font-pixel px-3 py-1.5 text-[10px] text-white/55 transition hover:text-white">
               {s.navContact}
             </a>
@@ -109,7 +109,7 @@ export default async function StudioLanding() {
             items={[
               { href: "#nichos", label: s.navNiches },
               { href: "#proyectos", label: s.navProjects },
-              { href: "/modelo-hibrido", label: "Modelo híbrido" },
+              { href: "#modelos", label: "Modelos" },
               { href: "#contacto", label: s.navContact },
             ]}
             locale={locale}
@@ -272,6 +272,65 @@ export default async function StudioLanding() {
         </section>
 
         <div className="studio-dissolve" aria-hidden />
+
+        {/* ================= MODELOS DE NEGOCIO ================= */}
+        <section id="modelos" className="mx-auto max-w-6xl scroll-mt-20 px-5 py-20">
+          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/45">
+            SOLUCIONES POR MODELO DE NEGOCIO
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-medium tracking-[-0.025em]">
+            ¿Cómo funciona tu negocio?
+          </h2>
+          <p className="mt-3 max-w-[58ch] text-[15px] leading-relaxed text-white/60">
+            Análisis completos de cada modelo: qué incluye el sistema, qué beneficios trae y los
+            datos que respaldan cada decisión de diseño.
+          </p>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {[
+              {
+                href: "/modelo-ecommerce",
+                img: "/pixel/hibrido-tienda.png",
+                title: "E-commerce",
+                body: "Vendés productos y querés tu propia tienda: catálogo, checkout sin fricción, envíos y panel. Sin comisión por venta.",
+              },
+              {
+                href: "/modelo-cursos",
+                img: "/pixel/hibrido-curso.png",
+                title: "Academia digital",
+                body: "Enseñás online: cursos con estructura, progreso, comunidad y suscripción. Tu marca y tus alumnos, no los de la plataforma.",
+              },
+              {
+                href: "/modelo-hibrido",
+                img: "/pixel/hibrido-membresia.png",
+                title: "Modelo híbrido",
+                body: "Vendés, enseñás y tenés comunidad. Tienda, cursos, membresía y agenda conviviendo en un mismo sistema.",
+              },
+            ].map((m) => (
+              <Link
+                key={m.href}
+                href={m.href}
+                className="group flex flex-col rounded-lg border border-white/12 bg-[#0f0f0f] p-6 transition-colors hover:border-white/25"
+              >
+                <Image
+                  src={m.img}
+                  alt=""
+                  width={64}
+                  height={64}
+                  unoptimized
+                  className="pixelated"
+                />
+                <h3 className="mt-4 text-lg font-semibold tracking-[-0.02em]">{m.title}</h3>
+                <p className="mt-2.5 flex-1 text-[13.5px] leading-relaxed text-white/55">
+                  {m.body}
+                </p>
+                <span className="mt-5 inline-flex items-center gap-1.5 font-pixel text-[10px] text-white/70 transition group-hover:text-white">
+                  Ver el análisis
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
 
         {/* ================= PROYECTOS ================= */}
         <section id="proyectos" className="mx-auto max-w-6xl scroll-mt-20 px-5 py-20">

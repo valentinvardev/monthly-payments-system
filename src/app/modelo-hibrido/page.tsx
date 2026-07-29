@@ -1,13 +1,27 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { getLocale } from "@/lib/studio/i18n";
-import { StudioBrand } from "@/components/studio/pixel";
 import { PixelBackdrop } from "@/components/studio/PixelBackdrop";
-import { LangToggle } from "@/components/studio/LangToggle";
-import { StudioMobileMenu } from "@/components/studio/StudioMobileMenu";
-import { TocNav } from "./_components/TocNav";
+import { TocNav } from "@/components/studio/TocNav";
+import {
+  BenefitGrid,
+  ClosingCta,
+  CostBlock,
+  IntegrationsSection,
+  ModelHeader,
+  ModelHero,
+  NumberedList,
+  OtherModels,
+  PieceGrid,
+  Prose,
+  SectionHead,
+  StatList,
+  type Benefit,
+  type ModelSection,
+  type Piece,
+  type Stat,
+} from "@/components/studio/model-page";
 
 export const metadata: Metadata = {
   title: "Modelo híbrido: tienda + cursos + membresía",
@@ -15,17 +29,18 @@ export const metadata: Metadata = {
     "Cómo funciona una plataforma que vende productos, dicta cursos y sostiene una membresía en un mismo sistema. Análisis, beneficios y caso real: La Reina de Bastos.",
 };
 
-const SECTIONS = [
+const SECTIONS: ModelSection[] = [
   { id: "que-es", n: "01", label: "Qué es un modelo híbrido" },
   { id: "caso", n: "02", label: "El caso: La Reina de Bastos" },
   { id: "piezas", n: "03", label: "Las cuatro piezas" },
   { id: "beneficios", n: "04", label: "Beneficios para tu negocio" },
-  { id: "datos", n: "05", label: "Los datos detrás del diseño" },
-  { id: "sistema", n: "06", label: "Cómo está construido" },
-  { id: "empezar", n: "07", label: "Cómo empezamos" },
+  { id: "integraciones", n: "05", label: "Todo lo que viene preparado" },
+  { id: "datos", n: "06", label: "Los datos detrás del diseño" },
+  { id: "sistema", n: "07", label: "Cómo está construido" },
+  { id: "empezar", n: "08", label: "Cómo empezamos" },
 ];
 
-const PIEZAS = [
+const PIEZAS: Piece[] = [
   {
     img: "/pixel/hibrido-tienda.png",
     title: "Tienda",
@@ -48,7 +63,7 @@ const PIEZAS = [
   },
 ];
 
-const BENEFICIOS = [
+const BENEFICIOS: Benefit[] = [
   {
     title: "Ingreso previsible, no montaña rusa",
     body: "Vender una vez a mucha gente obliga a empezar de cero cada mes. Una membresía convierte a la misma persona en ingreso recurrente: sabés cuánto entra antes de que arranque el mes y podés planificar producción, compras y contrataciones.",
@@ -75,7 +90,7 @@ const BENEFICIOS = [
   },
   {
     title: "Horas recuperadas todos los meses",
-    body: "Cobrar, dar acceso, avisar, coordinar horarios y responder “¿me llegó el pago?” son tareas que se automatizan una vez y no vuelven. Ese tiempo se reinvierte en producir contenido y vender, que es lo que sí necesita ser humano.",
+    body: "Cobrar, dar acceso, avisar, coordinar horarios y responder «¿me llegó el pago?» son tareas que se automatizan una vez y no vuelven. Ese tiempo se reinvierte en producir contenido y vender, que es lo que sí necesita ser humano.",
   },
   {
     title: "Preparado para crecer",
@@ -83,7 +98,7 @@ const BENEFICIOS = [
   },
 ];
 
-const DATOS = [
+const DATOS: Stat[] = [
   {
     stat: "70%",
     label: "de los carritos se abandonan",
@@ -128,7 +143,7 @@ const DATOS = [
   },
 ];
 
-const SISTEMA = [
+const SISTEMA: Benefit[] = [
   {
     title: "Un solo sistema, no cuatro atados con alambre",
     body: "Tienda, cursos, membresía y agenda comparten la misma base de datos y el mismo login. La clienta entra una vez y encuentra sus compras, sus clases y sus turnos en el mismo lugar. Para vos significa un solo panel y números que cierran entre sí, en vez de exportar planillas de tres servicios distintos.",
@@ -161,81 +176,22 @@ export default async function ModeloHibridoPage() {
   return (
     <div className="relative min-h-screen overflow-x-clip bg-[#0a0a0a] text-[#fafafa]">
       <PixelBackdrop />
-
-      <header className="sticky top-0 z-40 border-b border-white/8 bg-[#0a0a0a] md:bg-[#0a0a0a]/85 md:backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
-          <Link href="/" className="min-w-0 transition-opacity hover:opacity-85">
-            <StudioBrand />
-          </Link>
-          <nav className="hidden sm:flex items-center gap-2">
-            <LangToggle locale={locale} />
-            <Link
-              href="/contanos"
-              className="inline-flex h-8 items-center justify-center gap-1.5 bg-[#0070F3] px-3.5 font-pixel text-[10px] text-white transition hover:bg-[#0060d3]"
-            >
-              Contanos tu proyecto
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </nav>
-          <StudioMobileMenu
-            items={SECTIONS.map((s) => ({ href: `#${s.id}`, label: s.label }))}
-            locale={locale}
-            loginHref="/contanos"
-            loginLabel="Contanos tu proyecto"
-          />
-        </div>
-      </header>
+      <ModelHeader locale={locale} sections={SECTIONS} />
 
       <main className="relative z-10 mx-auto max-w-6xl px-5 pb-24 pt-14">
-        {/* ---------------- HERO ---------------- */}
-        <section className="reveal max-w-[62ch]">
-          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/45">
-            ANÁLISIS DE SISTEMA · MODELO HÍBRIDO
-          </p>
-          <h1 className="mt-4 font-display text-4xl font-medium leading-[1.1] tracking-[-0.03em] sm:text-5xl">
-            Vender, enseñar y sostener una comunidad{" "}
-            <span className="font-light text-white/55">desde un mismo lugar.</span>
-          </h1>
-          <p className="mt-6 text-[15px] leading-relaxed text-white/60">
-            Muchos negocios ya hacen las tres cosas: venden algo, enseñan algo y tienen gente
-            fiel alrededor. El problema casi nunca es el contenido, sino que cada parte vive en
-            una herramienta distinta. Esta es la anatomía de una plataforma que las une, contada
-            sin tecnicismos y con el respaldo de un caso real que ya está funcionando.
-          </p>
-        </section>
+        <ModelHero
+          eyebrow="ANÁLISIS DE SISTEMA · MODELO HÍBRIDO"
+          titleA="Vender, enseñar y sostener una comunidad"
+          titleB="desde un mismo lugar."
+          intro="Muchos negocios ya hacen las tres cosas: venden algo, enseñan algo y tienen gente fiel alrededor. El problema casi nunca es el contenido, sino que cada parte vive en una herramienta distinta. Esta es la anatomía de una plataforma que las une, contada sin tecnicismos y con el respaldo de un caso real que ya está funcionando."
+        />
 
-        {/* ---------------- COSTO ESTIMADO ---------------- */}
-        <section
-          className="reveal mt-10 rounded-lg border border-white/12 bg-[#0f0f0f] p-6 sm:p-7"
-          style={{ animationDelay: "80ms" }}
-        >
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-baseline gap-4">
-              <div>
-                <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/45">
-                  Costo estimado
-                </p>
-                <p className="mt-2 font-display text-4xl font-medium tracking-[-0.03em]">
-                  <span className="text-white/50">desde</span>{" "}
-                  <span className="tabular-nums text-[#0070F3]">USD 50</span>
-                  <span className="text-xl font-light text-white/50"> /mes</span>
-                </p>
-              </div>
-            </div>
-            <p className="max-w-[42ch] text-[13.5px] leading-relaxed text-white/55">
-              Incluye la plataforma funcionando, el panel para administrarla y el mantenimiento.
-              El monto final depende de qué piezas necesites y del volumen: te lo confirmamos en
-              la propuesta, sin sorpresas después.
-            </p>
-          </div>
-        </section>
+        <CostBlock note="Incluye la plataforma funcionando, el panel para administrarla y el mantenimiento. El monto final depende de qué piezas necesites y del volumen: te lo confirmamos en la propuesta, sin sorpresas después." />
 
         <div className="mt-14 grid gap-12 lg:grid-cols-[220px_1fr]">
-          {/* ---------------- ÍNDICE ---------------- */}
           <TocNav sections={SECTIONS} />
 
           <div className="min-w-0 space-y-20">
-            {/* ---------------- 01 ---------------- */}
             <section id="que-es" className="scroll-mt-24">
               <SectionHead n="01" title="Qué es un modelo híbrido" />
               <Prose>
@@ -261,7 +217,6 @@ export default async function ModeloHibridoPage() {
               </Prose>
             </section>
 
-            {/* ---------------- 02 ---------------- */}
             <section id="caso" className="scroll-mt-24">
               <SectionHead n="02" title="El caso: La Reina de Bastos" />
               <Prose>
@@ -298,7 +253,6 @@ export default async function ModeloHibridoPage() {
               </div>
             </section>
 
-            {/* ---------------- 03 ---------------- */}
             <section id="piezas" className="scroll-mt-24">
               <SectionHead n="03" title="Las cuatro piezas" />
               <Prose>
@@ -309,28 +263,9 @@ export default async function ModeloHibridoPage() {
                   negocio lo pida.
                 </p>
               </Prose>
-              <div className="mt-8 grid gap-5 sm:grid-cols-2">
-                {PIEZAS.map((p) => (
-                  <article
-                    key={p.title}
-                    className="rounded-lg border border-white/12 bg-[#0f0f0f] p-6"
-                  >
-                    <Image
-                      src={p.img}
-                      alt=""
-                      width={80}
-                      height={80}
-                      unoptimized
-                      className="pixelated"
-                    />
-                    <h3 className="mt-4 text-base font-semibold tracking-[-0.02em]">{p.title}</h3>
-                    <p className="mt-2 text-[13.5px] leading-relaxed text-white/60">{p.body}</p>
-                  </article>
-                ))}
-              </div>
+              <PieceGrid pieces={PIEZAS} />
             </section>
 
-            {/* ---------------- 04 ---------------- */}
             <section id="beneficios" className="scroll-mt-24">
               <SectionHead n="04" title="Beneficios para tu negocio" />
               <Prose>
@@ -339,21 +274,13 @@ export default async function ModeloHibridoPage() {
                   ordenados por el impacto que suelen tener en el día a día.
                 </p>
               </Prose>
-              <div className="mt-8 grid gap-px overflow-hidden rounded-lg border border-white/12 bg-white/10 sm:grid-cols-2">
-                {BENEFICIOS.map((b) => (
-                  <article key={b.title} className="bg-[#0f0f0f] p-6">
-                    <h3 className="text-[15px] font-semibold tracking-[-0.02em] text-white/95">
-                      {b.title}
-                    </h3>
-                    <p className="mt-2.5 text-[13.5px] leading-relaxed text-white/60">{b.body}</p>
-                  </article>
-                ))}
-              </div>
+              <BenefitGrid benefits={BENEFICIOS} />
             </section>
 
-            {/* ---------------- 05 ---------------- */}
+            <IntegrationsSection n="05" />
+
             <section id="datos" className="scroll-mt-24">
-              <SectionHead n="05" title="Los datos detrás del diseño" />
+              <SectionHead n="06" title="Los datos detrás del diseño" />
               <Prose>
                 <p>
                   Cuando insistimos con la velocidad, la claridad del checkout o la estructura de
@@ -361,71 +288,22 @@ export default async function ModeloHibridoPage() {
                   son las cifras que más pesan al diseñar un sistema como este.
                 </p>
               </Prose>
-              <div className="mt-8 space-y-4">
-                {DATOS.map((d) => (
-                  <article
-                    key={d.stat + d.label}
-                    className="grid gap-5 rounded-lg border border-white/12 bg-[#0f0f0f] p-6 sm:grid-cols-[140px_1fr]"
-                  >
-                    <div>
-                      <p className="font-display text-3xl font-medium tabular-nums text-[#0070F3]">
-                        {d.stat}
-                      </p>
-                      <p className="mt-1 text-[11px] uppercase tracking-[0.1em] text-white/45">
-                        {d.label}
-                      </p>
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[13.5px] leading-relaxed text-white/65">{d.body}</p>
-                      <a
-                        href={d.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-3 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.14em] text-white/40 transition hover:text-white/80"
-                      >
-                        {d.source}
-                        <ArrowUpRight className="h-3 w-3" />
-                      </a>
-                    </div>
-                  </article>
-                ))}
-              </div>
+              <StatList stats={DATOS} />
             </section>
 
-            {/* ---------------- 06 ---------------- */}
             <section id="sistema" className="scroll-mt-24">
-              <SectionHead n="06" title="Cómo está construido" />
+              <SectionHead n="07" title="Cómo está construido" />
               <Prose>
                 <p>
                   Sin entrar en tecnicismos, esto es lo que hace que el sistema se sostenga solo
                   y que puedas operarlo sin depender de nadie.
                 </p>
               </Prose>
-              <div className="mt-8 space-y-5">
-                {SISTEMA.map((s, i) => (
-                  <article
-                    key={s.title}
-                    className="flex gap-5 border-t border-white/10 pt-5 first:border-t-0 first:pt-0"
-                  >
-                    <span className="mt-0.5 shrink-0 font-mono text-[11px] tabular-nums text-white/30">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <div className="min-w-0">
-                      <h3 className="text-[15px] font-semibold tracking-[-0.02em] text-white/95">
-                        {s.title}
-                      </h3>
-                      <p className="mt-2 max-w-[68ch] text-[13.5px] leading-relaxed text-white/60">
-                        {s.body}
-                      </p>
-                    </div>
-                  </article>
-                ))}
-              </div>
+              <NumberedList items={SISTEMA} />
             </section>
 
-            {/* ---------------- 07 ---------------- */}
             <section id="empezar" className="scroll-mt-24">
-              <SectionHead n="07" title="Cómo empezamos" />
+              <SectionHead n="08" title="Cómo empezamos" />
               <Prose>
                 <p>
                   No hace falta tener todo definido ni arrancar con las cuatro piezas. Lo normal
@@ -438,45 +316,16 @@ export default async function ModeloHibridoPage() {
                   concreta, con alcance y precio, en el día.
                 </p>
               </Prose>
-              <div className="mt-8 rounded-lg border border-white/12 bg-[#0f0f0f] p-8">
-                <h3 className="font-display text-2xl font-medium tracking-[-0.025em]">
-                  ¿Tu negocio tiene esta forma?
-                </h3>
-                <p className="mt-3 max-w-[52ch] text-[14px] leading-relaxed text-white/60">
-                  Academias, marcas con talleres, consultorios con programas, clubes con
-                  contenido. Si te reconocés, contanos cómo trabajás y te respondemos en el día.
-                </p>
-                <Link
-                  href="/contanos"
-                  className="mt-6 inline-flex h-12 items-center justify-center gap-2 bg-[#0070F3] px-6 font-pixel text-[11px] text-white transition hover:bg-[#0060d3]"
-                >
-                  Contanos tu proyecto
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
+              <ClosingCta
+                title="¿Tu negocio tiene esta forma?"
+                body="Academias, marcas con talleres, consultorios con programas, clubes con contenido. Si te reconocés, contanos cómo trabajás y te respondemos en el día."
+              />
             </section>
+
+            <OtherModels current="/modelo-hibrido" />
           </div>
         </div>
       </main>
-    </div>
-  );
-}
-
-function SectionHead({ n, title }: { n: string; title: string }) {
-  return (
-    <div className="mb-5 flex items-baseline gap-3">
-      <span className="font-mono text-[11px] tabular-nums text-[#0070F3]">{n}</span>
-      <h2 className="font-display text-2xl font-medium tracking-[-0.025em] sm:text-3xl">
-        {title}
-      </h2>
-    </div>
-  );
-}
-
-function Prose({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="max-w-[68ch] space-y-4 text-[14.5px] leading-relaxed text-white/60">
-      {children}
     </div>
   );
 }
