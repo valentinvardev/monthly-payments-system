@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Sparkles, Trash2 } from "lucide-react";
+import { Download, FileArchive, Sparkles, Trash2 } from "lucide-react";
 import { trpc } from "@/trpc/react";
 
 // Se genera UN elemento por vez (el server además fuerza "exactly one
@@ -203,9 +203,18 @@ export function IconStudio() {
 
       {(gallery.data?.length ?? 0) > 0 && (
         <section className="space-y-3">
-          <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/70">
-            {gallery.data!.length} guardados · 500×500 PNG transparente · Supabase Storage
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/70">
+              {gallery.data!.length} guardados · 500×500 PNG transparente · Supabase Storage
+            </p>
+            <a
+              href="/api/admin/icons/export"
+              className="inline-flex items-center gap-2 rounded-full border border-white/18 bg-white/[0.07] px-4 py-2 text-[11px] font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28"
+            >
+              <FileArchive className="h-3.5 w-3.5" />
+              Descargar todos (.zip)
+            </a>
+          </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {gallery.data!.map((r) => (
               <figure
