@@ -49,3 +49,12 @@ Logos*.zip
 
 # assets crudos de generación IA (los finales pixelizados sí se commitean)
 /public/pixel/raw/
+
+# documentos internos de negocio — el repo es público, estos no van
+/estrategia-cobranzas-argentina.md
+/caso-halley.md
+/surcodia-rediseno-prompt.md
+
+# tooling local de agentes
+/.agents/
+/skills-lock.json
