@@ -321,3 +321,101 @@ model QuoteItem {
 
   @@index([quoteId, sortOrder])
 }
+
+// ---------------------------------------------------------------
+// Prospección saliente
+//
+// ProjectLead es entrante: alguien llenó /contanos y llega con problema,
+// presupuesto y urgencia ya declarados, todos obligatorios. Esto es lo
+// contrario: organizaciones que todavía no nos conocen, que calificamos
+// ANTES de escribirles y de las que no sabemos nada de presupuesto.
+// Meterlos en la misma tabla obligaría a volver nullable media
+// ProjectLead y a que cada consulta entrante cargue columnas muertas.
+//
+// Los enums espejan las validaciones de la planilla de prospección para
+// que la importación sea uno a uno y no haya que traducir a mano.
+// ---------------------------------------------------------------
+
+enum ProspectTri {
+  SI
+  NO
+  NO_SE
+}
+
+enum ProspectStage {
+  SIN_CONTACTAR
+  CONTACTADO
+  RESPONDIO
+  LLAMADA_AGENDADA
+  PROPUESTA_ENVIADA
+  GANADO
+  PERDIDO
+  DESCARTADO
+}
+
+enum ProspectChannel {
+  EMAIL
+  INSTAGRAM_DM
+  TELEFONO
+  PRESENCIAL
+  REFERIDO
+}
+
+enum ProspectActivityKind {
+  NOTA
+  CONTACTO
+  RESPUESTA
+  LLAMADA
+  PROPUESTA
+  CAMBIO_ESTADO
+}
+
+model Prospect {
+  id        String  @id @default(cuid())
+  name      String // Instituto / club / academia
+  zone      String // CABA, GBA Norte, Córdoba…
+  segment   String  @default("idiomas") // idiomas | futbol | danza | jardin | gimnasio | egresados
+  email     String?
+  instagram String?
+  website   String?
+  phone     String? // para la cola de wa.me
+  priority  Int     @default(2) // 1 = CABA/GBA, se trabaja primero
+
+  // El filtro de calificación: tres cosas y se contacta con tres de tres.
+  usesMercadoPago ProspectTri @default(NO_SE)
+  over100Students ProspectTri @default(NO_SE)
+  chargesMonthly  ProspectTri @default(NO_SE)
+
+  // «Califica» NO se guarda: se deriva de los tres campos de arriba, misma
+  // razón por la que el estado de las cuotas tampoco se guarda. Si se
+  // guardara, el panel podría terminar diciendo algo distinto del filtro.
+
+  // Lo que se anota entrando a su web como si fuéramos un padre que quiere
+  // inscribir a un hijo. Es la frase de apertura y lo que mueve la tasa
+  // de respuesta; por eso es un campo propio y no una nota suelta.
+  frictionNote String?
+
+  stage       ProspectStage    @default(SIN_CONTACTAR)
+  contactedAt DateTime?
+  channel     ProspectChannel?
+  followUpAt  DateTime? // un solo seguimiento, a los 4 días
+
+  activities ProspectActivity[]
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  @@unique([name, zone])
+  @@index([stage, priority])
+  @@index([priority, createdAt])
+}
+
+model ProspectActivity {
+  id         String               @id @default(cuid())
+  prospect   Prospect             @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  prospectId String
+  kind       ProspectActivityKind
+  body       String?
+  createdAt  DateTime             @default(now())
+
+  @@index([prospectId, createdAt])
+}

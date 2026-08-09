@@ -10,6 +10,7 @@ import { emailsRouter } from "@/server/api/routers/emails";
 import { leadsRouter } from "@/server/api/routers/leads";
 import { quotesRouter } from "@/server/api/routers/quotes";
 import { iconsRouter } from "@/server/api/routers/icons";
+import { prospectsRouter } from "@/server/api/routers/prospects";
 
 export const appRouter = createTRPCRouter({
   health: healthRouter,
@@ -23,6 +24,7 @@ export const appRouter = createTRPCRouter({
   leads: leadsRouter,
   quotes: quotesRouter,
   icons: iconsRouter,
+  prospects: prospectsRouter,
 });
 
 export type AppRouter = typeof appRouter;

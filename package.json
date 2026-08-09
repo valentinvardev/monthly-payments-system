@@ -10,7 +10,8 @@
     "lint": "eslint",
     "postinstall": "prisma generate",
     "db:reset": "prisma migrate reset",
-    "assets:pixel": "node --env-file=.env scripts/generate-assets.mjs"
+    "assets:pixel": "node --env-file=.env scripts/generate-assets.mjs",
+    "prospects:import": "tsx --env-file=.env scripts/import-prospects.ts prospectos-argentina.xlsx"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

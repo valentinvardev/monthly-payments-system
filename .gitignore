@@ -58,3 +58,7 @@ Logos*.zip
 # tooling local de agentes
 /.agents/
 /skills-lock.json
+
+# planillas de prospectos — datos de contacto reales, nunca al repo
+/prospectos-*.xlsx
+/prospectos-*.csv
