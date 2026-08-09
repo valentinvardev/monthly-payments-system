@@ -24,21 +24,44 @@ function removeBackground(img: InstanceType<typeof Jimp>, tolerance = 90) {
     Math.abs(data[i] - bg[0]) + Math.abs(data[i + 1] - bg[1]) + Math.abs(data[i + 2] - bg[2]) <
     tolerance;
 
+  // La cola guarda índices de píxel planos en un Int32Array preasignado en
+  // vez de tuplas [x, y]: cada entrada pasa de un objeto en el heap (~56 B)
+  // a 4 B. Además marcamos `seen` al encolar y no al desencolar, así ningún
+  // píxel entra más de una vez — sin eso, cada píxel de fondo empujaba sus 4
+  // vecinos sin filtrar y la cola crecía a ~4x el área de la imagen.
+  // Con ambas cosas, w*h entradas es cota exacta: 4 MB fijos a 1024x1024.
   const seen = new Uint8Array(w * h);
-  const queue: [number, number][] = [];
-  for (let x = 0; x < w; x++) queue.push([x, 0], [x, h - 1]);
-  for (let y = 0; y < h; y++) queue.push([0, y], [w - 1, y]);
+  const queue = new Int32Array(w * h);
+  let qlen = 0;
 
-  while (queue.length) {
-    const [x, y] = queue.pop()!;
-    if (x < 0 || y < 0 || x >= w || y >= h) continue;
+  const enqueue = (x: number, y: number) => {
+    if (x < 0 || y < 0 || x >= w || y >= h) return;
     const p = y * w + x;
-    if (seen[p]) continue;
+    if (seen[p]) return;
     seen[p] = 1;
-    const i = idx(x, y);
+    queue[qlen++] = p;
+  };
+
+  for (let x = 0; x < w; x++) {
+    enqueue(x, 0);
+    enqueue(x, h - 1);
+  }
+  for (let y = 0; y < h; y++) {
+    enqueue(0, y);
+    enqueue(w - 1, y);
+  }
+
+  while (qlen > 0) {
+    const p = queue[--qlen];
+    const i = p * 4;
     if (!isBg(i)) continue;
     data[i + 3] = 0;
-    queue.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+    const x = p % w;
+    const y = (p - x) / w;
+    enqueue(x + 1, y);
+    enqueue(x - 1, y);
+    enqueue(x, y + 1);
+    enqueue(x, y - 1);
   }
 }
 
