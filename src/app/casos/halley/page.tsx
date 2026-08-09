@@ -21,14 +21,19 @@ export const metadata: Metadata = {
     "Cómo resolvimos la cobranza en cuotas de una productora de egresados que opera 27 colegios y cerca de 2.000 estudiantes: imputación derivada, dos pasarelas de pago y entrega condicionada al saldo.",
 };
 
+// La página está partida en dos mitades. Las secciones 01-03 son para quien
+// tiene el problema (administración, cobranzas) y cierran con el CTA, para
+// que ese lector no tenga que atravesar el detalle técnico para llegar a
+// contactarnos. Las 04-07 son la prueba de profundidad, para quien quiera
+// ver cómo está hecho antes de confiarnos su cobranza.
 const SECTIONS: ModelSection[] = [
   { id: "problema", n: "01", label: "El problema" },
   { id: "sistema", n: "02", label: "Qué se construyó" },
-  { id: "decisiones", n: "03", label: "Las decisiones que lo sostienen" },
-  { id: "integracion", n: "04", label: "Lo que aparece integrando" },
-  { id: "seguridad", n: "05", label: "La auditoría de seguridad" },
-  { id: "stack", n: "06", label: "Cómo está construido" },
-  { id: "cierre", n: "07", label: "Si tu operación es así" },
+  { id: "cierre", n: "03", label: "Si tu operación es así" },
+  { id: "decisiones", n: "04", label: "Las decisiones que lo sostienen" },
+  { id: "integracion", n: "05", label: "Lo que aparece integrando" },
+  { id: "seguridad", n: "06", label: "La auditoría de seguridad" },
+  { id: "stack", n: "07", label: "Cómo está construido" },
 ];
 
 // Los números de la operación del cliente. Van arriba de todo porque es lo
@@ -143,6 +148,24 @@ function FactsRow() {
   );
 }
 
+// Marca el corte entre la mitad de negocio y la mitad técnica, y le avisa
+// al lector no técnico que ya puede parar. Decirlo explícitamente vale más
+// que dejarlo implícito: el que sigue leyendo, sigue porque quiere.
+function PartDivider() {
+  return (
+    <section aria-hidden className="border-t border-white/10 pt-10">
+      <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#0070F3]">
+        El detalle técnico
+      </p>
+      <p className="mt-3 max-w-[62ch] text-[14.5px] leading-relaxed text-white/55">
+        Hasta acá, qué resuelve el sistema. De acá en adelante, cómo está hecho: las decisiones
+        de diseño que lo sostienen, lo que apareció recién al integrar contra las APIs reales y
+        la auditoría de seguridad. Si no es lo tuyo, ya tenés la película completa.
+      </p>
+    </section>
+  );
+}
+
 export default async function CasoHalleyPage() {
   const locale = await getLocale();
 
@@ -156,7 +179,7 @@ export default async function CasoHalleyPage() {
           eyebrow="CASO DE CLIENTE · COBRANZA EN CUOTAS"
           titleA="Cobrarle a 2.000 familias"
           titleB="sin perseguir a ninguna."
-          intro="Halley Audiovisual filma egresados en Córdoba. Su operación son 27 colegios y cerca de 2.000 estudiantes, cada uno con un plan de cuotas mensuales que arranca dos o tres años antes del viaje. Construimos el sistema que sostiene ese ciclo entero: de la primera cuota a la entrega del material."
+          intro="Halley Audiovisual filma egresados en Córdoba. Su operación son 27 colegios y cerca de 2.000 estudiantes, cada uno con un plan de cuotas mensuales que arranca dos o tres años antes del evento. Construimos el sistema que sostiene ese ciclo entero: de la primera cuota a la entrega del material."
         />
 
         <FactsRow />
@@ -165,6 +188,8 @@ export default async function CasoHalleyPage() {
           <TocNav sections={SECTIONS} />
 
           <div className="min-w-0 space-y-20">
+            {/* ============ MITAD DE NEGOCIO (01-03) ============ */}
+
             <section id="problema" className="scroll-mt-24">
               <SectionHead n="01" title="El problema" />
               <Prose>
@@ -201,8 +226,28 @@ export default async function CasoHalleyPage() {
               <BenefitGrid benefits={SISTEMA} />
             </section>
 
+            <section id="cierre" className="scroll-mt-24">
+              <SectionHead n="03" title="Si tu operación tiene esta forma" />
+              <Prose>
+                <p>
+                  Colegios, academias, institutos, clubes, escuelas de música o danza, jardines.
+                  Si le cobrás a cientos o miles de familias en cuotas, cruzás transferencias
+                  contra apellidos en una planilla y tenés algo para entregar que podrías
+                  condicionar al pago, el problema es el mismo y la solución también.
+                </p>
+              </Prose>
+              <ClosingCta
+                title="¿Cuánto no estás cobrando?"
+                body="Contanos cuántos pagadores tenés, cómo cobrás hoy y qué parte se hace a mano. Con eso te decimos qué se puede automatizar primero y cuánto cuesta, en el día."
+              />
+            </section>
+
+            {/* ============ MITAD TÉCNICA (04-07) ============ */}
+
+            <PartDivider />
+
             <section id="decisiones" className="scroll-mt-24">
-              <SectionHead n="03" title="Las decisiones que lo sostienen" />
+              <SectionHead n="04" title="Las decisiones que lo sostienen" />
               <Prose>
                 <p>
                   Tres, y las tres son sobre qué <strong className="text-white/85">no</strong>{" "}
@@ -214,7 +259,7 @@ export default async function CasoHalleyPage() {
             </section>
 
             <section id="integracion" className="scroll-mt-24">
-              <SectionHead n="04" title="Lo que sólo aparece integrando de verdad" />
+              <SectionHead n="05" title="Lo que sólo aparece integrando de verdad" />
               <Prose>
                 <p>
                   La integración con Talo se escribió primero contra la documentación y después se
@@ -234,7 +279,7 @@ export default async function CasoHalleyPage() {
             </section>
 
             <section id="seguridad" className="scroll-mt-24">
-              <SectionHead n="05" title="La auditoría de seguridad" />
+              <SectionHead n="06" title="La auditoría de seguridad" />
               <Prose>
                 <p>
                   Terminado el sistema se hizo una revisión de punta a punta. Encontró dos puertas
@@ -273,7 +318,7 @@ export default async function CasoHalleyPage() {
             </section>
 
             <section id="stack" className="scroll-mt-24">
-              <SectionHead n="06" title="Cómo está construido" />
+              <SectionHead n="07" title="Cómo está construido" />
               <Prose>
                 <p>
                   Next.js con App Router y TypeScript, tRPC entre el panel y el servidor, Prisma
@@ -293,22 +338,6 @@ export default async function CasoHalleyPage() {
                   chico y se puede leer entero.
                 </p>
               </Prose>
-            </section>
-
-            <section id="cierre" className="scroll-mt-24">
-              <SectionHead n="07" title="Si tu operación tiene esta forma" />
-              <Prose>
-                <p>
-                  Colegios, academias, institutos, clubes, escuelas de música o danza, jardines.
-                  Si le cobrás a cientos o miles de familias en cuotas, cruzás transferencias
-                  contra apellidos en una planilla y tenés algo para entregar que podrías
-                  condicionar al pago, el problema es el mismo y la solución también.
-                </p>
-              </Prose>
-              <ClosingCta
-                title="¿Cuánto no estás cobrando?"
-                body="Contanos cuántos pagadores tenés, cómo cobrás hoy y qué parte se hace a mano. Con eso te decimos qué se puede automatizar primero y cuánto cuesta, en el día."
-              />
             </section>
 
             <section className="mt-20 border-t border-white/10 pt-10">
