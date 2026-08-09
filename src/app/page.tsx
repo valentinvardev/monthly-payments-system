@@ -273,6 +273,49 @@ export default async function StudioLanding() {
 
         <div className="studio-dissolve" aria-hidden />
 
+        {/* ============ FRANJA HALLEY (caso real, cobranza en cuotas) ============ */}
+        <section className="mx-auto max-w-6xl px-5 pt-20">
+          <Link
+            href="/casos/halley"
+            className="group grid gap-8 rounded-lg border border-white/12 bg-[#0f0f0f] p-7 transition-colors hover:border-white/25 sm:p-9 lg:grid-cols-[1.15fr_0.85fr] lg:items-center"
+          >
+            <div className="min-w-0">
+              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/45">
+                CASO REAL · COBRANZA EN CUOTAS
+              </p>
+              <h3 className="mt-3 max-w-[24ch] font-display text-2xl font-medium leading-tight tracking-[-0.025em] sm:text-3xl">
+                Cobrarle a 2.000 familias{" "}
+                <span className="font-light text-white/55">sin perseguir a ninguna.</span>
+              </h3>
+              <p className="mt-3 max-w-[54ch] text-[14px] leading-relaxed text-white/60">
+                Una productora de egresados que opera 27 colegios y cerca de 2.000 estudiantes,
+                cada uno con un plan de cuotas de dos o tres años. Imputación derivada, dos
+                pasarelas de pago y el material que se libera solo cuando el plan está saldado.
+              </p>
+              <span className="mt-6 inline-flex items-center gap-1.5 font-pixel text-[10px] text-white/70 transition group-hover:text-white">
+                Ver el caso completo
+                <ArrowRight className="h-3.5 w-3.5" />
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-white/12 bg-white/10">
+              {[
+                { value: "27", label: "colegios" },
+                { value: "~2.000", label: "estudiantes" },
+                { value: "2", label: "pasarelas" },
+              ].map((f) => (
+                <div key={f.label} className="bg-[#131313] p-5">
+                  <p className="font-display text-2xl font-medium tabular-nums text-[#0070F3]">
+                    {f.value}
+                  </p>
+                  <p className="mt-1 text-[10px] uppercase tracking-[0.1em] text-white/45">
+                    {f.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Link>
+        </section>
+
         {/* ================= MODELOS DE NEGOCIO ================= */}
         <section id="modelos" className="mx-auto max-w-6xl scroll-mt-20 px-5 py-20">
           <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/45">
