@@ -55,7 +55,7 @@ export function ProofModal({ url }: { url: string }) {
       >
         <div
           style={{
-            backgroundColor: "oklch(0.16 0.015 245)",
+            backgroundColor: "#131313",
             border: "1px solid rgba(255,255,255,0.10)",
             borderRadius: "24px",
             boxShadow: "0 32px 80px -28px rgba(0,0,0,0.65)",
@@ -72,7 +72,7 @@ export function ProofModal({ url }: { url: string }) {
                 href={url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1 text-[11px] font-medium text-foreground/85 transition hover:bg-white/[0.08] hover:text-foreground"
+                className="inline-flex items-center gap-1.5 rounded-none border border-white/12 bg-[#161616] px-3 py-1 text-[11px] font-medium text-foreground/85 transition hover:bg-[#1f1f1f] hover:text-foreground"
               >
                 <ExternalLink className="h-3.5 w-3.5" />
                 Abrir
@@ -80,7 +80,7 @@ export function ProofModal({ url }: { url: string }) {
               <a
                 href={url}
                 download
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1 text-[11px] font-medium text-foreground/85 transition hover:bg-white/[0.08] hover:text-foreground"
+                className="inline-flex items-center gap-1.5 rounded-none border border-white/12 bg-[#161616] px-3 py-1 text-[11px] font-medium text-foreground/85 transition hover:bg-[#1f1f1f] hover:text-foreground"
               >
                 <Download className="h-3.5 w-3.5" />
                 Descargar
@@ -88,7 +88,7 @@ export function ProofModal({ url }: { url: string }) {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/12 bg-white/[0.04] text-foreground/80 transition hover:bg-white/[0.08] hover:text-foreground"
+                className="inline-flex h-7 w-7 items-center justify-center rounded-none border border-white/12 bg-[#161616] text-foreground/80 transition hover:bg-[#1f1f1f] hover:text-foreground"
                 aria-label="Cerrar"
               >
                 <X className="h-3.5 w-3.5" />
@@ -119,7 +119,7 @@ export function ProofModal({ url }: { url: string }) {
                 <a
                   href={url}
                   download
-                  className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-[12px] font-medium text-foreground/95 transition hover:bg-white/[0.10]"
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-none border border-white/12 bg-[#161616] px-4 py-2 text-[12px] font-medium text-foreground/95 transition hover:bg-white/[0.10]"
                 >
                   <Download className="h-3.5 w-3.5" />
                   Descargar el archivo

@@ -72,7 +72,7 @@ export function ClientInviteAction({
             <button
               type="button"
               onClick={copy}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-[11px] font-medium text-foreground/90 transition hover:bg-white/[0.10]"
+              className="inline-flex items-center gap-1.5 rounded-none border border-white/12 bg-[#161616] px-3 py-1.5 text-[11px] font-medium text-foreground/90 transition hover:bg-white/[0.10]"
             >
               {copied ? <Check className="h-3.5 w-3.5 text-emerald-200" /> : <Copy className="h-3.5 w-3.5" />}
               {copied ? "Copiado" : "Copiar link"}
@@ -81,7 +81,7 @@ export function ClientInviteAction({
               type="button"
               disabled={gen.isPending}
               onClick={() => gen.mutate({ clientId })}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-transparent px-3 py-1.5 text-[11px] text-muted-foreground transition hover:bg-white/[0.05] hover:text-foreground disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-none border border-white/10 bg-transparent px-3 py-1.5 text-[11px] text-muted-foreground transition hover:bg-white/[0.05] hover:text-foreground disabled:opacity-50"
             >
               {gen.isPending ? "…" : "Regenerar"}
             </button>
@@ -100,7 +100,7 @@ export function ClientInviteAction({
               setError(null);
               gen.mutate({ clientId });
             }}
-            className="inline-flex items-center gap-1.5 rounded-full border border-white/18 bg-white/[0.07] px-3.5 py-1.5 text-[11px] font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-none border border-white/12 bg-[#161616] px-3.5 py-1.5 text-[11px] font-medium text-foreground/95 transition hover:bg-[#1f1f1f] hover:border-white/25 disabled:opacity-50"
           >
             <Send className="h-3.5 w-3.5" />
             {gen.isPending ? "Generando…" : "Generar link de invitación"}

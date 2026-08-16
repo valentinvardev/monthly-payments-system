@@ -36,7 +36,7 @@ export default async function ManageClientPage({
 
       <header className="reveal flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground/80">
+          <p className="studio-eyebrow">
             Gestión de cliente
           </p>
           <h1 className="mt-1.5 font-display text-3xl font-medium tracking-tight text-foreground">
@@ -50,12 +50,12 @@ export default async function ManageClientPage({
         </div>
         <div className="flex items-center gap-2">
           {client.active ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/25 bg-emerald-200/[0.06] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-emerald-100/90">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-200" /> Activo
+            <span className="inline-flex items-center gap-1.5 rounded-none border border-emerald-200/25 bg-emerald-200/[0.06] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-emerald-100/90">
+              <span className="h-1.5 w-1.5 rounded-none bg-emerald-200" /> Activo
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-foreground/40" /> Pausado
+            <span className="inline-flex items-center gap-1.5 rounded-none border border-white/12 bg-[#161616] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-none bg-foreground/40" /> Pausado
             </span>
           )}
           <ToggleActiveButton id={client.id} active={client.active} />
@@ -249,7 +249,7 @@ function SectionHeader({
           {title}
         </h2>
         {subtitle && (
-          <p className="mt-0.5 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80">
+          <p className="studio-eyebrow mt-1">
             {subtitle}
           </p>
         )}

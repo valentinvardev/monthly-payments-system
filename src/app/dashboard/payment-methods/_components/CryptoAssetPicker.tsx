@@ -177,10 +177,10 @@ export function CryptoAssetPicker({
                     type="button"
                     onClick={() => setNetwork(opt)}
                     className={[
-                      "rounded-full border px-3 py-1 text-[11px] font-medium transition",
+                      "rounded-none border px-3 py-1 text-[11px] font-medium transition",
                       active
                         ? "border-white/22 bg-white/[0.08] text-foreground/95"
-                        : "border-white/10 bg-white/[0.03] text-foreground/75 hover:bg-white/[0.06]",
+                        : "border-white/12 bg-[#161616] text-foreground/75 hover:bg-white/[0.06]",
                     ].join(" ")}
                   >
                     {opt}

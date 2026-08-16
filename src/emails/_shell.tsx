@@ -9,13 +9,93 @@ import {
   Text,
 } from "@react-email/components";
 import type * as React from "react";
+import { S_GRID } from "@/components/studio/pixel";
+
+// Paleta del studio — los mismos valores que la landing.
+const INK = "#0a0a0a"; // lienzo
+const PANEL = "#0f0f0f"; // tarjeta
+const BRAND = "#0070f3"; // acento accionable
+const FROST = "#fafafa"; // texto principal
+const LINE = "rgba(255, 255, 255, 0.12)"; // borde de un pixel
 
 const SANS =
   "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', Helvetica, Arial, sans-serif";
 
-// Shared shell used by every transactional email so they share the same
-// neutral, sober look: deep navy canvas, a refined Surcodia wordmark,
-// content card with subtle border, and a quiet footer.
+// Los eyebrows de la landing van en monoespaciada; en mail usamos la
+// pila del sistema, que está instalada en todos lados.
+const MONO =
+  "ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace";
+
+// ---------------------------------------------------------------
+// Monograma pixel dibujado con celdas de tabla.
+//
+// Silkscreen no carga en los clientes de correo y una imagen remota
+// queda bloqueada por defecto en Gmail y Outlook. Una tabla de celdas
+// con fondo se ve idéntica en todos lados y no depende de nada — el
+// mismo S_GRID que usa el SVG de la web, así que la marca no se
+// bifurca.
+// ---------------------------------------------------------------
+const CELL = 4;
+
+function PixelMonogram() {
+  const cols = 9; // 7 del monograma + el pixel que se escapa a la derecha
+  const cell = (bg: string, key: string) => (
+    <td
+      key={key}
+      width={CELL}
+      height={CELL}
+      style={{
+        width: `${CELL}px`,
+        height: `${CELL}px`,
+        backgroundColor: bg,
+        fontSize: 0,
+        lineHeight: 0,
+        padding: 0,
+        margin: 0,
+      }}
+    >
+      &nbsp;
+    </td>
+  );
+
+  const rows: React.ReactNode[] = [];
+
+  // Fila 0: sólo el pixel azul que se despega del monograma.
+  rows.push(
+    <tr key="escape">
+      {Array.from({ length: cols }, (_, c) =>
+        cell(c === 8 ? BRAND : "transparent", `e-${c}`),
+      )}
+    </tr>,
+  );
+
+  // Filas 1..7: la S.
+  S_GRID.forEach((row, r) => {
+    rows.push(
+      <tr key={`r-${r}`}>
+        {Array.from({ length: cols }, (_, c) =>
+          cell(row[c] === "1" ? FROST : "transparent", `${r}-${c}`),
+        )}
+      </tr>,
+    );
+  });
+
+  return (
+    <table
+      cellPadding={0}
+      cellSpacing={0}
+      border={0}
+      role="presentation"
+      style={{ borderCollapse: "collapse", borderSpacing: 0 }}
+    >
+      <tbody>{rows}</tbody>
+    </table>
+  );
+}
+
+// Shell compartido por todos los transaccionales: negro plano, el
+// lockup pixel de la landing, tarjeta con borde de un pixel y un pie
+// callado.
 export function EmailShell({
   preview,
   children,
@@ -27,8 +107,8 @@ export function EmailShell({
     <Html lang="es">
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="color-scheme" content="dark light" />
-        <meta name="supported-color-schemes" content="dark light" />
+        <meta name="color-scheme" content="dark" />
+        <meta name="supported-color-schemes" content="dark" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="stylesheet"
@@ -38,9 +118,27 @@ export function EmailShell({
       <Preview>{preview}</Preview>
       <Body style={body}>
         <Container style={container}>
+          {/* Lockup: monograma + palabra + contexto, como en la web. */}
           <Section style={brandSection}>
-            <Text style={brandWordmark}>Surcodia</Text>
-            <Text style={brandTagline}>cobros recurrentes simples</Text>
+            <table
+              cellPadding={0}
+              cellSpacing={0}
+              border={0}
+              role="presentation"
+              style={{ borderCollapse: "collapse" }}
+            >
+              <tbody>
+                <tr>
+                  <td style={{ verticalAlign: "middle", paddingRight: "10px" }}>
+                    <PixelMonogram />
+                  </td>
+                  <td style={{ verticalAlign: "middle" }}>
+                    <span style={brandWord}>surcodia</span>
+                    <span style={brandContext}>studio</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </Section>
 
           <Section style={card}>{children}</Section>
@@ -66,14 +164,12 @@ export function EmailShell({
 }
 
 const body: React.CSSProperties = {
-  backgroundColor: "#0a0f1c",
+  backgroundColor: INK,
   margin: 0,
   padding: "40px 16px",
   fontFamily: SANS,
-  color: "#e8edf5",
+  color: FROST,
   WebkitFontSmoothing: "antialiased",
-  // Gmail strips this; Apple Mail / desktop Outlook respect it.
-  backgroundImage: "linear-gradient(180deg, #0a0f1c 0%, #0e1424 100%)",
 };
 
 const container: React.CSSProperties = {
@@ -82,79 +178,75 @@ const container: React.CSSProperties = {
 };
 
 const brandSection: React.CSSProperties = {
-  padding: "8px 8px 28px",
-  textAlign: "center" as const,
+  padding: "0 4px 26px",
 };
 
-const brandWordmark: React.CSSProperties = {
-  margin: 0,
+const brandWord: React.CSSProperties = {
   fontFamily: SANS,
-  fontSize: "30px",
-  fontWeight: 700,
-  letterSpacing: "-0.025em",
-  lineHeight: "1.1",
-  color: "#ffffff",
+  fontSize: "17px",
+  fontWeight: 600,
+  letterSpacing: "0.02em",
+  color: FROST,
 };
 
-const brandTagline: React.CSSProperties = {
-  margin: "8px 0 0",
+const brandContext: React.CSSProperties = {
+  marginLeft: "10px",
   fontFamily: SANS,
-  fontSize: "10px",
+  fontSize: "9px",
   fontWeight: 500,
-  letterSpacing: "0.22em",
+  letterSpacing: "0.38em",
   textTransform: "uppercase" as const,
-  color: "rgba(232, 237, 245, 0.40)",
+  color: "rgba(250, 250, 250, 0.45)",
 };
 
 const card: React.CSSProperties = {
-  backgroundColor: "#141b2e",
-  border: "1px solid rgba(255, 255, 255, 0.06)",
-  borderRadius: "20px",
+  backgroundColor: PANEL,
+  border: `1px solid ${LINE}`,
+  borderRadius: "8px",
   padding: "32px 28px",
-  boxShadow: "0 12px 32px -16px rgba(0, 0, 0, 0.5)",
 };
 
 const footerSection: React.CSSProperties = {
-  padding: "28px 8px 0",
-  textAlign: "center" as const,
+  padding: "26px 4px 0",
 };
 
 const footerLine: React.CSSProperties = {
   margin: "0 0 4px",
   fontFamily: SANS,
   fontSize: "12px",
-  lineHeight: "1.5",
-  color: "rgba(232, 237, 245, 0.40)",
+  lineHeight: "1.55",
+  color: "rgba(250, 250, 250, 0.40)",
 };
 
 const footerCopyright: React.CSSProperties = {
   margin: "14px 0 0",
-  fontFamily: SANS,
+  fontFamily: MONO,
   fontSize: "10px",
-  fontWeight: 600,
   letterSpacing: "0.18em",
   textTransform: "uppercase" as const,
-  color: "rgba(232, 237, 245, 0.30)",
+  color: "rgba(250, 250, 250, 0.30)",
 };
 
 const footerLink: React.CSSProperties = {
-  color: "rgba(232, 237, 245, 0.55)",
+  color: "rgba(250, 250, 250, 0.55)",
   textDecoration: "none",
 };
 
 // Re-export the SANS stack so individual templates can use it on their
 // custom inline styles without duplicating the string.
 export const FONT_STACK = SANS;
+export const MONO_STACK = MONO;
+export const BRAND_COLOR = BRAND;
 
 export const styles = {
   h1: {
     margin: "0 0 14px",
     fontFamily: SANS,
     fontSize: "24px",
-    lineHeight: "1.25",
-    fontWeight: 700,
-    color: "#ffffff",
-    letterSpacing: "-0.015em",
+    lineHeight: "1.2",
+    fontWeight: 600,
+    color: FROST,
+    letterSpacing: "-0.025em",
   } as React.CSSProperties,
 
   p: {
@@ -162,7 +254,7 @@ export const styles = {
     fontFamily: SANS,
     fontSize: "15px",
     lineHeight: "1.6",
-    color: "rgba(232, 237, 245, 0.85)",
+    color: "rgba(250, 250, 250, 0.72)",
   } as React.CSSProperties,
 
   small: {
@@ -170,22 +262,21 @@ export const styles = {
     fontFamily: SANS,
     fontSize: "12px",
     lineHeight: "1.55",
-    color: "rgba(232, 237, 245, 0.55)",
+    color: "rgba(250, 250, 250, 0.50)",
   } as React.CSSProperties,
 
-  // Pill-shaped CTA button with a strong contrast — white on dark.
+  // CTA del studio: azul de marca y esquinas rectas.
   button: {
     display: "inline-block",
-    backgroundColor: "#ffffff",
-    color: "#0a0f1c",
+    backgroundColor: BRAND,
+    color: "#ffffff",
     padding: "13px 26px",
-    borderRadius: "12px",
+    borderRadius: "0",
     textDecoration: "none",
     fontFamily: SANS,
     fontSize: "14px",
     fontWeight: 600,
     letterSpacing: "-0.005em",
-    boxShadow: "0 4px 14px -4px rgba(255, 255, 255, 0.15)",
   } as React.CSSProperties,
 
   // Big amount display — used in InvoiceCreated / Reminder / Overdue / etc.
@@ -193,39 +284,40 @@ export const styles = {
     margin: "8px 0",
     fontFamily: SANS,
     fontSize: "36px",
-    fontWeight: 700,
-    color: "#ffffff",
-    letterSpacing: "-0.025em",
+    fontWeight: 600,
+    color: FROST,
+    letterSpacing: "-0.03em",
     lineHeight: "1.15",
   } as React.CSSProperties,
 
-  // Neutral callout — frames the key data point (amount, due date, etc.).
+  // Callout neutro — enmarca el dato clave. Recto, como los bloques
+  // de números de la landing.
   callout: {
-    backgroundColor: "rgba(255, 255, 255, 0.025)",
-    border: "1px solid rgba(255, 255, 255, 0.07)",
-    borderRadius: "14px",
+    backgroundColor: "rgba(255, 255, 255, 0.02)",
+    border: "1px solid rgba(255, 255, 255, 0.10)",
+    borderRadius: "0",
     padding: "20px 22px",
     margin: "22px 0",
   } as React.CSSProperties,
 
   // Reserved for OverdueEmail.
   calloutDanger: {
-    backgroundColor: "rgba(244, 63, 94, 0.07)",
-    border: "1px solid rgba(244, 63, 94, 0.20)",
-    borderRadius: "14px",
+    backgroundColor: "rgba(244, 82, 106, 0.08)",
+    border: "1px solid rgba(244, 82, 106, 0.30)",
+    borderRadius: "0",
     padding: "20px 22px",
     margin: "22px 0",
   } as React.CSSProperties,
 
-  // Smaller meta label that sits above the amount.
+  // Rótulo chico sobre el monto — mono y versalitas, como los
+  // eyebrows de la web.
   metaLabel: {
     margin: 0,
-    fontFamily: SANS,
+    fontFamily: MONO,
     fontSize: "10px",
-    fontWeight: 600,
     letterSpacing: "0.16em",
     textTransform: "uppercase" as const,
-    color: "rgba(232, 237, 245, 0.50)",
+    color: "rgba(250, 250, 250, 0.45)",
   } as React.CSSProperties,
 
   // Sub-line under the amount (date, ID, etc.).
@@ -234,6 +326,6 @@ export const styles = {
     fontFamily: SANS,
     fontSize: "13px",
     lineHeight: "1.5",
-    color: "rgba(232, 237, 245, 0.78)",
+    color: "rgba(250, 250, 250, 0.75)",
   } as React.CSSProperties,
 };

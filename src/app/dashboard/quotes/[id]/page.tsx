@@ -26,7 +26,7 @@ export default async function QuoteDetailPage({
     <div className="space-y-8">
       <header className="reveal flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground/80">
+          <p className="studio-eyebrow">
             <Link href="/dashboard/quotes" className="hover:text-foreground transition">
               Presupuestos
             </Link>{" "}
@@ -55,7 +55,7 @@ export default async function QuoteDetailPage({
           </p>
         </div>
         <span
-          className={`rounded-full border px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] ${QUOTE_STATUS_STYLE[quote.status]}`}
+          className={`rounded-none border px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] ${QUOTE_STATUS_STYLE[quote.status]}`}
         >
           {QUOTE_STATUS_LABEL[quote.status]}
         </span>

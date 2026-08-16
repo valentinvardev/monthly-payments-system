@@ -16,7 +16,7 @@ export default async function PortalHome() {
   return (
     <div className="space-y-8">
       <header className="reveal">
-        <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground/80">
+        <p className="studio-eyebrow">
           Portal del cliente
         </p>
         <h1 className="mt-1.5 font-display text-3xl font-medium tracking-tight text-foreground">
@@ -32,7 +32,7 @@ export default async function PortalHome() {
         <RateWidget />
         <Card>
           <CardContent>
-            <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">
+            <p className="studio-eyebrow mb-2">
               Pendiente de pago
             </p>
             <p className="font-display text-4xl font-light tabular-nums text-frost">
@@ -51,7 +51,7 @@ export default async function PortalHome() {
           <h2 className="font-display text-base font-medium tracking-tight text-foreground/95">
             Tus facturas
           </h2>
-          <p className="mt-0.5 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80">
+          <p className="studio-eyebrow mt-1">
             Tocá una para ver detalles y pagar
           </p>
         </div>

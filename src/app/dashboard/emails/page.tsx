@@ -11,7 +11,7 @@ export default async function EmailsTestPage() {
   return (
     <div className="space-y-8">
       <header className="reveal">
-        <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground/80">
+        <p className="studio-eyebrow">
           Emails
         </p>
         <h1 className="mt-1.5 font-display text-3xl font-medium tracking-tight text-foreground">
@@ -34,10 +34,10 @@ export default async function EmailsTestPage() {
                     <Mail className="h-3.5 w-3.5 text-foreground/70" />
                     <p className="font-medium text-foreground/95">{e.label}</p>
                     <span
-                      className={`rounded-full border px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] ${
+                      className={`rounded-none border px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] ${
                         e.audience === "Administrador"
                           ? "border-yellow-200/25 bg-yellow-200/[0.06] text-yellow-100/90"
-                          : "border-white/12 bg-white/[0.04] text-foreground/75"
+                          : "border-white/12 bg-[#161616] text-foreground/75"
                       }`}
                     >
                       {e.audience}
@@ -52,7 +52,7 @@ export default async function EmailsTestPage() {
                   <Link
                     href={`/dashboard/emails/preview/${e.key}`}
                     target="_blank"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium text-foreground/85 transition hover:bg-white/[0.08] hover:text-foreground"
+                    className="inline-flex items-center gap-1.5 rounded-none border border-white/12 bg-[#161616] px-3 py-1.5 text-[11px] font-medium text-foreground/85 transition hover:bg-[#1f1f1f] hover:text-foreground"
                   >
                     Vista previa
                   </Link>

@@ -57,7 +57,7 @@ export function ResetForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-3">
       <label className="block">
-        <span className="block text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">
+        <span className="studio-label">
           Nueva contraseña
         </span>
         <input
@@ -67,11 +67,11 @@ export function ResetForm() {
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="glass-input focus:glass-input-focus mt-1.5 w-full rounded-xl px-3 py-2.5 text-sm placeholder:text-muted-foreground/55"
+          className="studio-field mt-1.5"
         />
       </label>
       <label className="block">
-        <span className="block text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">
+        <span className="studio-label">
           Repetí la contraseña
         </span>
         <input
@@ -80,23 +80,23 @@ export function ResetForm() {
           autoComplete="new-password"
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
-          className="glass-input focus:glass-input-focus mt-1.5 w-full rounded-xl px-3 py-2.5 text-sm placeholder:text-muted-foreground/55"
+          className="studio-field mt-1.5"
         />
       </label>
       <button
         type="submit"
         disabled={busy || !ready}
-        className="w-full rounded-full border border-white/18 bg-white/[0.07] px-4 py-2.5 text-sm font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-50"
+        className="studio-btn studio-btn-primary font-pixel w-full px-4 py-3 text-[11px]"
       >
         {busy ? "Guardando…" : ready ? "Guardar contraseña" : "Validando link..."}
       </button>
       {!ready && (
-        <p className="text-[11px] text-muted-foreground/70">
+        <p className="text-[11px] leading-relaxed text-white/45">
           Si el link expiró o no tiene sesión activa, pedí uno nuevo desde la página de
           contraseña olvidada.
         </p>
       )}
-      {error && <p className="text-sm text-rose-200/85">{error}</p>}
+      {error && <p className="text-sm text-rose-300/90">{error}</p>}
     </form>
   );
 }

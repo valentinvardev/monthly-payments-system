@@ -21,7 +21,7 @@ export function ToggleActiveButton({ id, active }: { id: string; active: boolean
         setBusy(true);
         m.mutate({ id, active: !active });
       }}
-      className="rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium text-foreground/85 transition hover:bg-white/[0.08] hover:border-white/22 hover:text-foreground disabled:opacity-50"
+      className="rounded-none border border-white/12 bg-[#161616] px-3 py-1.5 text-[11px] font-medium text-foreground/85 transition hover:bg-[#1f1f1f] hover:border-white/25 hover:text-foreground disabled:opacity-50"
     >
       {busy ? "…" : active ? "Pausar" : "Reactivar"}
     </button>

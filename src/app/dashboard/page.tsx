@@ -38,7 +38,7 @@ export default async function DashboardHome() {
   return (
     <div className="space-y-8">
       <header className="reveal">
-        <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground/80">
+        <p className="studio-eyebrow">
           Resumen
         </p>
         <h1 className="mt-1.5 font-display text-3xl font-medium tracking-tight text-foreground">
@@ -165,7 +165,7 @@ export default async function DashboardHome() {
                           {u.description}
                         </td>
                         <td className="px-5 py-3.5">
-                          <span className="rounded-full border border-white/8 bg-white/[0.03] px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] text-muted-foreground/85">
+                          <span className="rounded-none border border-white/8 bg-white/[0.03] px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] text-muted-foreground/85">
                             {formatFrequency(u.frequency)}
                           </span>
                         </td>
@@ -263,7 +263,7 @@ function SectionHeader({
           {title}
         </h2>
         {subtitle && (
-          <p className="mt-0.5 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80">
+          <p className="studio-eyebrow mt-1">
             {subtitle}
           </p>
         )}
@@ -285,7 +285,7 @@ function Kpi({
   return (
     <Card>
       <CardContent>
-        <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">
+        <p className="studio-eyebrow mb-2">
           {label}
         </p>
         <p className="font-display text-4xl font-light tabular-nums text-frost">

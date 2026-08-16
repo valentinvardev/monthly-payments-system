@@ -33,7 +33,7 @@ export function PasswordResetEmail({
       <Text style={{ ...styles.small, marginTop: "18px", wordBreak: "break-all" }}>
         Si el botón no funciona, copiá y pegá esta URL en tu navegador:
         <br />
-        <span style={{ color: "rgba(232,237,245,0.75)" }}>{resetUrl}</span>
+        <span style={{ color: "rgba(250,250,250,0.75)" }}>{resetUrl}</span>
       </Text>
     </EmailShell>
   );

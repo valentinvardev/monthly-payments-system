@@ -32,13 +32,13 @@ export function InviteEmail({
         </Button>
       </Section>
       <Text style={styles.small}>
-        El link expira el <strong style={{ color: "#ffffff" }}>{expires}</strong>. Si se vence,
+        El link expira el <strong style={{ color: "#fafafa" }}>{expires}</strong>. Si se vence,
         pedile al administrador que te genere uno nuevo.
       </Text>
       <Text style={{ ...styles.small, marginTop: "18px", wordBreak: "break-all" }}>
         Si el botón no funciona, copiá y pegá esta URL en tu navegador:
         <br />
-        <span style={{ color: "rgba(232,237,245,0.75)" }}>{inviteUrl}</span>
+        <span style={{ color: "rgba(250,250,250,0.75)" }}>{inviteUrl}</span>
       </Text>
     </EmailShell>
   );

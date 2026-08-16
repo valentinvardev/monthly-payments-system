@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter_Tight, Geist, Geist_Mono, Silkscreen } from "next/font/google";
 import "./globals.css";
 import { TRPCReactProvider } from "@/trpc/react";
-import { Aurora } from "@/components/Aurora";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,7 +47,11 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${interTight.variable} ${silkscreen.variable} h-full`}
     >
       <body className="min-h-full flex flex-col antialiased">
-        <Aurora />
+        {/* Cielo pixelado del studio. La landing lo tapa con su propio
+            lienzo opaco y corre su canvas animado; el panel, el portal
+            y las pantallas de acceso se quedan con esta versión
+            estática. */}
+        <div className="studio-stars" aria-hidden />
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>

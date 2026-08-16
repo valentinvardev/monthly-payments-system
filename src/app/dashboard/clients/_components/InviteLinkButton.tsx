@@ -32,7 +32,7 @@ export function InviteLinkButton({
     return (
       <span
         title="Cliente activo en el portal"
-        className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-emerald-200/25 bg-emerald-200/[0.06] text-emerald-100/90"
+        className="inline-flex h-7 w-7 items-center justify-center rounded-none border border-emerald-200/25 bg-emerald-200/[0.06] text-emerald-100/90"
       >
         <Check className="h-3.5 w-3.5" />
       </span>
@@ -56,7 +56,7 @@ export function InviteLinkButton({
         type="button"
         onClick={copy}
         title={copied ? "Link copiado" : "Copiar link de invitación"}
-        className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-foreground/90 transition hover:bg-white/[0.10] hover:border-white/25"
+        className="inline-flex h-7 w-7 items-center justify-center rounded-none border border-white/12 bg-[#161616] text-foreground/90 transition hover:bg-white/[0.10] hover:border-white/25"
       >
         {copied ? (
           <Check className="h-3.5 w-3.5 text-emerald-200" />
@@ -77,7 +77,7 @@ export function InviteLinkButton({
           gen.mutate({ clientId });
         }}
         title="Generar link de invitación"
-        className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/12 bg-white/[0.04] text-foreground/80 transition hover:bg-white/[0.08] hover:border-white/22 hover:text-foreground disabled:opacity-50"
+        className="inline-flex h-7 w-7 items-center justify-center rounded-none border border-white/12 bg-[#161616] text-foreground/80 transition hover:bg-[#1f1f1f] hover:border-white/25 hover:text-foreground disabled:opacity-50"
       >
         <Send className="h-3.5 w-3.5" />
       </button>

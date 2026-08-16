@@ -25,7 +25,7 @@ export function DeleteMethodButton({ id }: { id: string }) {
         m.mutate({ id });
       }}
       title="Eliminar"
-      className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/8 bg-transparent text-muted-foreground transition hover:border-rose-300/30 hover:text-rose-100/90 disabled:opacity-50"
+      className="inline-flex h-7 w-7 items-center justify-center rounded-none border border-white/8 bg-transparent text-muted-foreground transition hover:border-rose-300/30 hover:text-rose-100/90 disabled:opacity-50"
     >
       <Trash2 className="h-3.5 w-3.5" />
     </button>

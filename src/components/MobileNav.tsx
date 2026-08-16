@@ -8,6 +8,10 @@ import { signOut } from "@/app/auth/actions";
 
 export type MobileNavItem = { href: string; label: string };
 
+// Drawer del panel y el portal. Gemelo del StudioMobileMenu de la
+// landing: mismo <dialog>, mismo fondo, mismos items en tipografía
+// pixel con el cuadradito azul de viñeta. Acá además marcamos la
+// sección activa y cerramos con los datos de la sesión.
 export function MobileNav({
   items,
   displayName,
@@ -46,7 +50,7 @@ export function MobileNav({
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Abrir menú"
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-foreground/85 transition hover:bg-white/[0.08] hover:text-foreground"
+        className="inline-flex h-9 w-9 items-center justify-center border border-white/12 bg-[#161616] text-white/85 transition hover:bg-[#1f1f1f] hover:text-white"
       >
         <Menu className="h-4 w-4" />
       </button>
@@ -65,47 +69,55 @@ export function MobileNav({
         }}
         className="mobile-nav-dialog"
       >
-        {/* Fondo SÓLIDO a propósito: animar transform sobre un elemento
-            con backdrop-filter (glass) glitchea en GPUs de teléfono —
-            el panel se pinta negro o no aparece. */}
         <aside
           onClick={(e) => e.stopPropagation()}
-          className="ml-auto flex h-full w-[86%] max-w-[320px] flex-col rounded-l-3xl rounded-r-none border-l border-white/10 bg-[oklch(0.16_0.015_245)]"
+          className="ml-auto flex h-full w-[86%] max-w-[320px] flex-col border-l border-white/12 bg-[#0d0d0c]"
         >
           <header className="flex items-center justify-between border-b border-white/8 px-5 py-4">
-            <span
-              className="font-display text-base font-medium tracking-tight text-foreground"
-              style={{ letterSpacing: "-0.01em" }}
-            >
-              Surcodia
+            <span className="text-white">
+              <span className="font-pixel text-[13px]">surcodia</span>
+              <span className="ml-2 text-[9px] font-medium uppercase tracking-[0.38em] text-white/45">
+                {role === "ADMIN" ? "panel" : "portal"}
+              </span>
             </span>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-foreground/80 transition hover:bg-white/[0.08] hover:text-foreground"
               aria-label="Cerrar"
+              className="inline-flex h-8 w-8 items-center justify-center border border-white/12 bg-[#161616] text-white/80 transition hover:bg-[#1f1f1f] hover:text-white"
             >
               <X className="h-4 w-4" />
             </button>
           </header>
 
           {items.length > 0 ? (
-            <nav className="flex-1 overflow-y-auto px-3 py-4">
+            <nav className="flex-1 overflow-y-auto px-3 py-5">
               <ul className="space-y-1">
                 {items.map((it) => {
-                  const active = pathname === it.href;
+                  const active =
+                    it.href === "/dashboard" || it.href === "/portal"
+                      ? pathname === it.href
+                      : pathname === it.href || pathname.startsWith(`${it.href}/`);
                   return (
                     <li key={it.href}>
                       <Link
                         href={it.href}
                         onClick={() => setOpen(false)}
+                        aria-current={active ? "page" : undefined}
                         className={[
-                          "block rounded-xl px-4 py-3 text-sm transition",
+                          "font-pixel flex items-center gap-3 px-4 py-3 text-[11px] transition",
                           active
-                            ? "bg-white/[0.07] text-foreground border border-white/10"
-                            : "text-muted-foreground hover:bg-white/[0.04] hover:text-foreground border border-transparent",
+                            ? "bg-white/[0.06] text-white"
+                            : "text-white/75 hover:bg-white/[0.05] hover:text-white",
                         ].join(" ")}
                       >
+                        <span
+                          aria-hidden
+                          className={[
+                            "inline-block h-1.5 w-1.5",
+                            active ? "bg-[#0070F3]" : "bg-white/25",
+                          ].join(" ")}
+                        />
                         {it.label}
                       </Link>
                     </li>
@@ -117,14 +129,14 @@ export function MobileNav({
             <div className="flex-1" />
           )}
 
-          <footer className="border-t border-white/8 px-5 py-4 space-y-3">
+          <footer className="space-y-4 border-t border-white/8 px-5 py-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-xs font-medium text-foreground/85">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center border border-white/12 bg-[#161616] font-mono text-[10px] text-white/80">
                 {initials}
               </div>
               <div className="min-w-0 leading-tight">
-                <div className="truncate text-sm text-foreground/95">{displayName}</div>
-                <div className="truncate text-[10px] uppercase tracking-[0.18em] text-muted-foreground/80">
+                <div className="truncate text-sm text-white/95">{displayName}</div>
+                <div className="truncate text-[10px] uppercase tracking-[0.18em] text-white/45">
                   {role.toLowerCase()} · {email}
                 </div>
               </div>
@@ -132,7 +144,7 @@ export function MobileNav({
             <form action={signOut}>
               <button
                 type="submit"
-                className="w-full rounded-full border border-white/12 bg-white/[0.04] px-3 py-2.5 text-sm font-medium text-foreground/90 transition hover:bg-white/[0.08]"
+                className="studio-btn font-pixel w-full px-4 py-2.5 text-[11px]"
               >
                 Salir
               </button>

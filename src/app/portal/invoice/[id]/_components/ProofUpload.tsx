@@ -44,7 +44,7 @@ export function ProofUpload({ value, onChange, hint }: Props) {
           onClick={() => inputRef.current?.click()}
           className="group/upload flex w-full items-center gap-3 rounded-xl border border-dashed border-white/12 bg-white/[0.02] px-4 py-3 text-left transition hover:border-white/25 hover:bg-white/[0.04]"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-foreground/70 transition group-hover/upload:text-foreground/95">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/12 bg-[#161616] text-foreground/70 transition group-hover/upload:text-foreground/95">
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 12.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6.5" />
               <path d="M17 3v6h6" />
@@ -56,7 +56,7 @@ export function ProofUpload({ value, onChange, hint }: Props) {
           <span className="flex-1">
             <span className="flex items-center gap-2">
               <span className="text-sm text-foreground/90">Adjuntar comprobante</span>
-              <span className="rounded-full border border-white/10 bg-white/[0.03] px-1.5 py-0.5 text-[9px] uppercase tracking-[0.18em] text-muted-foreground/80">
+              <span className="rounded-none border border-white/12 bg-[#161616] px-1.5 py-0.5 text-[9px] uppercase tracking-[0.18em] text-muted-foreground/80">
                 Opcional
               </span>
             </span>
@@ -69,9 +69,9 @@ export function ProofUpload({ value, onChange, hint }: Props) {
           </span>
         </button>
       ) : (
-        <div className="flex items-center gap-3 rounded-xl border border-white/12 bg-white/[0.04] px-3 py-2.5">
+        <div className="flex items-center gap-3 rounded-xl border border-white/12 bg-[#161616] px-3 py-2.5">
           {previewUrl ? (
-            <span className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-white/[0.03]">
+            <span className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-white/12 bg-[#161616]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl}
@@ -80,7 +80,7 @@ export function ProofUpload({ value, onChange, hint }: Props) {
               />
             </span>
           ) : (
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-foreground/70">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-white/12 bg-[#161616] text-foreground/70">
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <path d="M14 2v6h6" />
@@ -97,7 +97,7 @@ export function ProofUpload({ value, onChange, hint }: Props) {
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="rounded-full border border-white/12 bg-white/[0.04] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground/95 hover:border-white/22 transition"
+            className="rounded-none border border-white/12 bg-[#161616] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground/95 hover:border-white/25 transition"
           >
             Cambiar
           </button>
@@ -107,7 +107,7 @@ export function ProofUpload({ value, onChange, hint }: Props) {
               onChange(null);
               if (inputRef.current) inputRef.current.value = "";
             }}
-            className="rounded-full border border-white/8 bg-transparent px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80 hover:text-rose-100/90 hover:border-rose-300/30 transition"
+            className="rounded-none border border-white/8 bg-transparent px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80 hover:text-rose-100/90 hover:border-rose-300/30 transition"
           >
             Quitar
           </button>

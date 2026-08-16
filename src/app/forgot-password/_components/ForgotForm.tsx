@@ -26,9 +26,9 @@ export function ForgotForm() {
 
   if (sent) {
     return (
-      <div className="rounded-2xl border border-emerald-200/25 bg-emerald-200/[0.06] p-5 text-sm text-emerald-100/95">
-        Si el email está registrado, te vamos a mandar un link en unos segundos. Revisá tu inbox y
-        spam.
+      <div className="border border-emerald-300/25 bg-emerald-300/[0.07] p-5 text-sm leading-relaxed text-emerald-200">
+        Si el email está registrado, te llega un link en unos segundos. Revisá tu bandeja de
+        entrada y el correo no deseado.
       </div>
     );
   }
@@ -36,7 +36,7 @@ export function ForgotForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-3">
       <label className="block">
-        <span className="block text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">
+        <span className="studio-label">
           Email
         </span>
         <input
@@ -47,17 +47,17 @@ export function ForgotForm() {
           placeholder="vos@dominio.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="glass-input focus:glass-input-focus mt-1.5 w-full rounded-xl px-3 py-2.5 text-sm placeholder:text-muted-foreground/55"
+          className="studio-field mt-1.5"
         />
       </label>
       <button
         type="submit"
         disabled={busy}
-        className="w-full rounded-full border border-white/18 bg-white/[0.07] px-4 py-2.5 text-sm font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-50"
+        className="studio-btn studio-btn-primary font-pixel w-full px-4 py-3 text-[11px]"
       >
         {busy ? "Enviando…" : "Mandarme el link"}
       </button>
-      {error && <p className="text-sm text-rose-200/85">{error}</p>}
+      {error && <p className="text-sm text-rose-300/90">{error}</p>}
     </form>
   );
 }

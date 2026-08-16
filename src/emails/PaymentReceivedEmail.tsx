@@ -35,7 +35,7 @@ export function PaymentReceivedEmail({
               style={{
                 fontFamily:
                   "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                color: "rgba(232,237,245,0.85)",
+                color: "rgba(250,250,250,0.85)",
               }}
             >
               {externalId}

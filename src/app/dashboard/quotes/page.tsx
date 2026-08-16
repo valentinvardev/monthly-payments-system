@@ -11,7 +11,7 @@ export default async function QuotesPage() {
     <div className="space-y-8">
       <header className="reveal flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground/80">
+          <p className="studio-eyebrow">
             Presupuestos
           </p>
           <h1 className="mt-1.5 font-display text-3xl font-medium tracking-tight text-foreground">
@@ -21,7 +21,7 @@ export default async function QuotesPage() {
         </div>
         <Link
           href="/dashboard/quotes/new"
-          className="rounded-full border border-white/18 bg-white/[0.07] px-4 py-2 text-sm font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28"
+          className="rounded-none border border-[#0070F3] bg-[#0070F3] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#0060d3] hover:border-[#0060d3]"
         >
           + Nuevo presupuesto
         </Link>
@@ -68,7 +68,7 @@ export default async function QuotesPage() {
                     </td>
                     <td className="px-5 py-3.5">
                       <span
-                        className={`rounded-full border px-2.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] ${QUOTE_STATUS_STYLE[q.status]}`}
+                        className={`rounded-none border px-2.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] ${QUOTE_STATUS_STYLE[q.status]}`}
                       >
                         {QUOTE_STATUS_LABEL[q.status]}
                       </span>

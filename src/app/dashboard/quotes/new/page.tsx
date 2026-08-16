@@ -28,7 +28,7 @@ export default async function NewQuotePage({
   return (
     <div className="space-y-8">
       <header className="reveal">
-        <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground/80">
+        <p className="studio-eyebrow">
           Presupuestos
         </p>
         <h1 className="mt-1.5 font-display text-3xl font-medium tracking-tight text-foreground">

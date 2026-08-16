@@ -44,7 +44,7 @@ export function MercadoPagoConnectCard({
       <CardContent className="space-y-4 py-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="inline-flex h-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] px-4">
+            <span className="inline-flex h-12 items-center justify-center rounded-2xl border border-white/12 bg-[#161616] px-4">
               <MercadoPagoLogo height={26} className="text-foreground/95" />
             </span>
             <div>
@@ -62,8 +62,8 @@ export function MercadoPagoConnectCard({
 
           {initialConnection ? (
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/25 bg-emerald-200/[0.06] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-emerald-100/95">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" /> Conectada
+              <span className="inline-flex items-center gap-1.5 rounded-none border border-emerald-200/25 bg-emerald-200/[0.06] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-emerald-100/95">
+                <span className="h-1.5 w-1.5 rounded-none bg-emerald-300" /> Conectada
               </span>
             </div>
           ) : (
@@ -109,7 +109,7 @@ export function MercadoPagoConnectCard({
                   <button
                     type="button"
                     onClick={() => setConfirmingDisconnect(false)}
-                    className="rounded-full border border-white/10 bg-transparent px-3 py-1 text-xs text-muted-foreground hover:bg-white/[0.05] hover:text-foreground"
+                    className="rounded-none border border-white/10 bg-transparent px-3 py-1 text-xs text-muted-foreground hover:bg-white/[0.05] hover:text-foreground"
                   >
                     Cancelar
                   </button>
@@ -117,7 +117,7 @@ export function MercadoPagoConnectCard({
                     type="button"
                     disabled={disconnect.isPending}
                     onClick={() => disconnect.mutate()}
-                    className="rounded-full border border-rose-300/30 bg-rose-300/[0.08] px-3 py-1 text-xs text-rose-100/95 transition hover:bg-rose-300/[0.15] disabled:opacity-50"
+                    className="rounded-none border border-rose-300/30 bg-rose-300/[0.08] px-3 py-1 text-xs text-rose-100/95 transition hover:bg-rose-300/[0.15] disabled:opacity-50"
                   >
                     {disconnect.isPending ? "…" : "Sí, desconectar"}
                   </button>
@@ -126,7 +126,7 @@ export function MercadoPagoConnectCard({
                 <button
                   type="button"
                   onClick={() => setConfirmingDisconnect(true)}
-                  className="rounded-full border border-white/10 bg-transparent px-3 py-1.5 text-xs text-muted-foreground transition hover:bg-white/[0.05] hover:text-foreground"
+                  className="rounded-none border border-white/10 bg-transparent px-3 py-1.5 text-xs text-muted-foreground transition hover:bg-white/[0.05] hover:text-foreground"
                 >
                   Desconectar
                 </button>
@@ -145,11 +145,11 @@ function ConnectButton({ configured }: { configured: boolean }) {
       <a
         href="/api/mp/connect"
         title="Falta configurar MERCADOPAGO_CLIENT_ID / SECRET en Vercel"
-        className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-medium text-muted-foreground"
+        className="inline-flex items-center gap-2 rounded-none border border-white/12 bg-[#161616] px-4 py-2 text-xs font-medium text-muted-foreground"
         aria-disabled
       >
         Conectar Mercado Pago
-        <span className="rounded-full border border-amber-200/30 bg-amber-200/10 px-1.5 py-0.5 text-[9px] uppercase tracking-[0.16em] text-amber-100/90">
+        <span className="rounded-none border border-amber-200/30 bg-amber-200/10 px-1.5 py-0.5 text-[9px] uppercase tracking-[0.16em] text-amber-100/90">
           requiere config
         </span>
       </a>
@@ -158,7 +158,7 @@ function ConnectButton({ configured }: { configured: boolean }) {
   return (
     <a
       href="/api/mp/connect"
-      className="inline-flex items-center gap-2 rounded-full border border-white/22 bg-white/[0.10] px-4 py-2 text-sm font-medium text-foreground transition hover:bg-white/[0.15] hover:border-white/30"
+      className="inline-flex items-center gap-2 rounded-none border border-[#0070F3] bg-[#0070F3] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#0060d3] hover:border-[#0060d3]"
     >
       Conectar Mercado Pago
     </a>

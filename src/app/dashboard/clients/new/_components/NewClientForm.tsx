@@ -44,7 +44,7 @@ export function NewClientForm() {
           <button
             type="submit"
             disabled={create.isPending}
-            className="rounded-full border border-white/18 bg-white/[0.07] px-5 py-2.5 text-sm font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-50"
+            className="rounded-none border border-[#0070F3] bg-[#0070F3] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#0060d3] hover:border-[#0060d3] disabled:opacity-50"
           >
             {create.isPending ? "Guardando…" : "Crear cliente"}
           </button>

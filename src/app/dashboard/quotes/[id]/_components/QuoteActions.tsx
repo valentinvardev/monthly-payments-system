@@ -35,7 +35,7 @@ export function QuoteActions({
 
   const busy = send.isPending || mark.isPending || convert.isPending || del.isPending;
   const btn =
-    "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition disabled:opacity-50";
+    "inline-flex items-center gap-2 rounded-none border px-4 py-2 text-sm font-medium transition disabled:opacity-50";
 
   return (
     <div className="reveal space-y-3" style={{ animationDelay: "120ms" }}>
@@ -94,7 +94,7 @@ export function QuoteActions({
                 setTimeout(() => setCopied(false), 1500);
               });
             }}
-            className={`${btn} border-white/12 bg-white/[0.03] text-foreground/80 hover:bg-white/[0.07]`}
+            className={`${btn} border-white/12 bg-white/[0.03] text-foreground/80 hover:bg-[#1f1f1f]`}
           >
             <Copy className="h-3.5 w-3.5" /> {copied ? "Copiado ✓" : "Copiar link público"}
           </button>

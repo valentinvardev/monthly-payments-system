@@ -76,7 +76,7 @@ export function OneOffInvoiceModal({
     >
       <div
         style={{
-          backgroundColor: "oklch(0.16 0.015 245)",
+          backgroundColor: "#131313",
           border: "1px solid rgba(255,255,255,0.10)",
           borderRadius: "24px",
           padding: "24px",
@@ -87,7 +87,7 @@ export function OneOffInvoiceModal({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-foreground/70 transition hover:bg-white/[0.08] hover:text-foreground"
+          className="absolute right-4 top-4 inline-flex h-7 w-7 items-center justify-center rounded-none border border-white/12 bg-[#161616] text-foreground/70 transition hover:bg-[#1f1f1f] hover:text-foreground"
           aria-label="Cerrar"
         >
           <X className="h-3.5 w-3.5" />
@@ -156,14 +156,14 @@ export function OneOffInvoiceModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full border border-white/10 bg-transparent px-4 py-2 text-sm text-muted-foreground transition hover:bg-white/[0.05] hover:text-foreground"
+                className="rounded-none border border-white/10 bg-transparent px-4 py-2 text-sm text-muted-foreground transition hover:bg-white/[0.05] hover:text-foreground"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={m.isPending}
-                className="rounded-full border border-white/18 bg-white/[0.07] px-5 py-2 text-sm font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-50"
+                className="rounded-none border border-[#0070F3] bg-[#0070F3] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#0060d3] hover:border-[#0060d3] disabled:opacity-50"
               >
                 {m.isPending ? "Creando…" : "Crear factura"}
               </button>

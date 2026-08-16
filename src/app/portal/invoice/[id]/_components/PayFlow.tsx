@@ -72,7 +72,7 @@ export function PayFlow({
     return (
       <Card>
         <CardContent className="py-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border border-emerald-200/25 bg-emerald-200/[0.06]">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-none border border-emerald-200/25 bg-emerald-200/[0.06]">
             <svg
               viewBox="0 0 24 24"
               className="h-5 w-5 text-emerald-100/90"
@@ -401,11 +401,11 @@ function CryptoFlow({
   return (
     <div className="space-y-4 rounded-2xl border border-white/8 bg-white/[0.02] p-5">
       <div className="space-y-1.5">
-        <label className="block text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">
+        <label className="studio-label">
           Wallet de destino
         </label>
         <Select value={selectedId} onValueChange={(v) => setSelectedId(v ?? "")}>
-          <SelectTrigger className="!h-12 w-full justify-between rounded-xl border-white/12 bg-white/[0.03] px-3 text-left text-sm text-foreground/95 hover:border-white/22 hover:bg-white/[0.05] data-[popup-open]:border-white/30">
+          <SelectTrigger className="!h-12 w-full justify-between rounded-xl border-white/12 bg-white/[0.03] px-3 text-left text-sm text-foreground/95 hover:border-white/25 hover:bg-white/[0.05] data-[popup-open]:border-white/30">
             <SelectValue placeholder="Elegí una red y activo">
               {selected && selected.kind === "CRYPTO_WALLET" && (
                 <span className="flex items-center gap-2">
@@ -417,7 +417,7 @@ function CryptoFlow({
                   <span className="font-medium text-foreground/95">
                     {selected.details.asset}
                   </span>
-                  <span className="rounded-full border border-white/8 bg-white/[0.03] px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground/85">
+                  <span className="rounded-none border border-white/8 bg-white/[0.03] px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground/85">
                     {selected.details.network}
                   </span>
                 </span>
@@ -455,7 +455,7 @@ function CryptoFlow({
 
       {selected && selected.kind === "CRYPTO_WALLET" && (
         <div className="reveal space-y-4">
-          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <div className="rounded-xl border border-white/12 bg-[#161616] p-4">
             <div className="flex items-center gap-3">
               <CryptoAssetIcon
                 asset={selected.details.asset}
@@ -490,7 +490,7 @@ function CryptoFlow({
                   <button
                     type="button"
                     onClick={copyAddress}
-                    className="shrink-0 rounded-full border border-white/12 bg-white/[0.04] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground/95 hover:border-white/22 transition"
+                    className="shrink-0 rounded-none border border-white/12 bg-[#161616] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground hover:text-foreground/95 hover:border-white/25 transition"
                   >
                     {copied ? "Copiado" : "Copiar"}
                   </button>
@@ -570,7 +570,7 @@ function PrimaryButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="rounded-full border border-white/18 bg-white/[0.07] px-5 py-2.5 text-sm font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-40 disabled:hover:bg-white/[0.07] disabled:hover:border-white/18"
+      className="rounded-none border border-white/12 bg-[#161616] px-5 py-2.5 text-sm font-medium text-foreground/95 transition hover:bg-[#1f1f1f] hover:border-white/25 disabled:opacity-40 disabled:hover:bg-[#1f1f1f] disabled:hover:border-white/25"
     >
       {label}
     </button>
@@ -582,15 +582,15 @@ function CustomRadio({ checked }: { checked: boolean }) {
     <span
       aria-hidden
       className={[
-        "mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border transition-all duration-200",
+        "mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-none border transition-all duration-200",
         checked
-          ? "border-foreground/55 bg-foreground/[0.10] shadow-[inset_0_0_0_1px_oklch(0.85_0.04_220/0.25)]"
+          ? "border-[#0070F3] bg-[#0070F3]/15 shadow-[inset_0_0_0_1px_rgba(0,112,243,0.35)]"
           : "border-white/15 bg-white/[0.03] group-hover/opt:border-white/30",
       ].join(" ")}
     >
       <span
         className={[
-          "h-[7px] w-[7px] rounded-full bg-foreground/95 transition-all duration-200",
+          "h-[7px] w-[7px] rounded-none bg-foreground/95 transition-all duration-200",
           checked ? "scale-100 opacity-100" : "scale-50 opacity-0",
         ].join(" ")}
       />
@@ -647,7 +647,7 @@ function MethodCard({
             {icon}
           </div>
         )}
-        <span className="shrink-0 rounded-full border border-white/8 bg-white/[0.03] px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-muted-foreground/85">
+        <span className="shrink-0 rounded-none border border-white/8 bg-white/[0.03] px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-muted-foreground/85">
           {tag}
         </span>
       </div>

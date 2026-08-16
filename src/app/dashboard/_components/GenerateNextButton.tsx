@@ -23,7 +23,7 @@ export function GenerateNextButton({ clientId }: { clientId: string }) {
           setError(null);
           gen.mutate({ clientId });
         }}
-        className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.05] px-3 py-1.5 text-[11px] font-medium text-foreground/90 transition hover:border-white/22 hover:bg-white/[0.09] hover:text-foreground disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-none border border-white/12 bg-[#161616] px-3 py-1.5 text-[11px] font-medium text-foreground/90 transition hover:border-white/25 hover:bg-[#1f1f1f] hover:text-foreground disabled:opacity-50"
       >
         <Sparkles className="h-3 w-3" />
         {gen.isPending ? "Generando…" : "Generar ahora"}

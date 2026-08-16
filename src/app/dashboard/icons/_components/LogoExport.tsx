@@ -54,12 +54,12 @@ export function LogoExport() {
           <div className="flex items-center justify-center bg-[#0a0a0a] py-8">
             <SMonogram size={72} color="#fafafa" />
           </div>
-          <div className="flex items-center justify-between border-t border-white/10 bg-white/[0.03] px-4 py-3">
+          <div className="flex items-center justify-between border-t border-white/12 bg-[#161616] px-4 py-3">
             <span className="text-xs text-muted-foreground">Tema oscuro (S blanca)</span>
             <button
               type="button"
               onClick={() => download("#FAFAFA", "surcodia-logo-dark.png")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/18 bg-white/[0.07] px-3 py-1.5 text-[11px] font-medium text-foreground/95 transition hover:bg-white/[0.12]"
+              className="inline-flex items-center gap-1.5 rounded-none border border-white/12 bg-[#161616] px-3 py-1.5 text-[11px] font-medium text-foreground/95 transition hover:bg-white/[0.12]"
             >
               <Download className="h-3 w-3" /> PNG
             </button>
@@ -71,12 +71,12 @@ export function LogoExport() {
           <div className="flex items-center justify-center bg-[#f5f5f2] py-8">
             <SMonogram size={72} color="#0a0a0a" />
           </div>
-          <div className="flex items-center justify-between border-t border-white/10 bg-white/[0.03] px-4 py-3">
+          <div className="flex items-center justify-between border-t border-white/12 bg-[#161616] px-4 py-3">
             <span className="text-xs text-muted-foreground">Tema claro (S tinta)</span>
             <button
               type="button"
               onClick={() => download("#0A0A0A", "surcodia-logo-light.png")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/18 bg-white/[0.07] px-3 py-1.5 text-[11px] font-medium text-foreground/95 transition hover:bg-white/[0.12]"
+              className="inline-flex items-center gap-1.5 rounded-none border border-white/12 bg-[#161616] px-3 py-1.5 text-[11px] font-medium text-foreground/95 transition hover:bg-white/[0.12]"
             >
               <Download className="h-3 w-3" /> PNG
             </button>

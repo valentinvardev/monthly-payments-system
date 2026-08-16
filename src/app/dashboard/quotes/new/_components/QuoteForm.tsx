@@ -10,7 +10,7 @@ type ClientOption = { id: string; fullName: string; email: string };
 type Item = { label: string; detail: string; amount: string };
 
 const inputCls =
-  "mt-1.5 w-full rounded-xl border border-white/12 bg-white/[0.04] px-3 py-2.5 text-sm text-foreground transition focus:border-white/30 focus:bg-white/[0.07] focus:outline-none placeholder:text-muted-foreground/55";
+  "studio-field mt-1.5";
 const labelCls =
   "block text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/80";
 
@@ -156,7 +156,7 @@ export function QuoteForm({
           <button
             type="button"
             onClick={() => setItems((prev) => [...prev, { label: "", detail: "", amount: "" }])}
-            className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium text-foreground/85 transition hover:bg-white/[0.08]"
+            className="inline-flex items-center gap-1.5 rounded-none border border-white/12 bg-[#161616] px-3 py-1.5 text-[11px] font-medium text-foreground/85 transition hover:bg-[#1f1f1f]"
           >
             <Plus className="h-3 w-3" /> Agregar ítem
           </button>
@@ -200,7 +200,7 @@ export function QuoteForm({
                   onClick={() => setItems((prev) => prev.filter((_, x) => x !== i))}
                   disabled={items.length === 1}
                   title="Quitar ítem"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-muted-foreground transition hover:border-rose-300/30 hover:text-rose-100/85 disabled:opacity-30"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-none border border-white/12 bg-[#161616] text-muted-foreground transition hover:border-rose-300/30 hover:text-rose-100/85 disabled:opacity-30"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
@@ -222,7 +222,7 @@ export function QuoteForm({
         <button
           type="submit"
           disabled={m.isPending}
-          className="rounded-full border border-white/22 bg-white/[0.10] px-6 py-2.5 text-sm font-medium text-foreground transition hover:bg-white/[0.15] hover:border-white/32 disabled:opacity-50"
+          className="rounded-none border border-[#0070F3] bg-[#0070F3] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#0060d3] hover:border-[#0060d3] disabled:opacity-50"
         >
           {m.isPending ? "Guardando…" : "Guardar borrador"}
         </button>

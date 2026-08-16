@@ -57,7 +57,7 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     <tr
       data-slot="table-row"
       className={cn(
-        "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
+        "border-b border-white/6 transition-colors hover:bg-white/[0.025] has-aria-expanded:bg-white/[0.025] data-[state=selected]:bg-white/[0.04]",
         className
       )}
       {...props}
@@ -70,7 +70,8 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground [&:has([role=checkbox])]:pr-0",
+        // Encabezado en versalitas espaciadas, como los eyebrows de la landing.
+        "h-10 px-2 text-left align-middle text-[10px] font-medium uppercase tracking-[0.16em] whitespace-nowrap text-white/45 [&:has([role=checkbox])]:pr-0",
         className
       )}
       {...props}

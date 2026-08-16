@@ -31,7 +31,7 @@ export default async function LeadsPage() {
   return (
     <div className="space-y-8">
       <header className="reveal">
-        <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground/80">
+        <p className="studio-eyebrow">
           Leads
         </p>
         <h1 className="mt-1.5 font-display text-3xl font-medium tracking-tight text-foreground">
@@ -73,7 +73,7 @@ export default async function LeadsPage() {
                   </div>
                   <div className="flex items-center gap-2.5">
                     <span
-                      className={`rounded-full border px-2.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] ${STATUS_STYLE[l.status]}`}
+                      className={`rounded-none border px-2.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] ${STATUS_STYLE[l.status]}`}
                     >
                       {STATUS_LABEL[l.status]}
                     </span>
@@ -116,7 +116,7 @@ export default async function LeadsPage() {
                 <div className="flex flex-wrap items-center justify-end gap-2">
                   <a
                     href={`/dashboard/quotes/new?lead=${l.id}`}
-                    className="rounded-full border border-white/18 bg-white/[0.07] px-3 py-1.5 text-[11px] font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28"
+                    className="rounded-none border border-white/12 bg-[#161616] px-3 py-1.5 text-[11px] font-medium text-foreground/95 transition hover:bg-[#1f1f1f] hover:border-white/25"
                   >
                     + Presupuestar
                   </a>

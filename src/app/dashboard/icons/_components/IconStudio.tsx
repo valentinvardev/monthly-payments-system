@@ -113,7 +113,7 @@ export function IconStudio() {
                       setElementLabel(e.label);
                     }}
                     className={[
-                      "rounded-full border px-3 py-1.5 text-xs font-medium transition",
+                      "rounded-none border px-3 py-1.5 text-xs font-medium transition",
                       element === e.prompt
                         ? "border-white/40 bg-white/[0.12] text-foreground"
                         : "border-white/12 bg-white/[0.03] text-muted-foreground hover:border-white/25 hover:text-foreground",
@@ -131,7 +131,7 @@ export function IconStudio() {
               setElement(e.target.value);
               setElementLabel("Personalizado");
             }}
-            className="mt-2.5 w-full rounded-xl border border-white/12 bg-white/[0.04] px-3 py-2.5 text-sm text-foreground transition focus:border-white/30 focus:bg-white/[0.07] focus:outline-none"
+            className="studio-field mt-2.5"
           />
         </div>
 
@@ -143,7 +143,7 @@ export function IconStudio() {
             value={style}
             onChange={(e) => setStyle(e.target.value)}
             rows={3}
-            className="mt-1.5 w-full rounded-xl border border-white/12 bg-white/[0.04] px-3 py-2.5 text-sm text-foreground transition focus:border-white/30 focus:bg-white/[0.07] focus:outline-none"
+            className="studio-field mt-1.5"
           />
         </label>
 
@@ -158,7 +158,7 @@ export function IconStudio() {
             <select
               value={count}
               onChange={(e) => setCount(Number(e.target.value))}
-              className="rounded-xl border border-white/12 bg-white/[0.04] px-2.5 py-1.5 text-sm text-foreground focus:outline-none"
+              className="rounded-xl border border-white/12 bg-[#161616] px-2.5 py-1.5 text-sm text-foreground focus:outline-none"
             >
               {[1, 2, 3, 4].map((n) => (
                 <option key={n} value={n}>{n}</option>
@@ -169,7 +169,7 @@ export function IconStudio() {
             type="button"
             disabled={gen.isPending || element.trim().length < 3}
             onClick={onGenerate}
-            className="inline-flex items-center gap-2 rounded-full border border-white/22 bg-white/[0.10] px-5 py-2 text-sm font-medium text-foreground transition hover:bg-white/[0.15] hover:border-white/32 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-none border border-[#0070F3] bg-[#0070F3] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#0060d3] hover:border-[#0060d3] disabled:opacity-50"
           >
             <Sparkles className="h-3.5 w-3.5" />
             {gen.isPending ? `Generando ${elementLabel}…` : `Generar ${elementLabel}`}
@@ -209,7 +209,7 @@ export function IconStudio() {
             </p>
             <a
               href="/api/admin/icons/export"
-              className="inline-flex items-center gap-2 rounded-full border border-white/18 bg-white/[0.07] px-4 py-2 text-[11px] font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28"
+              className="inline-flex items-center gap-2 rounded-none border border-white/12 bg-[#161616] px-4 py-2 text-[11px] font-medium text-foreground/95 transition hover:bg-[#1f1f1f] hover:border-white/25"
             >
               <FileArchive className="h-3.5 w-3.5" />
               Descargar todos (.zip)
@@ -229,13 +229,13 @@ export function IconStudio() {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={r.url} alt={`Ícono ${r.label}`} loading="lazy" className="h-auto w-full" />
-                <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-white/80">
+                <span className="absolute left-2 top-2 rounded-none bg-black/60 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-white/80">
                   {r.label}
                 </span>
                 <div className="absolute bottom-2 right-2 flex items-center gap-1.5 opacity-0 transition group-hover:opacity-100">
                   <a
                     href={`${r.url}?download=icono-${r.label.toLowerCase().replace(/\s+/g, "-")}.png`}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/70 px-3 py-1.5 text-[11px] font-medium text-white"
+                    className="inline-flex items-center gap-1.5 rounded-none border border-white/20 bg-black/70 px-3 py-1.5 text-[11px] font-medium text-white"
                   >
                     <Download className="h-3 w-3" /> PNG
                   </a>
@@ -244,7 +244,7 @@ export function IconStudio() {
                     disabled={del.isPending}
                     onClick={() => del.mutate({ id: r.id })}
                     title="Borrar"
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-black/70 text-white/80 transition hover:border-rose-300/50 hover:text-rose-200 disabled:opacity-50"
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-none border border-white/20 bg-black/70 text-white/80 transition hover:border-rose-300/50 hover:text-rose-200 disabled:opacity-50"
                   >
                     <Trash2 className="h-3 w-3" />
                   </button>

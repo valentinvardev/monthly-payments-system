@@ -1,8 +1,9 @@
+// Mismos tintes planos que StatusBadge — borde de un pixel, sin glow.
 export const QUOTE_STATUS_STYLE: Record<string, string> = {
-  DRAFT: "border-white/12 bg-white/[0.03] text-foreground/60",
-  SENT: "border-sky-300/30 bg-sky-300/[0.08] text-sky-100",
-  ACCEPTED: "border-emerald-300/30 bg-emerald-300/[0.08] text-emerald-100",
-  REJECTED: "border-rose-300/30 bg-rose-300/[0.08] text-rose-100",
+  DRAFT: "border-white/10 bg-white/[0.02] text-white/45",
+  SENT: "border-[#0070F3]/40 bg-[#0070F3]/10 text-[#7db8ff]",
+  ACCEPTED: "border-emerald-300/25 bg-emerald-300/[0.07] text-emerald-200",
+  REJECTED: "border-rose-400/30 bg-rose-400/[0.08] text-rose-200",
 };
 
 export const QUOTE_STATUS_LABEL: Record<string, string> = {

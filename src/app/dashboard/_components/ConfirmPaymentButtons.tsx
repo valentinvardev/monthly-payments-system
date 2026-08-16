@@ -30,7 +30,7 @@ export function ConfirmPaymentButtons({ paymentId }: { paymentId: string }) {
           setBusy("confirm");
           confirmM.mutate({ id: paymentId });
         }}
-        className="rounded-full border border-white/18 bg-white/[0.07] px-3 py-1 text-[11px] font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-50"
+        className="rounded-none border border-white/12 bg-[#161616] px-3 py-1 text-[11px] font-medium text-foreground/95 transition hover:bg-[#1f1f1f] hover:border-white/25 disabled:opacity-50"
       >
         {busy === "confirm" ? "..." : "Confirmar"}
       </button>
@@ -41,7 +41,7 @@ export function ConfirmPaymentButtons({ paymentId }: { paymentId: string }) {
           setBusy("reject");
           rejectM.mutate({ id: paymentId });
         }}
-        className="rounded-full border border-white/8 bg-transparent px-3 py-1 text-[11px] text-muted-foreground transition hover:border-rose-300/30 hover:text-rose-100/85 disabled:opacity-50"
+        className="rounded-none border border-white/8 bg-transparent px-3 py-1 text-[11px] text-muted-foreground transition hover:border-rose-300/30 hover:text-rose-100/85 disabled:opacity-50"
       >
         Rechazar
       </button>

@@ -43,7 +43,7 @@ export default async function ProspectosPage({
   return (
     <div className="space-y-8">
       <header className="reveal">
-        <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground/80">
+        <p className="studio-eyebrow">
           Prospección
         </p>
         <h1 className="mt-1.5 font-display text-3xl font-medium tracking-tight text-foreground">
@@ -185,7 +185,7 @@ function FilterChip({
   return (
     <Link
       href={href}
-      className={`rounded-full border px-3 py-1.5 text-[11px] transition ${
+      className={`rounded-none border px-3 py-1.5 text-[11px] transition ${
         active
           ? "border-white/30 bg-white/[0.10] text-foreground"
           : "border-white/12 text-muted-foreground hover:bg-white/[0.06] hover:text-foreground/90"

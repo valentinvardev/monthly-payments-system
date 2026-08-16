@@ -29,7 +29,7 @@ export function InvoiceActions({
         <button
           type="button"
           onClick={() => setModalOpen(true)}
-          className="rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[11px] font-medium text-foreground/85 transition hover:bg-white/[0.08] hover:border-white/22 hover:text-foreground"
+          className="rounded-none border border-white/12 bg-[#161616] px-3 py-1.5 text-[11px] font-medium text-foreground/85 transition hover:bg-[#1f1f1f] hover:border-white/25 hover:text-foreground"
         >
           + Factura única
         </button>
@@ -42,7 +42,7 @@ export function InvoiceActions({
               setError(null);
               gen.mutate({ clientId });
             }}
-            className="rounded-full border border-white/18 bg-white/[0.07] px-3 py-1.5 text-[11px] font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-50"
+            className="rounded-none border border-white/12 bg-[#161616] px-3 py-1.5 text-[11px] font-medium text-foreground/95 transition hover:bg-[#1f1f1f] hover:border-white/25 disabled:opacity-50"
           >
             {busy ? "Generando…" : "+ Próxima del plan"}
           </button>

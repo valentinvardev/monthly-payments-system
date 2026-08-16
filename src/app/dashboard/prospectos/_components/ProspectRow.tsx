@@ -124,17 +124,17 @@ export function ProspectRow({ p }: { p: ProspectRowData }) {
           <p className="flex flex-wrap items-center gap-2 text-[15px] font-medium text-foreground/95">
             {p.name}
             {p.priority === 1 && (
-              <span className="rounded-full border border-amber-200/30 bg-amber-200/[0.08] px-2 py-0.5 text-[9px] uppercase tracking-[0.14em] text-amber-100/90">
+              <span className="rounded-none border border-amber-200/30 bg-amber-200/[0.08] px-2 py-0.5 text-[9px] uppercase tracking-[0.14em] text-amber-100/90">
                 P1
               </span>
             )}
             {p.qualifies && (
-              <span className="rounded-full border border-emerald-300/30 bg-emerald-300/[0.08] px-2 py-0.5 text-[9px] uppercase tracking-[0.14em] text-emerald-100">
+              <span className="rounded-none border border-emerald-300/30 bg-emerald-300/[0.08] px-2 py-0.5 text-[9px] uppercase tracking-[0.14em] text-emerald-100">
                 3 de 3
               </span>
             )}
             {followUpDue && (
-              <span className="rounded-full border border-orange-300/30 bg-orange-300/[0.08] px-2 py-0.5 text-[9px] uppercase tracking-[0.14em] text-orange-100">
+              <span className="rounded-none border border-orange-300/30 bg-orange-300/[0.08] px-2 py-0.5 text-[9px] uppercase tracking-[0.14em] text-orange-100">
                 seguimiento
               </span>
             )}
@@ -171,14 +171,14 @@ export function ProspectRow({ p }: { p: ProspectRowData }) {
 
         <div className="flex items-center gap-2">
           <span
-            className={`rounded-full border px-2.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] ${STAGE_STYLE[p.stage]}`}
+            className={`rounded-none border px-2.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] ${STAGE_STYLE[p.stage]}`}
           >
             {STAGE_LABEL[p.stage]}
           </span>
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="rounded-full border border-white/15 px-2.5 py-1 text-[11px] text-foreground/80 transition hover:bg-white/[0.07]"
+            className="rounded-none border border-white/15 px-2.5 py-1 text-[11px] text-foreground/80 transition hover:bg-[#1f1f1f]"
           >
             {open ? "Cerrar" : "Trabajar"}
           </button>
@@ -243,7 +243,7 @@ export function ProspectRow({ p }: { p: ProspectRowData }) {
               type="button"
               disabled={busy || note === (p.frictionNote ?? "")}
               onClick={() => setNoteM.mutate({ id: p.id, note })}
-              className="mt-1.5 rounded-full border border-white/15 px-3 py-1 text-[11px] text-foreground/85 transition hover:bg-white/[0.07] disabled:opacity-40"
+              className="mt-1.5 rounded-none border border-white/15 px-3 py-1 text-[11px] text-foreground/85 transition hover:bg-[#1f1f1f] disabled:opacity-40"
             >
               Guardar nota
             </button>
@@ -254,7 +254,7 @@ export function ProspectRow({ p }: { p: ProspectRowData }) {
             {mailLink && (
               <a
                 href={mailLink}
-                className="rounded-full border border-white/18 bg-white/[0.07] px-3 py-1.5 text-[11px] text-foreground/95 transition hover:bg-white/[0.12]"
+                className="rounded-none border border-white/12 bg-[#161616] px-3 py-1.5 text-[11px] text-foreground/95 transition hover:bg-white/[0.12]"
               >
                 Abrir email con el mensaje
               </a>
@@ -264,7 +264,7 @@ export function ProspectRow({ p }: { p: ProspectRowData }) {
                 href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full border border-emerald-300/25 bg-emerald-300/[0.08] px-3 py-1.5 text-[11px] text-emerald-100 transition hover:bg-emerald-300/[0.14]"
+                className="rounded-none border border-emerald-300/25 bg-emerald-300/[0.08] px-3 py-1.5 text-[11px] text-emerald-100 transition hover:bg-emerald-300/[0.14]"
               >
                 Abrir WhatsApp
               </a>
@@ -288,7 +288,7 @@ export function ProspectRow({ p }: { p: ProspectRowData }) {
                   type="button"
                   disabled={busy || s === p.stage}
                   onClick={() => setStage.mutate({ id: p.id, stage: s })}
-                  className={`rounded-full border px-2.5 py-1 text-[11px] transition disabled:opacity-45 ${
+                  className={`rounded-none border px-2.5 py-1 text-[11px] transition disabled:opacity-45 ${
                     s === p.stage
                       ? STAGE_STYLE[s]
                       : "border-white/12 text-muted-foreground hover:bg-white/[0.06] hover:text-foreground/90"
@@ -334,7 +334,7 @@ export function ProspectRow({ p }: { p: ProspectRowData }) {
                 onClick={() =>
                   addActivity.mutate({ id: p.id, kind: "NOTA", body: activity })
                 }
-                className="rounded-full border border-white/15 px-3 py-1 text-[11px] text-foreground/85 transition hover:bg-white/[0.07] disabled:opacity-40"
+                className="rounded-none border border-white/15 px-3 py-1 text-[11px] text-foreground/85 transition hover:bg-[#1f1f1f] disabled:opacity-40"
               >
                 Anotar
               </button>

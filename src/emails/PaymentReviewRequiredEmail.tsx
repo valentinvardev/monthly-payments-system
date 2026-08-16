@@ -44,7 +44,7 @@ export function PaymentReviewRequiredEmail({
               ...styles.metaValue,
               marginTop: "10px",
               fontStyle: "italic",
-              color: "rgba(232,237,245,0.65)",
+              color: "rgba(250,250,250,0.65)",
             }}
           >
             "{notes}"
@@ -61,7 +61,7 @@ export function PaymentReviewRequiredEmail({
           Comprobante:{" "}
           <a
             href={proofUrl}
-            style={{ color: "rgba(232,237,245,0.75)", textDecoration: "underline" }}
+            style={{ color: "rgba(250,250,250,0.75)", textDecoration: "underline" }}
           >
             {proofUrl}
           </a>

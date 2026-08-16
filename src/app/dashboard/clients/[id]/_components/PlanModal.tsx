@@ -107,13 +107,13 @@ export function PlanModal({
         // Click on the backdrop (i.e. directly on the dialog element)
         if (e.target === ref.current) onClose();
       }}
-      className="m-auto w-full max-w-md rounded-3xl border border-white/12 bg-[oklch(0.16_0.015_245)] p-0 text-foreground shadow-2xl backdrop:bg-black/65 backdrop:backdrop-blur-md"
+      className="m-auto w-full max-w-md rounded-3xl border border-white/12 bg-[#131313] p-0 text-foreground shadow-2xl backdrop:bg-black/65 backdrop:backdrop-blur-md"
     >
       <div className="relative p-6">
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-foreground/70 transition hover:bg-white/[0.10] hover:text-foreground"
+          className="absolute right-4 top-4 inline-flex h-7 w-7 items-center justify-center rounded-none border border-white/10 bg-white/[0.05] text-foreground/70 transition hover:bg-white/[0.10] hover:text-foreground"
           aria-label="Cerrar"
         >
           <X className="h-3.5 w-3.5" />
@@ -145,7 +145,7 @@ export function PlanModal({
                       "rounded-xl border p-3 text-left transition-all",
                       active
                         ? "border-white/30 bg-white/[0.10]"
-                        : "border-white/10 bg-white/[0.03] hover:border-white/18 hover:bg-white/[0.05]",
+                        : "border-white/12 bg-[#161616] hover:border-white/25 hover:bg-white/[0.05]",
                     ].join(" ")}
                   >
                     <p className="text-sm font-medium text-foreground/95">{f.label}</p>
@@ -193,14 +193,14 @@ export function PlanModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full border border-white/10 bg-transparent px-4 py-2 text-sm text-muted-foreground transition hover:bg-white/[0.06] hover:text-foreground"
+                className="rounded-none border border-white/10 bg-transparent px-4 py-2 text-sm text-muted-foreground transition hover:bg-white/[0.06] hover:text-foreground"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={m.isPending}
-                className="rounded-full border border-white/22 bg-white/[0.10] px-5 py-2 text-sm font-medium text-foreground transition hover:bg-white/[0.15] hover:border-white/32 disabled:opacity-50"
+                className="rounded-none border border-[#0070F3] bg-[#0070F3] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#0060d3] hover:border-[#0060d3] disabled:opacity-50"
               >
                 {m.isPending ? "Guardando…" : initial ? "Guardar cambios" : "Crear plan"}
               </button>
@@ -245,7 +245,7 @@ function Field({
         required={required}
         step={step}
         min={min}
-        className="mt-1.5 w-full rounded-xl border border-white/12 bg-white/[0.04] px-3 py-2.5 text-sm text-foreground transition focus:border-white/30 focus:bg-white/[0.07] focus:outline-none placeholder:text-muted-foreground/55"
+        className="studio-field mt-1.5"
       />
     </label>
   );

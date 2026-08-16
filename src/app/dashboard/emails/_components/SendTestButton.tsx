@@ -19,7 +19,7 @@ export function SendTestButton({ kind }: { kind: string }) {
         type="button"
         disabled={m.isPending}
         onClick={() => m.mutate({ key: kind })}
-        className="inline-flex items-center gap-1.5 rounded-full border border-white/18 bg-white/[0.07] px-3 py-1.5 text-[11px] font-medium text-foreground/95 transition hover:bg-white/[0.12] hover:border-white/28 disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-none border border-white/12 bg-[#161616] px-3 py-1.5 text-[11px] font-medium text-foreground/95 transition hover:bg-[#1f1f1f] hover:border-white/25 disabled:opacity-50"
       >
         {done ? (
           <>
