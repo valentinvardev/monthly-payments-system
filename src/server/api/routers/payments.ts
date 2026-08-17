@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 import { TRPCError } from "@trpc/server";
 import { adminProcedure, clientProcedure, createTRPCRouter } from "@/server/api/trpc";
 import { getUsdToArsRate } from "@/lib/exchange-rate";
@@ -206,17 +207,24 @@ export const paymentsRouter = createTRPCRouter({
       const payment = await ctx.prisma.payment.findUnique({ where: { id: input.id } });
       if (!payment) throw new TRPCError({ code: "NOT_FOUND" });
 
-      return ctx.prisma.$transaction(async (tx) => {
+      const { updated, clientId } = await ctx.prisma.$transaction(async (tx) => {
         const updated = await tx.payment.update({
           where: { id: payment.id },
           data: { status: "CONFIRMED", confirmedAt: new Date() },
         });
-        await tx.invoice.update({
+        const invoice = await tx.invoice.update({
           where: { id: payment.invoiceId },
           data: { status: "PAID", paidAt: new Date() },
         });
-        return updated;
+        return { updated, clientId: invoice.clientId };
       });
+
+      // Ahora esto también se dispara desde la ficha del cliente, así
+      // que hay que invalidar las tres vistas que muestran el estado.
+      revalidatePath("/dashboard");
+      revalidatePath("/dashboard/invoices");
+      revalidatePath(`/dashboard/clients/${clientId}`);
+      return updated;
     }),
 
   reject: adminProcedure
@@ -225,16 +233,21 @@ export const paymentsRouter = createTRPCRouter({
       const payment = await ctx.prisma.payment.findUnique({ where: { id: input.id } });
       if (!payment) throw new TRPCError({ code: "NOT_FOUND" });
 
-      return ctx.prisma.$transaction(async (tx) => {
+      const { updated, clientId } = await ctx.prisma.$transaction(async (tx) => {
         const updated = await tx.payment.update({
           where: { id: payment.id },
           data: { status: "REJECTED" },
         });
-        await tx.invoice.update({
+        const invoice = await tx.invoice.update({
           where: { id: payment.invoiceId },
           data: { status: "PENDING" },
         });
-        return updated;
+        return { updated, clientId: invoice.clientId };
       });
+
+      revalidatePath("/dashboard");
+      revalidatePath("/dashboard/invoices");
+      revalidatePath(`/dashboard/clients/${clientId}`);
+      return updated;
     }),
 });

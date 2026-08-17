@@ -10,6 +10,7 @@ import { ToggleActiveButton } from "./_components/ToggleActiveButton";
 import { PlanSection } from "./_components/PlanSection";
 import { ClientInviteAction } from "./_components/ClientInviteAction";
 import { InvoiceActions } from "./_components/InvoiceActions";
+import { InvoiceRowActions } from "./_components/InvoiceRowActions";
 import { describeAnchor } from "@/lib/recurrence";
 
 export default async function ManageClientPage({
@@ -178,8 +179,15 @@ export default async function ManageClientPage({
                       <td className="px-5 py-3.5">
                         <InvoiceStatusBadge status={i.status} />
                       </td>
-                      <td className="px-5 py-3.5 text-right">
-                        <DeleteInvoiceButton id={i.id} />
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center justify-end gap-2">
+                          <InvoiceRowActions
+                            invoiceId={i.id}
+                            status={i.status}
+                            pendingPaymentId={i.payments[0]?.id ?? null}
+                          />
+                          <DeleteInvoiceButton id={i.id} />
+                        </div>
                       </td>
                     </tr>
                   ))}

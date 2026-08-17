@@ -213,7 +213,20 @@ export const clientsRouter = createTRPCRouter({
       where: { id: input.id },
       include: {
         recurringPlan: true,
-        invoices: { orderBy: { dueDate: "desc" } },
+        invoices: {
+          orderBy: { dueDate: "desc" },
+          // El pago que espera revisión, si hay: es lo que habilita el
+          // botón de aprobar en la fila de la factura. Sólo el id —
+          // la fila no muestra nada más del pago.
+          include: {
+            payments: {
+              where: { status: "PENDING_REVIEW" },
+              orderBy: { createdAt: "desc" },
+              take: 1,
+              select: { id: true },
+            },
+          },
+        },
       },
     });
     if (!client) throw new TRPCError({ code: "NOT_FOUND" });
