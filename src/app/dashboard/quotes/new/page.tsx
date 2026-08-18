@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { QuoteForm } from "./_components/QuoteForm";
+import { QuoteForm } from "../_components/QuoteForm";
 
 // Alta de presupuesto. Con ?lead=<id> viene precargado desde un lead
 // del formulario /contanos; el select de clientes permite autocompletar

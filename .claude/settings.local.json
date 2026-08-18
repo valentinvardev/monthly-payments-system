@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(taskkill //PID 36012 //F)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(node --expose-gc floodfill-check.mjs)"
     ]
   }
 }

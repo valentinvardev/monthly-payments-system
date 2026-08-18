@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Copy, Send, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { Check, Copy, Pencil, Send, Trash2 } from "lucide-react";
 import { trpc } from "@/trpc/react";
 
 export function QuoteActions({
@@ -40,12 +41,21 @@ export function QuoteActions({
   return (
     <div className="reveal space-y-3" style={{ animationDelay: "120ms" }}>
       <div className="flex flex-wrap items-center gap-2.5">
+        {status === "DRAFT" && (
+          <Link
+            href={`/dashboard/quotes/${id}/edit`}
+            className={`${btn} border-white/12 bg-[#161616] text-foreground/90 hover:border-white/25 hover:bg-[#1f1f1f] hover:text-white`}
+          >
+            <Pencil className="h-3.5 w-3.5" /> Editar
+          </Link>
+        )}
+
         {(status === "DRAFT" || status === "SENT") && (
           <button
             type="button"
             disabled={busy}
             onClick={() => send.mutate({ id })}
-            className={`${btn} border-white/22 bg-white/[0.09] text-foreground hover:bg-white/[0.14]`}
+            className={`${btn} border-[#0070F3] bg-[#0070F3] text-white hover:border-[#0060d3] hover:bg-[#0060d3]`}
           >
             <Send className="h-3.5 w-3.5" />
             {send.isPending ? "Enviando…" : status === "DRAFT" ? "Enviar al destinatario" : "Reenviar email"}
@@ -133,9 +143,9 @@ export function QuoteActions({
       {status === "ACCEPTED" && !hasClient && (
         <p className="text-xs text-muted-foreground">
           Para convertirlo en factura, primero creá el cliente en{" "}
-          <a href="/dashboard/clients/new" className="underline underline-offset-2 hover:text-foreground">
+          <Link href="/dashboard/clients/new" className="underline underline-offset-2 hover:text-foreground">
             Clientes
-          </a>{" "}
+          </Link>{" "}
           y armale la factura desde su ficha.
         </p>
       )}

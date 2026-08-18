@@ -9,38 +9,77 @@ import { formatUsd } from "@/lib/format";
 type ClientOption = { id: string; fullName: string; email: string };
 type Item = { label: string; detail: string; amount: string };
 
+// Presupuesto ya guardado, cuando el formulario se usa para editar un
+// borrador en lugar de crear uno nuevo.
+export type QuoteDraft = {
+  id: string;
+  clientId: string | null;
+  name: string;
+  email: string;
+  company: string | null;
+  title: string;
+  intro: string | null;
+  locale: string;
+  validUntil: string | null; // yyyy-mm-dd
+  items: { label: string; detail: string | null; amountUsd: number }[];
+};
+
 const inputCls =
   "studio-field mt-1.5";
-const labelCls =
-  "block text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/80";
+const labelCls = "studio-label";
 
 export function QuoteForm({
   clients,
   initial,
+  quote = null,
 }: {
   clients: ClientOption[];
   initial: { leadId: string; name: string; email: string; company: string; locale: "es" | "en" } | null;
+  // Presente sólo al editar: manda sobre `initial`.
+  quote?: QuoteDraft | null;
 }) {
+  const editing = quote !== null;
   const router = useRouter();
-  const [clientId, setClientId] = useState("");
-  const [name, setName] = useState(initial?.name ?? "");
-  const [email, setEmail] = useState(initial?.email ?? "");
-  const [company, setCompany] = useState(initial?.company ?? "");
-  const [locale, setLocale] = useState<"es" | "en">(initial?.locale ?? "es");
-  const [title, setTitle] = useState("");
-  const [intro, setIntro] = useState("");
+  const [clientId, setClientId] = useState(quote?.clientId ?? "");
+  const [name, setName] = useState(quote?.name ?? initial?.name ?? "");
+  const [email, setEmail] = useState(quote?.email ?? initial?.email ?? "");
+  const [company, setCompany] = useState(quote?.company ?? initial?.company ?? "");
+  const [locale, setLocale] = useState<"es" | "en">(
+    quote ? (quote.locale === "en" ? "en" : "es") : (initial?.locale ?? "es"),
+  );
+  const [title, setTitle] = useState(quote?.title ?? "");
+  const [intro, setIntro] = useState(quote?.intro ?? "");
   const [validUntil, setValidUntil] = useState(() => {
+    // Al editar respetamos lo guardado, incluso si quedó vacío.
+    if (quote) return quote.validUntil ?? "";
     const d = new Date();
     d.setDate(d.getDate() + 14);
     return d.toISOString().slice(0, 10);
   });
-  const [items, setItems] = useState<Item[]>([{ label: "", detail: "", amount: "" }]);
+  const [items, setItems] = useState<Item[]>(() =>
+    quote && quote.items.length > 0
+      ? quote.items.map((it) => ({
+          label: it.label,
+          detail: it.detail ?? "",
+          amount: String(it.amountUsd),
+        }))
+      : [{ label: "", detail: "", amount: "" }],
+  );
   const [error, setError] = useState<string | null>(null);
 
-  const m = trpc.quotes.create.useMutation({
-    onSuccess: (q) => router.push(`/dashboard/quotes/${q.id}`),
+  const toDetail = (q: { id: string }) => {
+    router.push(`/dashboard/quotes/${q.id}`);
+    router.refresh();
+  };
+  const create = trpc.quotes.create.useMutation({
+    onSuccess: toDetail,
     onError: (e) => setError(e.message),
   });
+  const update = trpc.quotes.update.useMutation({
+    onSuccess: toDetail,
+    onError: (e) => setError(e.message),
+  });
+  const pending = create.isPending || update.isPending;
 
   function pickClient(id: string) {
     setClientId(id);
@@ -70,9 +109,8 @@ export function QuoteForm({
       setError("Agregá al menos un ítem con nombre");
       return;
     }
-    m.mutate({
+    const common = {
       clientId: clientId || undefined,
-      leadId: initial?.leadId,
       name: name.trim(),
       email: email.trim(),
       company: company.trim() || undefined,
@@ -81,7 +119,9 @@ export function QuoteForm({
       locale,
       validUntil: validUntil ? new Date(validUntil).toISOString() : undefined,
       items: parsed,
-    });
+    };
+    if (quote) update.mutate({ id: quote.id, ...common });
+    else create.mutate({ ...common, leadId: initial?.leadId });
   }
 
   return (
@@ -221,10 +261,14 @@ export function QuoteForm({
         {error ? <p className="text-sm text-rose-200/85">{error}</p> : <span />}
         <button
           type="submit"
-          disabled={m.isPending}
+          disabled={pending}
           className="rounded-none border border-[#0070F3] bg-[#0070F3] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#0060d3] hover:border-[#0060d3] disabled:opacity-50"
         >
-          {m.isPending ? "Guardando…" : "Guardar borrador"}
+          {pending
+            ? "Guardando…"
+            : editing
+              ? "Guardar cambios"
+              : "Guardar borrador"}
         </button>
       </div>
     </form>

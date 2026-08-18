@@ -67,6 +67,81 @@ export const quotesRouter = createTRPCRouter({
       return quote;
     }),
 
+  // Editar un borrador. Sólo en DRAFT: una vez enviado, el destinatario
+  // ya vio esos números y cambiarlos por atrás dejaría el link público
+  // mostrando algo distinto de lo que recibió por mail.
+  //
+  // Los ítems se reemplazan enteros en lugar de reconciliarse uno a uno:
+  // no tienen identidad propia para el usuario (los agrega y borra a
+  // mano en el formulario) y así el sortOrder siempre queda igual al
+  // orden en pantalla. Va en transacción para no dejar el presupuesto
+  // sin ítems si algo falla en el medio.
+  update: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        clientId: z.string().optional(),
+        name: z.string().min(2).max(120),
+        email: z.string().email().max(200),
+        company: z.string().max(120).optional(),
+        title: z.string().min(2).max(200),
+        intro: z.string().max(2000).optional(),
+        locale: z.enum(["es", "en"]).default("es"),
+        validUntil: z.string().optional(),
+        items: z
+          .array(
+            z.object({
+              label: z.string().min(1).max(200),
+              detail: z.string().max(500).optional(),
+              amountUsd: z.number().nonnegative(),
+            }),
+          )
+          .min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const existing = await ctx.prisma.quote.findUnique({
+        where: { id: input.id },
+        select: { status: true },
+      });
+      if (!existing) throw new TRPCError({ code: "NOT_FOUND" });
+      if (existing.status !== "DRAFT") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Sólo se pueden editar los borradores",
+        });
+      }
+
+      const quote = await ctx.prisma.$transaction(async (tx) => {
+        await tx.quoteItem.deleteMany({ where: { quoteId: input.id } });
+        return tx.quote.update({
+          where: { id: input.id },
+          data: {
+            clientId: input.clientId || null,
+            name: input.name.trim(),
+            email: input.email.trim(),
+            company: input.company?.trim() || null,
+            title: input.title.trim(),
+            intro: input.intro?.trim() || null,
+            locale: input.locale,
+            validUntil: input.validUntil ? new Date(input.validUntil) : null,
+            items: {
+              create: input.items.map((it, i) => ({
+                label: it.label.trim(),
+                detail: it.detail?.trim() || null,
+                amountUsd: it.amountUsd,
+                sortOrder: i,
+              })),
+            },
+          },
+        });
+      });
+
+      revalidatePath("/dashboard/quotes");
+      revalidatePath(`/dashboard/quotes/${quote.id}`);
+      return quote;
+    }),
+
   list: adminProcedure.query(({ ctx }) => {
     return ctx.prisma.quote.findMany({
       orderBy: { createdAt: "desc" },
