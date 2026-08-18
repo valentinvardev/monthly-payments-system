@@ -12,10 +12,28 @@ import { sendEmail } from "@/lib/email";
 import { QuoteSentEmail } from "@/emails/QuoteSentEmail";
 import { QuoteDecidedEmail } from "@/emails/QuoteDecidedEmail";
 import { InvoiceCreatedEmail } from "@/emails/InvoiceCreatedEmail";
+import {
+  getQuoteDocUploadToken,
+  deleteQuoteDocs,
+} from "@/lib/supabase/storage";
 
 const appUrl = () => env.APP_URL.replace(/\/+$/, "");
 const total = (items: { amountUsd: unknown }[]) =>
   items.reduce((acc, i) => acc + Number(i.amountUsd), 0);
+
+// Documentos ya subidos a Storage: el formulario sube el PDF con una
+// signed URL y acá sólo llega la ruta. El tope de 6 es de cordura — un
+// presupuesto con más adjuntos que ítems es otra cosa, no un presupuesto.
+const attachmentsInput = z
+  .array(
+    z.object({
+      path: z.string().min(1).max(400),
+      filename: z.string().min(1).max(200),
+      sizeBytes: z.number().int().nonnegative(),
+    }),
+  )
+  .max(6)
+  .optional();
 
 export const quotesRouter = createTRPCRouter({
   create: adminProcedure
@@ -39,6 +57,7 @@ export const quotesRouter = createTRPCRouter({
             }),
           )
           .min(1),
+        attachments: attachmentsInput,
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -58,6 +77,14 @@ export const quotesRouter = createTRPCRouter({
               label: it.label.trim(),
               detail: it.detail?.trim() || null,
               amountUsd: it.amountUsd,
+              sortOrder: i,
+            })),
+          },
+          attachments: {
+            create: (input.attachments ?? []).map((a, i) => ({
+              path: a.path,
+              filename: a.filename,
+              sizeBytes: a.sizeBytes,
               sortOrder: i,
             })),
           },
@@ -97,12 +124,13 @@ export const quotesRouter = createTRPCRouter({
             }),
           )
           .min(1),
+        attachments: attachmentsInput,
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const existing = await ctx.prisma.quote.findUnique({
         where: { id: input.id },
-        select: { status: true },
+        select: { status: true, attachments: { select: { path: true } } },
       });
       if (!existing) throw new TRPCError({ code: "NOT_FOUND" });
       if (existing.status !== "DRAFT") {
@@ -112,8 +140,17 @@ export const quotesRouter = createTRPCRouter({
         });
       }
 
+      // Los adjuntos que el formulario ya no manda quedarían pesando en
+      // el bucket sin fila que los nombre; los sacamos después de
+      // responder, que el que guarda no espere a Storage.
+      const kept = new Set((input.attachments ?? []).map((a) => a.path));
+      const orphans = existing.attachments
+        .map((a) => a.path)
+        .filter((path) => !kept.has(path));
+
       const quote = await ctx.prisma.$transaction(async (tx) => {
         await tx.quoteItem.deleteMany({ where: { quoteId: input.id } });
+        await tx.quoteAttachment.deleteMany({ where: { quoteId: input.id } });
         return tx.quote.update({
           where: { id: input.id },
           data: {
@@ -133,13 +170,40 @@ export const quotesRouter = createTRPCRouter({
                 sortOrder: i,
               })),
             },
+            attachments: {
+              create: (input.attachments ?? []).map((a, i) => ({
+                path: a.path,
+                filename: a.filename,
+                sizeBytes: a.sizeBytes,
+                sortOrder: i,
+              })),
+            },
           },
         });
       });
 
+      if (orphans.length > 0) after(() => deleteQuoteDocs(orphans));
+
       revalidatePath("/dashboard/quotes");
       revalidatePath(`/dashboard/quotes/${quote.id}`);
       return quote;
+    }),
+
+  // Signed URL de subida para un PDF del presupuesto. El navegador
+  // sube el archivo directo a Storage y devuelve la ruta, que recién
+  // entonces viaja en create/update. Al crear todavía no hay id, así
+  // que quoteId es opcional.
+  getDocUploadToken: adminProcedure
+    .input(z.object({ quoteId: z.string().optional(), filename: z.string().max(200) }))
+    .mutation(async ({ input }) => {
+      try {
+        return await getQuoteDocUploadToken(input);
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: (err as Error).message,
+        });
+      }
     }),
 
   list: adminProcedure.query(({ ctx }) => {
@@ -152,7 +216,12 @@ export const quotesRouter = createTRPCRouter({
   get: adminProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
     const quote = await ctx.prisma.quote.findUnique({
       where: { id: input.id },
-      include: { items: { orderBy: { sortOrder: "asc" } }, client: true, lead: true },
+      include: {
+        items: { orderBy: { sortOrder: "asc" } },
+        attachments: { orderBy: { sortOrder: "asc" } },
+        client: true,
+        lead: true,
+      },
     });
     if (!quote) throw new TRPCError({ code: "NOT_FOUND" });
     return quote;
@@ -197,7 +266,14 @@ export const quotesRouter = createTRPCRouter({
   }),
 
   delete: adminProcedure.input(z.object({ id: z.string() })).mutation(async ({ ctx, input }) => {
+    // Las filas se van por cascada, los archivos no: hay que leerlos
+    // antes de borrar el presupuesto o pierden el único puntero.
+    const docs = await ctx.prisma.quoteAttachment.findMany({
+      where: { quoteId: input.id },
+      select: { path: true },
+    });
     await ctx.prisma.quote.delete({ where: { id: input.id } });
+    if (docs.length > 0) after(() => deleteQuoteDocs(docs.map((d) => d.path)));
     revalidatePath("/dashboard/quotes");
     return { ok: true };
   }),

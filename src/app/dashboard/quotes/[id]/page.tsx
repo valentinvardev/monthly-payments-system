@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
 import { formatUsd } from "@/lib/format";
+import { getQuoteDocSignedUrl } from "@/lib/supabase/storage";
+import { QuoteDocs } from "@/components/QuoteDocs";
 import { QUOTE_STATUS_LABEL, QUOTE_STATUS_STYLE } from "../_components/quote-ui";
 import { QuoteActions } from "./_components/QuoteActions";
 
@@ -15,9 +17,25 @@ export default async function QuoteDetailPage({
   const { id } = await params;
   const quote = await prisma.quote.findUnique({
     where: { id },
-    include: { items: { orderBy: { sortOrder: "asc" } }, client: true, lead: true },
+    include: {
+      items: { orderBy: { sortOrder: "asc" } },
+      attachments: { orderBy: { sortOrder: "asc" } },
+      client: true,
+      lead: true,
+    },
   });
   if (!quote) notFound();
+
+  // Mismo visor que ve el destinatario, para revisar antes de enviar que
+  // el PDF adjunto es el que va.
+  const docs = await Promise.all(
+    quote.attachments.map(async (a) => ({
+      id: a.id,
+      filename: a.filename,
+      sizeBytes: a.sizeBytes,
+      url: await getQuoteDocSignedUrl(a.path),
+    })),
+  );
 
   const total = quote.items.reduce((acc, i) => acc + Number(i.amountUsd), 0);
   const publicUrl = `${env.APP_URL.replace(/\/+$/, "")}/presupuesto/${quote.token}`;
@@ -106,6 +124,12 @@ export default async function QuoteDetailPage({
           )}
         </CardContent>
       </Card>
+
+      {docs.length > 0 && (
+        <div className="reveal" style={{ animationDelay: "90ms" } as React.CSSProperties}>
+          <QuoteDocs docs={docs} label="Documentos" />
+        </div>
+      )}
 
       <QuoteActions
         id={quote.id}

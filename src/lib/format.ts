@@ -36,6 +36,14 @@ export const formatUsd = (n: Numeric) => usdFmt.format(toNum(n));
 export const formatArs = (n: Numeric) => arsFmt.format(toNum(n));
 export const toNumber = toNum;
 
+// Peso de un archivo para mostrarle al usuario, no para cuentas: KB
+// enteros y MB con un decimal alcanzan para decidir si vale abrirlo.
+export function formatBytes(n: number) {
+  if (n < 1024) return `${n} B`;
+  const kb = n / 1024;
+  return kb < 1024 ? `${Math.round(kb)} KB` : `${(kb / 1024).toFixed(1)} MB`;
+}
+
 export function daysUntil(d: Date | string) {
   const ms = new Date(d).getTime() - Date.now();
   return Math.ceil(ms / (1000 * 60 * 60 * 24));

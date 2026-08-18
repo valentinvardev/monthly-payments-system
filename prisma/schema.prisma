@@ -304,6 +304,7 @@ model Quote {
   decidedAt    DateTime?
   rejectReason String?
   items        QuoteItem[]
+  attachments  QuoteAttachment[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
@@ -318,6 +319,25 @@ model QuoteItem {
   detail    String?
   amountUsd Decimal @db.Decimal(12, 2)
   sortOrder Int     @default(0)
+
+  @@index([quoteId, sortOrder])
+}
+
+// PDFs que acompañan al presupuesto: el plan de trabajo, un anexo
+// técnico, la propuesta larga. Viven en un bucket PRIVADO de Storage;
+// la fila guarda sólo la ruta y todo acceso pasa por una signed URL con
+// TTL, así el link del presupuesto sigue siendo la única puerta.
+// `sizeBytes` sirve para mostrar el peso antes de abrirlo — el límite
+// real lo impone el bucket, no este número, que llega del cliente.
+model QuoteAttachment {
+  id        String   @id @default(cuid())
+  quote     Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  quoteId   String
+  path      String
+  filename  String
+  sizeBytes Int
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
 
   @@index([quoteId, sortOrder])
 }

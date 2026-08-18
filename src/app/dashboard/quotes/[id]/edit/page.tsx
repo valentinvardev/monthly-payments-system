@@ -16,7 +16,10 @@ export default async function EditQuotePage({
   const [quote, clients] = await Promise.all([
     prisma.quote.findUnique({
       where: { id },
-      include: { items: { orderBy: { sortOrder: "asc" } } },
+      include: {
+        items: { orderBy: { sortOrder: "asc" } },
+        attachments: { orderBy: { sortOrder: "asc" } },
+      },
     }),
     prisma.client.findMany({
       where: { active: true },
@@ -68,6 +71,12 @@ export default async function EditQuotePage({
             label: it.label,
             detail: it.detail,
             amountUsd: Number(it.amountUsd),
+          })),
+          attachments: quote.attachments.map((a) => ({
+            id: a.id,
+            path: a.path,
+            filename: a.filename,
+            sizeBytes: a.sizeBytes,
           })),
         }}
       />

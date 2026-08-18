@@ -2,12 +2,31 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2 } from "lucide-react";
+import { FileText, Paperclip, Plus, Trash2 } from "lucide-react";
 import { trpc } from "@/trpc/react";
-import { formatUsd } from "@/lib/format";
+import { createClient as createSupabaseClient } from "@/lib/supabase/client";
+import { formatBytes, formatUsd } from "@/lib/format";
 
 type ClientOption = { id: string; fullName: string; email: string };
 type Item = { label: string; detail: string; amount: string };
+
+// Un adjunto del formulario está en uno de dos estados: ya en Storage
+// (`path` — viene de un borrador guardado o de un intento anterior) o
+// todavía en el navegador (`file`). Guardar sube los que falten.
+type Attachment = {
+  key: string;
+  filename: string;
+  sizeBytes: number;
+  path: string | null;
+  file: File | null;
+};
+
+// El bucket lo crea el server; el nombre se repite acá porque el archivo
+// sube directo del navegador a Storage, igual que el comprobante de pago
+// en el portal.
+const DOCS_BUCKET = "quote-docs";
+const MAX_DOCS = 6;
+const MAX_BYTES = 10 * 1024 * 1024;
 
 // Presupuesto ya guardado, cuando el formulario se usa para editar un
 // borrador en lugar de crear uno nuevo.
@@ -22,6 +41,7 @@ export type QuoteDraft = {
   locale: string;
   validUntil: string | null; // yyyy-mm-dd
   items: { label: string; detail: string | null; amountUsd: number }[];
+  attachments: { id: string; path: string; filename: string; sizeBytes: number }[];
 };
 
 const inputCls =
@@ -65,6 +85,16 @@ export function QuoteForm({
         }))
       : [{ label: "", detail: "", amount: "" }],
   );
+  const [docs, setDocs] = useState<Attachment[]>(() =>
+    (quote?.attachments ?? []).map((a) => ({
+      key: a.id,
+      filename: a.filename,
+      sizeBytes: a.sizeBytes,
+      path: a.path,
+      file: null,
+    })),
+  );
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const toDetail = (q: { id: string }) => {
@@ -79,7 +109,8 @@ export function QuoteForm({
     onSuccess: toDetail,
     onError: (e) => setError(e.message),
   });
-  const pending = create.isPending || update.isPending;
+  const docToken = trpc.quotes.getDocUploadToken.useMutation();
+  const pending = uploading || create.isPending || update.isPending;
 
   function pickClient(id: string) {
     setClientId(id);
@@ -90,12 +121,70 @@ export function QuoteForm({
     }
   }
 
+  function addDocs(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    const picked: Attachment[] = [];
+    for (const file of Array.from(files)) {
+      const isPdf =
+        file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+      if (!isPdf) {
+        setError(`${file.name} no es un PDF`);
+        return;
+      }
+      if (file.size > MAX_BYTES) {
+        setError(`${file.name} pesa ${formatBytes(file.size)}; el máximo es 10 MB`);
+        return;
+      }
+      picked.push({
+        key: `${file.name}-${file.lastModified}-${Math.random().toString(36).slice(2, 8)}`,
+        filename: file.name,
+        sizeBytes: file.size,
+        path: null,
+        file,
+      });
+    }
+    if (docs.length + picked.length > MAX_DOCS) {
+      setError(`Hasta ${MAX_DOCS} documentos por presupuesto`);
+      return;
+    }
+    setError(null);
+    setDocs((prev) => [...prev, ...picked]);
+  }
+
+  // Los PDFs se suben recién al guardar: así un formulario abandonado no
+  // deja archivos sueltos en el bucket. El `path` que vuelve queda en el
+  // estado, para que reintentar después de un error no vuelva a subir lo
+  // que ya está arriba.
+  async function uploadPending(list: Attachment[]): Promise<Attachment[]> {
+    const supabase = createSupabaseClient();
+    const out: Attachment[] = [];
+    for (const doc of list) {
+      if (doc.path || !doc.file) {
+        out.push(doc);
+        continue;
+      }
+      const token = await docToken.mutateAsync({
+        quoteId: quote?.id,
+        filename: doc.filename,
+      });
+      const { error: upErr } = await supabase.storage
+        .from(DOCS_BUCKET)
+        .uploadToSignedUrl(token.path, token.token, doc.file, {
+          contentType: "application/pdf",
+          upsert: false,
+        });
+      if (upErr) throw new Error(`No pudimos subir ${doc.filename}: ${upErr.message}`);
+      out.push({ ...doc, path: token.path, file: null });
+    }
+    return out;
+  }
+
   const setItem = (i: number, patch: Partial<Item>) =>
     setItems((prev) => prev.map((it, x) => (x === i ? { ...it, ...patch } : it)));
 
   const total = items.reduce((acc, it) => acc + (Number(it.amount) || 0), 0);
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     const parsed = items
@@ -109,6 +198,18 @@ export function QuoteForm({
       setError("Agregá al menos un ítem con nombre");
       return;
     }
+    let uploaded: Attachment[];
+    setUploading(true);
+    try {
+      uploaded = await uploadPending(docs);
+      setDocs(uploaded);
+    } catch (err) {
+      setError((err as Error).message);
+      return;
+    } finally {
+      setUploading(false);
+    }
+
     const common = {
       clientId: clientId || undefined,
       name: name.trim(),
@@ -119,6 +220,11 @@ export function QuoteForm({
       locale,
       validUntil: validUntil ? new Date(validUntil).toISOString() : undefined,
       items: parsed,
+      attachments: uploaded.map((d) => ({
+        path: d.path!,
+        filename: d.filename,
+        sizeBytes: d.sizeBytes,
+      })),
     };
     if (quote) update.mutate({ id: quote.id, ...common });
     else create.mutate({ ...common, leadId: initial?.leadId });
@@ -257,6 +363,57 @@ export function QuoteForm({
         </div>
       </section>
 
+      <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 space-y-4">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="font-display text-base font-medium text-foreground/95">Documentos</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              PDFs que el destinatario va a poder ver desde el presupuesto — el plan
+              de trabajo, un anexo. Hasta {MAX_DOCS} archivos de 10 MB.
+            </p>
+          </div>
+          <label className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-none border border-white/12 bg-[#161616] px-3 py-1.5 text-[11px] font-medium text-foreground/85 transition hover:bg-[#1f1f1f]">
+            <Paperclip className="h-3 w-3" /> Adjuntar PDF
+            <input
+              type="file"
+              accept="application/pdf,.pdf"
+              multiple
+              className="sr-only"
+              onChange={(e) => {
+                addDocs(e.target.files);
+                // Sin esto, volver a elegir el mismo archivo después de
+                // quitarlo no dispara onChange.
+                e.target.value = "";
+              }}
+            />
+          </label>
+        </div>
+
+        {docs.length > 0 && (
+          <ul className="divide-y divide-white/8 rounded-2xl border border-white/8 bg-white/[0.02]">
+            {docs.map((doc, i) => (
+              <li key={doc.key} className="flex items-center gap-3 px-4 py-3">
+                <FileText className="h-4 w-4 shrink-0 text-[#0070F3]" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm text-foreground/90">{doc.filename}</p>
+                  <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70">
+                    {formatBytes(doc.sizeBytes)} · {doc.path ? "subido" : "sube al guardar"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDocs((prev) => prev.filter((_, x) => x !== i))}
+                  title="Quitar documento"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-none border border-white/12 bg-[#161616] text-muted-foreground transition hover:border-rose-300/30 hover:text-rose-100/85"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       <div className="flex items-center justify-between gap-4">
         {error ? <p className="text-sm text-rose-200/85">{error}</p> : <span />}
         <button
@@ -264,11 +421,13 @@ export function QuoteForm({
           disabled={pending}
           className="rounded-none border border-[#0070F3] bg-[#0070F3] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#0060d3] hover:border-[#0060d3] disabled:opacity-50"
         >
-          {pending
-            ? "Guardando…"
-            : editing
-              ? "Guardar cambios"
-              : "Guardar borrador"}
+          {uploading
+            ? "Subiendo documentos…"
+            : pending
+              ? "Guardando…"
+              : editing
+                ? "Guardar cambios"
+                : "Guardar borrador"}
         </button>
       </div>
     </form>

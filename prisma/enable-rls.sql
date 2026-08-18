@@ -26,6 +26,7 @@ ALTER TABLE public."ExchangeRate"         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public."ProjectLead"          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public."Quote"                ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public."QuoteItem"            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public."QuoteAttachment"      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public."GeneratedIcon"        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public."Prospect"             ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public."ProspectActivity"     ENABLE ROW LEVEL SECURITY;

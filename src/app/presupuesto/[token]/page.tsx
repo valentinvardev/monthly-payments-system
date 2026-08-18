@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { Landmark, MessageCircle, Wallet } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatUsd } from "@/lib/format";
+import { getQuoteDocSignedUrl } from "@/lib/supabase/storage";
+import { QuoteDocs } from "@/components/QuoteDocs";
 import { StudioBrand } from "@/components/studio/pixel";
 import { PixelBackdrop } from "@/components/studio/PixelBackdrop";
 import { DecideButtons } from "./_components/DecideButtons";
@@ -29,6 +31,7 @@ const T = {
     nextSubNoMethods: "Coordinemos el pago y los próximos pasos por mensaje.",
     nextContact: "Coordinar por mensaje",
     holder: "Titular",
+    docs: "Documentos",
   },
   en: {
     eyebrow: "PROPOSAL",
@@ -45,6 +48,7 @@ const T = {
     nextSubNoMethods: "Let's arrange payment and next steps by message.",
     nextContact: "Arrange by message",
     holder: "Holder",
+    docs: "Documents",
   },
 } as const;
 
@@ -56,7 +60,10 @@ export default async function QuotePublicPage({
   const { token } = await params;
   const quote = await prisma.quote.findUnique({
     where: { token },
-    include: { items: { orderBy: { sortOrder: "asc" } } },
+    include: {
+      items: { orderBy: { sortOrder: "asc" } },
+      attachments: { orderBy: { sortOrder: "asc" } },
+    },
   });
   if (!quote || quote.status === "DRAFT") notFound();
 
@@ -75,6 +82,18 @@ export default async function QuotePublicPage({
           orderBy: { sortOrder: "asc" },
         })
       : [];
+  // Los PDFs viven en un bucket privado: la página se renderiza en cada
+  // visita, así que cada carga firma URLs nuevas y las viejas caducan
+  // solas si el link se comparte de más.
+  const docs = await Promise.all(
+    quote.attachments.map(async (a) => ({
+      id: a.id,
+      filename: a.filename,
+      sizeBytes: a.sizeBytes,
+      url: await getQuoteDocSignedUrl(a.path, 24 * 3600),
+    })),
+  );
+
   const contactHref = `mailto:hola@surcodia.com?subject=${encodeURIComponent(
     `${locale === "en" ? "Proposal accepted" : "Presupuesto aceptado"} — ${quote.title}`,
   )}`;
@@ -169,6 +188,12 @@ export default async function QuotePublicPage({
             </span>
           </div>
         </div>
+
+        {docs.length > 0 && (
+          <div className="mt-8">
+            <QuoteDocs docs={docs} label={s.docs} />
+          </div>
+        )}
 
         {quote.status === "SENT" && !expired && (
           <DecideButtons token={quote.token} locale={locale} />
