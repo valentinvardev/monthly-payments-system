@@ -9,6 +9,7 @@ import { EditClientForm } from "./_components/EditClientForm";
 import { ToggleActiveButton } from "./_components/ToggleActiveButton";
 import { PlanSection } from "./_components/PlanSection";
 import { ClientInviteAction } from "./_components/ClientInviteAction";
+import { ClientPasswordResetAction } from "./_components/ClientPasswordResetAction";
 import { InvoiceActions } from "./_components/InvoiceActions";
 import { InvoiceRowActions } from "./_components/InvoiceRowActions";
 import { describeAnchor } from "@/lib/recurrence";
@@ -79,6 +80,11 @@ export default async function ManageClientPage({
               }
               pendingExpiresAt={client.latestInvite?.expiresAt ?? null}
             />
+            {client.hasLogin && (
+              <div className="mt-4">
+                <ClientPasswordResetAction clientId={client.id} />
+              </div>
+            )}
           </CardContent>
         </Card>
 

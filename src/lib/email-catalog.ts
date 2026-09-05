@@ -186,17 +186,18 @@ export const EMAIL_CATALOG: EmailCatalogEntry[] = [
   },
   {
     key: "PASSWORD_RESET",
-    label: "Reset de contraseña",
+    label: "Contraseña nueva",
     description:
-      "Template para configurar en Supabase → Auth → Email Templates. Supabase reemplaza {{ .ConfirmationURL }} en producción.",
+      "Link de recuperación generado por el sistema y enviado por Resend. Ya no depende del mail por defecto de Supabase.",
     audience: "Cliente",
-    trigger: "Cliente toca '¿olvidaste tu contraseña?' en /login",
-    logKind: "MAGIC_LINK_INFO",
+    trigger:
+      "Cliente toca «¿Olvidaste tu contraseña?» en /login, o el admin lo genera desde la ficha del cliente",
+    logKind: "PASSWORD_RESET",
     build: (appUrl) => ({
-      subject: "[TEST] Reestablecé tu contraseña",
+      subject: "[TEST] Elegí una contraseña nueva para Surcodia",
       template: PasswordResetEmail({
         resetUrl: `${appUrl}/reset-password#PREVIEW_TOKEN`,
-        email: "cliente@ejemplo.com",
+        name: "Cliente de Prueba",
       }),
     }),
   },

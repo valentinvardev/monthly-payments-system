@@ -1,63 +1,48 @@
 "use client";
 
-import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useActionState } from "react";
+import { forgotPasswordAction, type ForgotState } from "../actions";
 
+const initial: ForgotState = { status: "idle" };
+
+// El pedido va al server: el link lo genera Supabase con la clave de
+// servicio y el mail sale por Resend con nuestra plantilla. Antes esto
+// llamaba a resetPasswordForEmail desde el navegador y el mail dependía
+// del SMTP por defecto de Supabase.
 export function ForgotForm() {
-  const [email, setEmail] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [sent, setSent] = useState(false);
+  const [state, action, pending] = useActionState(forgotPasswordAction, initial);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-    const supabase = createClient();
-    const redirectTo = `${window.location.origin}/reset-password`;
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
-    setBusy(false);
-    if (error) {
-      setError(error.message);
-      return;
-    }
-    setSent(true);
-  }
-
-  if (sent) {
+  if (state.status === "sent") {
     return (
       <div className="border border-emerald-300/25 bg-emerald-300/[0.07] p-5 text-sm leading-relaxed text-emerald-200">
-        Si el email está registrado, te llega un link en unos segundos. Revisá tu bandeja de
-        entrada y el correo no deseado.
+        Si el email está registrado, te llega un link en unos segundos. Revisá la bandeja de
+        entrada y el correo no deseado. El link sirve una sola vez y vence en 24 horas.
       </div>
     );
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
+    <form action={action} className="space-y-3">
       <label className="block">
-        <span className="studio-label">
-          Email
-        </span>
+        <span className="studio-label">Email</span>
         <input
           type="email"
+          name="email"
           required
           autoFocus
           autoComplete="email"
           placeholder="vos@dominio.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
           className="studio-field mt-1.5"
         />
       </label>
       <button
         type="submit"
-        disabled={busy}
+        disabled={pending}
         className="studio-btn studio-btn-primary font-pixel w-full px-4 py-3 text-[11px]"
       >
-        {busy ? "Enviando…" : "Mandarme el link"}
+        {pending ? "Enviando…" : "Mandarme el link"}
       </button>
-      {error && <p className="text-sm text-rose-300/90">{error}</p>}
+      {state.status === "error" && <p className="text-sm text-rose-300/90">{state.message}</p>}
     </form>
   );
 }

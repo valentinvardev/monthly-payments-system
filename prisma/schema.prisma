@@ -61,6 +61,7 @@ enum EmailKind {
   PROJECT_LEAD
   QUOTE_SENT
   QUOTE_DECIDED
+  PASSWORD_RESET
 }
 
 enum QuoteStatus {
@@ -85,6 +86,7 @@ model User {
   role        UserRole               @default(CLIENT)
   client      Client?
   mercadoPago MercadoPagoConnection?
+  passwordResets PasswordReset[]
   createdAt   DateTime               @default(now())
   updatedAt   DateTime               @updatedAt
 
@@ -104,6 +106,23 @@ model MercadoPagoConnection {
   scope        String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+}
+
+// Token propio para elegir una contraseña nueva. Mismo patrón que Invite:
+// se guarda el hash del token (si se filtra la tabla, no sirve), vence,
+// y se usa una sola vez. El cambio de contraseña lo hace el server con la
+// clave de servicio de Supabase, así el link no depende de redirecciones
+// ni de la configuración de URLs del proyecto.
+model PasswordReset {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, usedAt])
 }
 
 model Client {

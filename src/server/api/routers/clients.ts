@@ -7,6 +7,7 @@ import { env } from "@/lib/env";
 import { computeAllDueDatesFromAnchor } from "@/lib/recurrence";
 import { sendEmail } from "@/lib/email";
 import { InviteEmail } from "@/emails/InviteEmail";
+import { createPasswordResetLink, sendPasswordResetEmail } from "@/lib/password-reset";
 
 const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
@@ -206,6 +207,44 @@ export const clientsRouter = createTRPCRouter({
         expiresAt: invite.expiresAt,
         emailed: true,
       };
+    }),
+
+  // Link para que un cliente con acceso elija una contraseña nueva. El
+  // token es nuestro (PasswordReset), dura 24 horas y sirve una vez. Se
+  // devuelve siempre el link: si el mail no sale, el admin lo manda por
+  // donde quiera, y el motivo viaja al lado.
+  passwordReset: adminProcedure
+    .input(z.object({ clientId: z.string(), send: z.boolean().default(false) }))
+    .mutation(async ({ ctx, input }) => {
+      const client = await ctx.prisma.client.findUnique({
+        where: { id: input.clientId },
+        select: { email: true, fullName: true, userId: true },
+      });
+      if (!client) throw new TRPCError({ code: "NOT_FOUND" });
+      if (!client.userId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Este cliente todavía no tiene acceso al portal: mandale una invitación.",
+        });
+      }
+
+      const { url, expiresAt } = await createPasswordResetLink(client.userId, env.APP_URL);
+
+      let emailed = false;
+      let emailError: string | undefined;
+      if (input.send) {
+        const res = await sendPasswordResetEmail({ to: client.email, name: client.fullName, url });
+        emailed = res.ok;
+        if (!res.ok) {
+          emailError =
+            res.reason === "not_configured"
+              ? "Resend no está configurado en este server: copiá el link y mandáselo."
+              : "El mail no salió: copiá el link y mandáselo.";
+        }
+      }
+
+      revalidatePath(`/dashboard/clients/${input.clientId}`);
+      return { url, expiresAt, emailed, emailError };
     }),
 
   get: adminProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
