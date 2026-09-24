@@ -5,9 +5,16 @@ agente lo justo para contestar: quién debe qué, qué venció, qué vence esta
 semana y cómo viene el mes. No crea ni modifica nada; eso sigue siendo del
 panel.
 
-Habla MCP por stdio y corre dentro de este repo: usa el cliente de Prisma ya
-generado y las reglas de vencimiento del app (`src/lib/recurrence.ts`), así no
-hay un segundo esquema que mantener.
+Corre dentro de este repo: usa el cliente de Prisma ya generado y las reglas
+de vencimiento del app (`src/lib/recurrence.ts`), así no hay un segundo esquema
+que mantener. Tiene dos entradas con las mismas herramientas, definidas en
+`tools.ts`:
+
+- **stdio** (`server.ts`), para clientes que lo lanzan en la misma máquina:
+  Claude Code, Claude Desktop, Grok Build.
+- **HTTP** (`src/app/api/mcp/route.ts`), para clientes en la nube que no
+  pueden lanzar nada acá: Grok Bot. Vive dentro del app, en
+  `https://surcodia.com/api/mcp`, con token.
 
 ## Herramientas
 
@@ -84,6 +91,8 @@ eso, fallan con un error en vez de devolver fechas corridas un día.
 | Variable | Obligatoria | Qué es |
 |---|---|---|
 | `DATABASE_URL` | sí | Postgres de Supabase, la misma del app (pooler, `?pgbouncer=true`) |
+| `MCP_DATABASE_URL` | no | Conexión propia del MCP, para el rol de sólo lectura. Gana sobre `DATABASE_URL` |
+| `MCP_TOKEN` | para HTTP | Token de `/api/mcp`, 32 caracteres o más. Sin él, la ruta contesta 503 |
 | `MCP_APP_URL` | no | Base de los links, p. ej. `https://surcodia.com`. Gana sobre `APP_URL` |
 | `APP_URL` | no | Se usa si no hay `MCP_APP_URL` |
 
@@ -128,6 +137,67 @@ que se para solo en la raíz del repo. En `claude_desktop_config.json`:
 
 En macOS o Linux, `start.sh` en lugar de `start.cmd` (darle permiso de
 ejecución una vez: `chmod +x mcp/payments/start.sh`).
+
+### Grok Bot y otros clientes en la nube
+
+Grok Bot corre en la nube de xAI: no puede lanzar un proceso en tu máquina ni
+llegar a `localhost`. Se conecta por HTTPS a `https://surcodia.com/api/mcp`,
+que sirve las mismas herramientas desde el app que ya corre en el VPS: sin
+proceso nuevo en PM2, sin puerto ni certificado nuevos.
+
+La ruta está **cerrada por defecto**: sin `MCP_TOKEN` contesta 503, así que
+deployar el código no expone nada. Para abrirla, en el VPS:
+
+1. Generar un token (una vez) y guardarlo en el `.env` del app, junto con la
+   base de los links:
+
+   ```
+   node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
+   ```
+
+   ```
+   MCP_TOKEN=<el token>
+   MCP_APP_URL=https://surcodia.com
+   ```
+
+2. Deployar como siempre, instalando la dependencia nueva
+   (`@modelcontextprotocol/sdk`):
+
+   ```
+   git pull && npm install && npm run build && pm2 restart <app>
+   ```
+
+3. Verificar desde afuera, con el mismo token:
+
+   ```
+   MCP_TOKEN=<el token> node --import tsx scripts/mcp-payments-http-smoke.ts https://surcodia.com/api/mcp
+   ```
+
+   Comprueba que sin token o con uno inválido contesta 401, y que con el
+   token responden las siete herramientas.
+
+En Grok Bot, pedirle en el chat que agregue un server MCP propio con la URL y
+el header de autenticación:
+
+> Agregá un servidor MCP personalizado llamado surcodia-payments en
+> https://surcodia.com/api/mcp con el header `Authorization: Bearer <el token>`
+
+Detalles del endpoint:
+
+- **Sin sesión y con respuestas JSON.** Cada pedido es independiente; no hay
+  streams abiertos detrás de Cloudflare. `GET` y `DELETE` contestan 405, que es
+  lo que la especificación pide cuando el server no ofrece streams ni sesiones.
+- **El proceso tiene que estar en UTC**, igual que el resto del app, que
+  depende de eso para las fechas. Si no lo está, las herramientas que calculan
+  vencimientos devuelven un error en vez de fechas corridas.
+- **Rotar el token** es cambiar `MCP_TOKEN` y reiniciar; el token viejo deja de
+  servir en ese momento. Hay que actualizarlo también en Grok Bot.
+- **Cloudflare** está delante del dominio. Si algún día pone un desafío a los
+  pedidos que no vienen de un navegador, `/api/mcp` necesita una regla que lo
+  saltee. Hoy el webhook de Mercado Pago pasa, que es la misma situación.
+- Ahora que la base es alcanzable desde internet a través de esta ruta, el rol
+  de sólo lectura de la sección siguiente deja de ser opcional en la práctica:
+  va en `MCP_DATABASE_URL` del VPS y el MCP lo usa en lugar de `DATABASE_URL`.
 
 ### A mano
 

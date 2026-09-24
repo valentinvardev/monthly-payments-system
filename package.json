@@ -13,7 +13,8 @@
     "assets:pixel": "node --env-file=.env scripts/generate-assets.mjs",
     "prospects:import": "tsx --env-file=.env scripts/import-prospects.ts prospectos-argentina.xlsx",
     "mcp:payments": "node --env-file=.env --import tsx mcp/payments/server.ts",
-    "mcp:payments:smoke": "node --env-file=.env --import tsx scripts/mcp-payments-smoke.ts"
+    "mcp:payments:smoke": "node --env-file=.env --import tsx scripts/mcp-payments-smoke.ts",
+    "mcp:payments:http-smoke": "node --import tsx scripts/mcp-payments-http-smoke.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

@@ -30,11 +30,13 @@ const READ_OPERATIONS = new Set([
   "groupBy",
 ]);
 
+// MCP_DATABASE_URL gana sobre DATABASE_URL: es donde va la conexión con el
+// rol de sólo lectura (README), sin tocar la del app.
 function connectionString() {
-  const url = process.env.DATABASE_URL;
+  const url = process.env.MCP_DATABASE_URL || process.env.DATABASE_URL;
   if (!url) {
     throw new Error(
-      "Falta DATABASE_URL. Corré el server con --env-file=.env o pasala en el entorno.",
+      "Falta DATABASE_URL (o MCP_DATABASE_URL). Corré el server con --env-file=.env o pasala en el entorno.",
     );
   }
   return url;
