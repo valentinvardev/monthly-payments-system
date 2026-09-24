@@ -145,6 +145,27 @@ async function main() {
     many.matchedClients.length > 1 ? Boolean(many.hint) : true,
     `${many.matchedClients.length} coincidencias`,
   );
+  const accent = (await call("get_client", { clientName: "Raúl" })) as { client: { name: string } | null };
+  const plain = (await call("get_client", { clientName: "raul" })) as { client: { name: string } | null };
+  check(
+    "búsqueda sin tildes: Raúl y raul encuentran al mismo",
+    accent.client !== null && accent.client.name === plain.client?.name,
+    accent.client?.name ?? "sin resultado",
+  );
+  const order = (await call("get_client", { clientName: "Guevara Juan" })) as { client: { name: string } | null };
+  check("búsqueda en cualquier orden", order.client !== null, order.client?.name ?? "sin resultado");
+
+  const capped = (await call("list_invoices", { status: ["PAID"], limit: 2 })) as { count: number; truncated: boolean };
+  check("lista cortada: avisa truncated", capped.count === 2 && capped.truncated === true);
+  const whole = (await call("list_invoices", { limit: 200 })) as { truncated: boolean };
+  check("lista completa: truncated=false", whole.truncated === false);
+
+  const withPaid = recent.invoices.filter((i) => i.status === "PAID") as (Invoice & { paidOn: string | null })[];
+  check(
+    "pagadas: paidOn es el día de Buenos Aires",
+    withPaid.every((i) => i.paidOn === null || /^\d{4}-\d{2}-\d{2}$/.test(i.paidOn)),
+  );
+
   const review = (await call("list_invoices", { underReview: true })) as { invoices: Invoice[] };
   check(
     "underReview: sólo abiertas con comprobante",
@@ -178,7 +199,12 @@ async function main() {
     until: string;
     totalAmount: number;
     invoices: Invoice[];
-    projected: { count: number; amount: number; bills: { client: string; dueDate: string; amount: number }[] };
+    projected: {
+      count: number;
+      amount: number;
+      bills: { client: string; dueDate: string; amount: number }[];
+      missed: { count: number; amount: number; bills: { client: string; dueDate: string }[] };
+    };
     totalWithProjected: number;
   };
   check(
@@ -194,6 +220,12 @@ async function main() {
   check(
     "por vencer: el total suma emitido y proyectado",
     Math.abs(up.totalWithProjected - (up.totalAmount + up.projected.amount)) < 0.005,
+  );
+  check(
+    "cobros perdidos: aparte y fuera del total",
+    Array.isArray(up.projected.missed.bills) &&
+      up.projected.missed.bills.every((b) => !up.projected.bills.some((x) => x.client === b.client && x.dueDate === b.dueDate)),
+    `${up.projected.missed.count} perdidos`,
   );
   check(
     "por vencer: un cobro proyectado no duplica una factura emitida",

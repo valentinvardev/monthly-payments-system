@@ -98,8 +98,9 @@ server.registerTool(
       "Facturas con filtros. Cada una trae cliente, monto en USD, vencimiento, estado tal cual " +
       "está en la base, isOverdue y daysDelta calculados por el día de Buenos Aires (positivo: " +
       "faltan días; negativo: vencida), underReview si hay un comprobante esperando confirmación, " +
-      "y el pago confirmado si lo hay. Ordenadas por vencimiento, la más reciente primero. " +
-      "Con clientName devuelve matchedClients; si coincide con varios, las facturas vienen mezcladas.",
+      "y el pago confirmado si lo hay. Ordenadas por vencimiento, la más reciente primero; " +
+      "truncated=true si hay más que limit. clientName ignora tildes y el orden de las palabras; " +
+      "devuelve matchedClients, y si coincide con varios, las facturas vienen mezcladas.",
     inputSchema: {
       status: z.array(INVOICE_STATUS).optional().describe("Uno o más estados."),
       clientId: z.string().optional(),
@@ -137,8 +138,9 @@ server.registerTool(
     description:
       "Lo que vence entre hoy y los próximos N días (default 14). invoices: facturas ya emitidas, " +
       "de la más próxima a la más lejana, con totalAmount. projected: cobros de planes que el " +
-      "cron todavía no emitió (los emite la noche anterior a cada vencimiento), con su total. " +
-      "totalWithProjected suma las dos.",
+      "cron todavía no emitió (los emite la noche anterior a cada vencimiento), con su total; " +
+      "projected.missed: cobros cuyo día el cron ya pasó sin emitirlos, que no van a llegar solos. " +
+      "totalWithProjected suma emitidas y proyectadas, sin las perdidas.",
     inputSchema: {
       days: z.number().int().min(0).max(365).optional().describe("Ventana en días desde hoy (default 14)."),
     },
@@ -152,8 +154,9 @@ server.registerTool(
   {
     title: "Ficha de un cliente",
     description:
-      "Un cliente por id o por nombre: plan, facturas abiertas, última pagada, comprobantes " +
-      "esperando revisión y totales. Si el nombre coincide con varios, devuelve la lista para elegir.",
+      "Un cliente por id o por nombre (sin importar tildes ni orden de las palabras): plan, " +
+      "facturas abiertas, última pagada, comprobantes esperando revisión y totales. Si el nombre " +
+      "coincide con varios, devuelve la lista para elegir.",
     inputSchema: {
       clientId: z.string().optional(),
       clientName: z.string().optional().describe("Búsqueda parcial por nombre o email."),

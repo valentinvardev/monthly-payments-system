@@ -45,6 +45,16 @@ Preguntas que un agente puede contestar sólo con esto: *«¿quién me debe?»*,
   el cron va a emitir en la ventana y todavía no tienen factura. El cron emite
   cada factura la noche anterior a su vencimiento, así que sin esto "lo que
   vence esta semana" vería sólo lo ya emitido.
+- **`projected.missed`** y **`plan.missedBills`**: cobros cuyo día el cron ya
+  procesó sin emitir la factura (falló esa noche, se borró la factura, se
+  cambió el plan). El cron no recupera días salteados, así que no llegan solos:
+  hay que generarlos desde el panel. No se suman a lo que va a entrar. El corte
+  asume que el cron corre a las 01:55 UTC, que es cuando corre hoy
+  (`CRON_RUN_UTC_MINUTES` en `dates.ts`).
+- **`truncated`** en `list_invoices`: hay más facturas que `limit`; `count`
+  es lo que vino, no el total.
+- **`clientName`**: busca en nombre y mail, sin importar mayúsculas, tildes ni
+  el orden de las palabras.
 - **`payments_summary`**: `pending` (emitidas, no vencidas) y `overdue`
   (vencidas) son disjuntas y juntas son todo lo abierto. `proofUnderReview` no
   se suma: es un subconjunto de esas dos.
@@ -60,8 +70,10 @@ matchea devuelve listas vacías, no errores. Una fecha que no existe
 "Hoy" es el día de calendario en **America/Argentina/Buenos_Aires**. Los
 vencimientos de la base están guardados a la medianoche UTC del día que
 representan (el app corre en UTC), así que se leen por su fecha UTC y se
-comparan en días enteros. Los instantes (`createdAt`, `paidAt`) sí se pasan a
-Buenos Aires.
+comparan en días enteros. Los instantes (`paidAt`, `payment.at`,
+`submittedAt`) salen en UTC con su día de Buenos Aires al lado (`paidOn`,
+`payment.on`, `submittedOn`), y `since` de un cliente ya es el día de Buenos
+Aires.
 
 El server fija `TZ=UTC` en su proceso para reusar las reglas del app, que
 calculan en hora local. Si esas funciones se llaman desde otro proceso sin

@@ -7,6 +7,7 @@ import {
   cronBillDays,
   daysDelta,
   dayToDate,
+  firstUnprocessedDay,
   isoDay,
   monthBounds,
   nextCronBillDay,
@@ -139,13 +140,17 @@ export function shapeInvoice(inv: InvoiceRecord, today: Today) {
     daysDelta: open ? delta : null,
     daysOverdue: open && delta < 0 ? -delta : null,
     daysUntilDue: open && delta >= 0 ? delta : null,
+    // Los instantes salen en UTC, con el día de Buenos Aires al lado: un
+    // pago de las 22:00 es del día que el cliente vivió, no del siguiente.
     paidAt: inv.paidAt?.toISOString() ?? null,
+    paidOn: inv.paidAt ? baIsoDay(inv.paidAt) : null,
     payment: shown
       ? {
           method: shown.method,
           status: shown.status,
           amount: num(shown.amountUsd),
           at: (shown.confirmedAt ?? shown.createdAt).toISOString(),
+          on: baIsoDay(shown.confirmedAt ?? shown.createdAt),
         }
       : null,
     // Pagada sin un pago registrado: el admin la marcó pagada a mano
@@ -190,7 +195,18 @@ function planSummary(
 ) {
   // El cron sólo factura planes activos de clientes activos.
   const billing = p.active && clientActive;
-  const next = billing ? nextCronBillDay(p.frequency, p.anchorDate, today.day) : null;
+  const key = (d: Date) => `${clientId}:${storedDay(d)}`;
+
+  // Si el cron ya pasó por el día del cobro y no lo emitió (falló esa
+  // noche, se borró la factura, se cambió el plan después), ese cobro no
+  // va a llegar solo. Se informa aparte y el próximo es el siguiente.
+  const cutoff = firstUnprocessedDay();
+  const missed: string[] = [];
+  let next = billing ? nextCronBillDay(p.frequency, p.anchorDate, today.day) : null;
+  while (next && storedDay(next) < cutoff && !invoiced.has(key(next))) {
+    missed.push(isoDay(next));
+    next = nextCronBillDay(p.frequency, p.anchorDate, storedDay(next) + 1);
+  }
   const afterEnd = Boolean(next && p.endDate && storedDay(next) > storedDay(p.endDate));
   return {
     description: p.description,
@@ -202,7 +218,14 @@ function planSummary(
     active: p.active,
     billing,
     nextDueDate: next ? isoDay(next) : null,
-    nextAlreadyInvoiced: next ? invoiced.has(`${clientId}:${storedDay(next)}`) : null,
+    nextAlreadyInvoiced: next ? invoiced.has(key(next)) : null,
+    ...(missed.length
+      ? {
+          missedBills: missed,
+          missedNote:
+            "El cron ya pasó por estos días y no emitió la factura: no va a llegar sola, hay que generarla desde el panel.",
+        }
+      : {}),
     ...(afterEnd
       ? {
           warning:
@@ -235,7 +258,8 @@ async function projectedBills(today: Today, days: number) {
     to,
   );
 
-  const bills = plans.flatMap((p) =>
+  const cutoff = firstUnprocessedDay();
+  const pending = plans.flatMap((p) =>
     cronBillDays(p.frequency, p.anchorDate, from, to)
       .filter((d) => !invoiced.has(`${p.clientId}:${storedDay(d)}`))
       .map((d) => ({
@@ -251,17 +275,36 @@ async function projectedBills(today: Today, days: number) {
         ...clientLinks(p.clientId),
       })),
   );
-  bills.sort((a, b) => a.dueDate.localeCompare(b.dueDate) || a.client.localeCompare(b.client));
+  pending.sort((a, b) => a.dueDate.localeCompare(b.dueDate) || a.client.localeCompare(b.client));
+
+  // Lo que el cron todavía va a procesar viene; lo que ya pasó sin factura
+  // se perdió y no se suma a lo que va a entrar.
+  const bills = pending.filter((b) => storedDay(parseIsoDay(b.dueDate)) >= cutoff);
+  const lost = pending.filter((b) => storedDay(parseIsoDay(b.dueDate)) < cutoff);
+  const total = (xs: { amount: number }[]) => round2(xs.reduce((s, b) => s + b.amount, 0));
   return {
     count: bills.length,
-    amount: round2(bills.reduce((s, b) => s + b.amount, 0)),
+    amount: total(bills),
     bills,
+    missed: {
+      count: lost.length,
+      amount: total(lost),
+      bills: lost,
+      ...(lost.length
+        ? { note: "El cron ya pasó por estos días y no emitió la factura: hay que generarla desde el panel." }
+        : {}),
+    },
   };
 }
 
 // ---- Clientes ---------------------------------------------------------------
 
 const MATCH_LIMIT = 50;
+
+// Minúsculas y sin tildes: "Raúl" encuentra a "Raul" y al revés.
+function fold(s: string) {
+  return s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+}
 
 async function resolveClient(input: { clientId?: string; clientName?: string }) {
   if (input.clientId) {
@@ -275,18 +318,18 @@ async function resolveClient(input: { clientId?: string; clientName?: string }) 
       truncated: false,
     };
   }
-  if (input.clientName) {
-    const q = input.clientName.trim();
-    const found = await db.client.findMany({
-      where: {
-        OR: [
-          { fullName: { contains: q, mode: "insensitive" } },
-          { email: { contains: q, mode: "insensitive" } },
-        ],
-      },
+  const tokens = input.clientName ? fold(input.clientName).split(/\s+/).filter(Boolean) : [];
+  if (tokens.length > 0) {
+    // Se compara en código y no con ILIKE, que distingue tildes: la tabla
+    // de clientes es chica y así cada palabra puede estar en cualquier
+    // orden ("Guevara Juan" encuentra a "juan cruz guevara").
+    const all = await db.client.findMany({
       select: { id: true, fullName: true, email: true },
       orderBy: { fullName: "asc" },
-      take: MATCH_LIMIT + 1,
+    });
+    const found = all.filter((c) => {
+      const haystack = fold(`${c.fullName} ${c.email}`);
+      return tokens.every((t) => haystack.includes(t));
     });
     const truncated = found.length > MATCH_LIMIT;
     const kept = found.slice(0, MATCH_LIMIT);
@@ -386,16 +429,21 @@ export async function listInvoices(input: {
   if (input.underReview === false) and.push({ payments: { none: { status: "PENDING_REVIEW" } } });
 
   const limit = Math.min(Math.max(input.limit ?? 50, 1), 200);
-  const rows = await db.invoice.findMany({
+  const fetched = await db.invoice.findMany({
     where: and.length ? { AND: and } : {},
     orderBy: { dueDate: "desc" },
-    take: limit,
+    take: limit + 1,
     select: invoiceSelect,
   });
+  // Una fila de más para saber si hay más: sin esto, una lista cortada en
+  // el límite se lee como completa y count parece el total.
+  const truncated = fetched.length > limit;
+  const rows = fetched.slice(0, limit);
   return {
     today: today.iso,
     count: rows.length,
     limit,
+    truncated,
     ...clientInfo,
     invoices: rows.map((r) => shapeInvoice(r, today)),
   };
@@ -546,6 +594,7 @@ export async function getClient(input: { clientId?: string; clientName?: string 
         hasProof: Boolean(pay.proofUrl),
         notes: pay.notes,
         submittedAt: pay.createdAt.toISOString(),
+        submittedOn: baIsoDay(pay.createdAt),
       })),
       ...clientLinks(c.id),
     },
@@ -595,8 +644,10 @@ export async function paymentsSummary(input: { upcomingDays?: number }) {
       days,
       until: isoDay(dayToDate(today.day + days)),
       ...bucket(upcoming),
-      // Cobros de planes en la ventana que el cron todavía no emitió.
+      // Cobros de planes en la ventana que el cron todavía no emitió, y
+      // los que ya pasó sin emitir (no llegan solos; no se suman).
       projected: { count: projected.count, amount: projected.amount },
+      missed: { count: projected.missed.count, amount: projected.missed.amount },
     },
   };
 }

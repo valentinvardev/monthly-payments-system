@@ -151,6 +151,24 @@ export function cronBillDays(
   return out;
 }
 
+// El worker del cron (cron-worker.mjs en PM2) dispara cada 24 horas desde
+// que arrancó. En producción corre a las 01:55 UTC, 22:55 en Buenos Aires:
+// es la hora de creación de todas las facturas recurrentes de la base. Su
+// corrida del día UTC X es la única que puede emitir los cobros del día X,
+// y no recupera días salteados. Si el worker se reinicia a otra hora, esto
+// se corre, y durante unas horas un cobro de mañana puede figurar como
+// perdido cuando todavía viene, o al revés.
+export const CRON_RUN_UTC_MINUTES = 1 * 60 + 55;
+
+// Primer día que el cron todavía no procesó. Un cobro de un día anterior
+// que no tenga factura ya no se va a emitir solo: hay que generarlo a mano.
+// Cinco minutos de margen por lo que tarda la corrida.
+export function firstUnprocessedDay(now: Date = new Date()): number {
+  const utcDay = Math.floor(now.getTime() / DAY_MS);
+  const minutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+  return minutes >= CRON_RUN_UTC_MINUTES + 5 ? utcDay + 1 : utcDay;
+}
+
 // Primer día desde fromDay en que el cron facturaría el plan. El
 // horizonte cubre un plan anual; más allá no hay nada que predecir.
 export function nextCronBillDay(
