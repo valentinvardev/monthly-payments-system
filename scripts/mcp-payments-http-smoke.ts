@@ -38,6 +38,16 @@ async function main() {
   if (token.length < 32) throw new Error("Falta MCP_TOKEN (32 caracteres o más) en el entorno.");
   console.log(`contra ${url}`);
 
+  // Los dos errores de configuración más comunes, dichos en una línea en
+  // vez de un volcado de HTML.
+  const probe = await raw("POST", { Authorization: `Bearer ${token}` });
+  if (probe === 404) {
+    throw new Error("La ruta no existe en ese server (404): el deploy con /api/mcp todavía no está corriendo.");
+  }
+  if (probe === 503) {
+    throw new Error("La ruta existe pero está cerrada (503): falta MCP_TOKEN en el .env del server, o reiniciar el app.");
+  }
+
   // ---- la puerta
   check("sin token: 401", (await raw("POST")) === 401);
   check("token inválido: 401", (await raw("POST", { Authorization: "Bearer " + "x".repeat(40) })) === 401);
