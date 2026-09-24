@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "surcodia-payments": {
+      "command": "node",
+      "args": ["--env-file=.env", "--import", "tsx", "mcp/payments/server.ts"],
+      "env": {
+        "MCP_APP_URL": "https://surcodia.com"
+      }
+    }
+  }
+}

@@ -11,10 +11,13 @@
     "postinstall": "prisma generate",
     "db:reset": "prisma migrate reset",
     "assets:pixel": "node --env-file=.env scripts/generate-assets.mjs",
-    "prospects:import": "tsx --env-file=.env scripts/import-prospects.ts prospectos-argentina.xlsx"
+    "prospects:import": "tsx --env-file=.env scripts/import-prospects.ts prospectos-argentina.xlsx",
+    "mcp:payments": "node --env-file=.env --import tsx mcp/payments/server.ts",
+    "mcp:payments:smoke": "node --env-file=.env --import tsx scripts/mcp-payments-smoke.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
+    "@modelcontextprotocol/sdk": "^1.30.1",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@react-email/components": "^1.0.12",
