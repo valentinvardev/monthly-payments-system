@@ -3,14 +3,15 @@
 import { useEffect, type RefObject } from "react";
 
 // Abre y cierra un <dialog class="mobile-nav-dialog"> (los drawers del
-// sitio) animando también la salida. showModal()/close() son instantáneos:
-// para que el panel se vaya deslizando, al cerrar se marca el dialog con
-// data-closing (globals.css corre la animación de salida) y recién cuando
-// termina se llama a close().
+// sitio) con un slide que entra y sale. La animación está en globals.css
+// y se maneja con data-state en el dialog:
 //
-// Sólo se anima donde globals.css anima (md+ y sin reduced motion). En
-// teléfono el cierre sigue siendo instantáneo, como la apertura.
-const ANIMATED = "(min-width: 768px) and (prefers-reduced-motion: no-preference)";
+//   abrir:  showModal() con el panel afuera ("closed"), y dos frames
+//           después "open". El primer frame, el caro, se pinta con el
+//           panel quieto; recién después arranca el movimiento, así no se
+//           pierden los primeros cuadros del slide.
+//   cerrar: "closing" y close() cuando el panel terminó de salir.
+const EXIT_FALLBACK_MS = 380;
 
 export function useDrawerDialog(ref: RefObject<HTMLDialogElement | null>, open: boolean) {
   useEffect(() => {
@@ -18,37 +19,48 @@ export function useDrawerDialog(ref: RefObject<HTMLDialogElement | null>, open: 
     if (!d) return;
 
     if (open) {
-      d.removeAttribute("data-closing");
-      if (!d.open) d.showModal();
-      return;
+      if (!d.open) {
+        d.dataset.state = "closed";
+        d.showModal();
+      }
+      let second = 0;
+      const first = requestAnimationFrame(() => {
+        second = requestAnimationFrame(() => {
+          d.dataset.state = "open";
+        });
+      });
+      return () => {
+        cancelAnimationFrame(first);
+        cancelAnimationFrame(second);
+      };
     }
 
     if (!d.open) return;
-    if (!window.matchMedia(ANIMATED).matches) {
-      d.close();
-      return;
-    }
-
-    const panel = d.querySelector(":scope > aside");
+    const panel = d.querySelector<HTMLElement>(":scope > aside");
     let done = false;
     const finish = () => {
       if (done) return;
       done = true;
-      d.removeAttribute("data-closing");
       d.close();
+      d.dataset.state = "closed";
     };
-    // animationend burbujea: sólo cuenta la del panel, no la de un hijo.
-    const onEnd = (e: Event) => {
-      if (e.target === panel) finish();
-    };
+    if (!panel || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      finish();
+      return;
+    }
 
-    d.setAttribute("data-closing", "");
-    panel?.addEventListener("animationend", onEnd);
-    // Por si la animación no corre (pestaña oculta, CSS distinto).
-    const timer = window.setTimeout(finish, 450);
+    // transitionend burbujea: sólo cuenta el transform del panel.
+    const onEnd = (e: TransitionEvent) => {
+      if (e.target === panel && e.propertyName === "transform") finish();
+    };
+    d.dataset.state = "closing";
+    panel.addEventListener("transitionend", onEnd);
+    // Por si la transición no corre (pestaña oculta, se cerró antes de
+    // terminar de entrar).
+    const timer = window.setTimeout(finish, EXIT_FALLBACK_MS);
 
     return () => {
-      panel?.removeEventListener("animationend", onEnd);
+      panel.removeEventListener("transitionend", onEnd);
       window.clearTimeout(timer);
     };
   }, [ref, open]);
