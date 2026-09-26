@@ -115,6 +115,7 @@ export default async function StudioLanding() {
   const cases = [
     {
       href: "/casos/halley",
+      shot: "/previews/halley-audiovisual.jpg",
       tag: s.caseHalleyTag,
       title: s.caseHalleyTitle,
       body: s.caseHalleyBody,
@@ -126,6 +127,7 @@ export default async function StudioLanding() {
     },
     {
       href: "/casos/stealth-seller",
+      shot: "/previews/stealth-seller.jpg",
       tag: s.caseSsTag,
       title: s.caseSsTitle,
       body: s.caseSsBody,
@@ -336,13 +338,28 @@ export default async function StudioLanding() {
                     <ArrowRight className="h-3.5 w-3.5" aria-hidden />
                   </span>
                 </div>
-                <div className="grid grid-cols-3 gap-px overflow-hidden border border-white/12 bg-white/10">
-                  {c.facts.map((f) => (
-                    <div key={f.label} className="bg-[#131313] p-3 sm:p-5">
-                      <p className="font-display text-xl font-medium tabular-nums text-[#0070F3] sm:text-2xl">{f.value}</p>
-                      <p className="mt-1 text-[11px] text-white/45">{f.label}</p>
-                    </div>
-                  ))}
+                {/* La página real del proyecto, tal como se ve hoy, con los
+                    datos debajo. El link ya se nombra con el título, así que
+                    la imagen no suma texto al lector de pantalla. */}
+                <div className="min-w-0 overflow-hidden border border-white/12 bg-[#131313]">
+                  <div className="overflow-hidden">
+                    <Image
+                      src={c.shot}
+                      alt=""
+                      width={1200}
+                      height={750}
+                      unoptimized
+                      className="block h-auto w-full transition-transform duration-500 ease-out group-hover:scale-[1.02] motion-reduce:transition-none"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-px border-t border-white/12 bg-white/10">
+                    {c.facts.map((f) => (
+                      <div key={f.label} className="bg-[#131313] p-3 sm:p-5">
+                        <p className="font-display text-xl font-medium tabular-nums text-[#0070F3] sm:text-2xl">{f.value}</p>
+                        <p className="mt-1 text-[11px] text-white/45">{f.label}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </Link>
             ))}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { signOut } from "@/app/auth/actions";
+import { useDrawerDialog } from "@/components/useDrawerDialog";
 
 export type MobileNavItem = { href: string; label: string };
 
@@ -31,13 +32,9 @@ export function MobileNav({
 
   // Native <dialog> escapes containing-block traps created by the
   // header's backdrop-filter — `fixed inset-0` alone gets clipped to
-  // the header. showModal() puts the dialog in the top layer.
-  useEffect(() => {
-    const d = dialogRef.current;
-    if (!d) return;
-    if (open && !d.open) d.showModal();
-    if (!open && d.open) d.close();
-  }, [open]);
+  // the header. showModal() puts the dialog in the top layer; the hook
+  // also animates the way out on desktop.
+  useDrawerDialog(dialogRef, open);
 
   // Close on route change.
   useEffect(() => {

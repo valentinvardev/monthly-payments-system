@@ -8,6 +8,7 @@ import {
   BenefitGrid,
   ClosingCta,
   ModelHeader,
+  SiteShot,
   ModelHero,
   NumberedList,
   Prose,
@@ -181,6 +182,12 @@ export default async function CasoHalleyPage() {
           titleA="Cobrarle a 2.000 familias"
           titleB="sin perseguir a ninguna."
           intro="Halley Audiovisual filma egresados en Córdoba. Su operación son 27 colegios y cerca de 2.000 estudiantes, cada uno con un plan de cuotas mensuales que arranca dos o tres años antes del evento. Construí el sistema que sostiene ese ciclo entero: de la primera cuota a la entrega del material."
+        />
+
+        <SiteShot
+          src="/previews/halley-audiovisual.jpg"
+          domain="halleyaudiovisual.com"
+          href="https://halleyaudiovisual.com"
         />
 
         <FactsRow />

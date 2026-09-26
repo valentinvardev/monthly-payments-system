@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { ArrowUpRight, CircleDot, Code2, X } from "lucide-react";
 import type { StudioProject } from "@/lib/studio/content";
 import { ACCENT_HEX } from "@/lib/studio/accents";
 import type { Locale, StudioStrings } from "@/lib/studio/i18n";
 import { StackBadge } from "@/components/studio/TechBadges";
+import { useDrawerDialog } from "@/components/useDrawerDialog";
 
 // Glyph del proyecto: el logo real si está cargado, si no un cuadrado
 // con la inicial en el acento del proyecto (mismo criterio que el
@@ -71,12 +72,16 @@ export function ProjectItem({
   const ref = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    const d = ref.current;
-    if (!d) return;
-    if (open && !d.open) d.showModal();
-    if (!open && d.open) d.close();
-  }, [open]);
+  useDrawerDialog(ref, open);
+
+  // La captura se decodifica al pasar por la tarjeta, no durante el slide:
+  // decodificarla a mitad de la animación era lo que la trababa.
+  const warmPreview = () => {
+    if (!preview) return;
+    const img = new window.Image();
+    img.src = preview;
+    img.decode?.().catch(() => {});
+  };
 
   const short = locale === "en" && p.shortEn ? p.shortEn : p.short;
   const long = (locale === "en" && p.longEn ? p.longEn : p.long) || short;
@@ -87,6 +92,8 @@ export function ProjectItem({
       <button
         type="button"
         onClick={() => setOpen(true)}
+        onPointerEnter={warmPreview}
+        onFocus={warmPreview}
         className="group flex h-full flex-col rounded-lg border border-white/12 bg-[#0f0f0f] p-5 text-left transition-colors hover:border-white/25"
       >
         <Glyph p={p} />

@@ -98,6 +98,50 @@ export function CostBlock({ from = "USD 50", note }: { from?: string; note: stri
   );
 }
 
+// Captura de la página de inicio del proyecto, tal como se ve hoy. Las
+// capturas viven en public/previews/<slug>.jpg (1200×750, las mismas del
+// drawer de "Otros productos").
+export function SiteShot({
+  src,
+  domain,
+  href,
+}: {
+  src: string;
+  domain: string;
+  href?: string;
+}) {
+  const caption = `Página de inicio de ${domain}`;
+  return (
+    <figure className="reveal mt-10" style={{ animationDelay: "90ms" }}>
+      <div className="overflow-hidden border border-white/12 bg-[#0f0f0f]">
+        <Image
+          src={src}
+          alt={caption}
+          width={1200}
+          height={750}
+          unoptimized
+          className="block aspect-[16/9] h-auto w-full object-cover object-top"
+        />
+      </div>
+      <figcaption className="mt-3 text-[12px] text-white/50">
+        {href ? (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 transition hover:text-white/85"
+          >
+            {caption}
+            <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+          </a>
+        ) : (
+          caption
+        )}
+      </figcaption>
+    </figure>
+  );
+}
+
 export function SectionHead({ n, title }: { n: string; title: string }) {
   return (
     <div className="mb-5 flex items-baseline gap-3">

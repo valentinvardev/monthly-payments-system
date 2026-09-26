@@ -292,23 +292,51 @@ dialog.mobile-nav-dialog::backdrop {
   background: rgb(0 0 0 / 0.8);
 }
 
-/* En DESKTOP (md+): fade del backdrop + slide del panel. */
+/* El scroll del panel no se pasa a la página de atrás al llegar al final. */
+dialog.mobile-nav-dialog > aside {
+  overscroll-behavior: contain;
+}
+
+/* En DESKTOP (md+): el panel entra deslizándose y sale igual.
+   - Entrada larga con curva que desacelera (la de las hojas de iOS): arranca
+     rápido y se asienta suave, en vez de frenar de golpe.
+   - Salida más corta y acelerando: el panel se va, no se arrastra.
+   - Sólo transform y opacity, en capa propia (translate3d + will-change):
+     la anima el compositor sin repintar el contenido.
+   - La salida la dispara data-closing, que pone useDrawerDialog antes de
+     llamar a close(). PixelBackdrop se pausa mientras haya un dialog
+     abierto para no competir por frames. */
 @media (min-width: 768px) {
   dialog.mobile-nav-dialog::backdrop {
-    background: rgb(0 0 0 / 0.7);
-    animation: mobile-nav-fade 240ms ease;
+    background: rgb(0 0 0 / 0.6);
+    animation: drawer-fade-in 420ms cubic-bezier(0.32, 0.72, 0, 1) both;
   }
   dialog.mobile-nav-dialog[open] > aside {
-    animation: mobile-nav-slide 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    animation: drawer-slide-in 420ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    will-change: transform;
+  }
+  dialog.mobile-nav-dialog[open][data-closing]::backdrop {
+    animation: drawer-fade-out 260ms cubic-bezier(0.3, 0, 0.8, 0.15) both;
+  }
+  dialog.mobile-nav-dialog[open][data-closing] > aside {
+    animation: drawer-slide-out 260ms cubic-bezier(0.3, 0, 0.8, 0.15) both;
   }
 }
-@keyframes mobile-nav-slide {
-  from { transform: translateX(100%); }
-  to   { transform: translateX(0); }
+@keyframes drawer-slide-in {
+  from { transform: translate3d(100%, 0, 0); }
+  to   { transform: translate3d(0, 0, 0); }
 }
-@keyframes mobile-nav-fade {
+@keyframes drawer-slide-out {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(100%, 0, 0); }
+}
+@keyframes drawer-fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+@keyframes drawer-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   dialog.mobile-nav-dialog[open] > aside,

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import type { Locale } from "@/lib/studio/i18n";
 import { LangToggle } from "@/components/studio/LangToggle";
+import { useDrawerDialog } from "@/components/useDrawerDialog";
 
 export type StudioNavItem = { href: string; label: string };
 
@@ -31,12 +32,7 @@ export function StudioMobileMenu({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    const d = dialogRef.current;
-    if (!d) return;
-    if (open && !d.open) d.showModal();
-    if (!open && d.open) d.close();
-  }, [open]);
+  useDrawerDialog(dialogRef, open);
 
   useEffect(() => {
     setOpen(false);

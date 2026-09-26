@@ -88,6 +88,13 @@ export function PixelBackdrop() {
 
     function loop(t: number) {
       if (!running) return;
+      // Con un drawer abierto el cielo queda tapado: no se dibuja, así el
+      // slide del panel tiene todos los frames para él.
+      if (document.querySelector("dialog[open]")) {
+        lastTime = 0;
+        raf = requestAnimationFrame(loop);
+        return;
+      }
       const dt = lastTime ? Math.min((t - lastTime) / 1000, 0.05) : 0;
       if (t - lastTime > 33 || !lastTime) {
         lastTime = t;

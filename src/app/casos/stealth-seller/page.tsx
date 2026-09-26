@@ -13,6 +13,7 @@ import {
   ModelHero,
   Prose,
   SectionHead,
+  SiteShot,
   type Benefit,
   type ModelSection,
 } from "@/components/studio/model-page";
@@ -140,6 +141,8 @@ export default async function CasoStealthSellerPage() {
           Visitar stealthseller.co
           <ArrowUpRight className="h-3.5 w-3.5 text-white/50" aria-hidden />
         </a>
+
+        <SiteShot src="/previews/stealth-seller.jpg" domain="stealthseller.co" />
 
         <FactsRow />
 
