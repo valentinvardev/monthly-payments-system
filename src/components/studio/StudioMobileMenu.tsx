@@ -17,11 +17,15 @@ export function StudioMobileMenu({
   locale,
   loginHref,
   loginLabel,
+  buttonClassName = "sm:hidden",
 }: {
   items: StudioNavItem[];
   locale: Locale;
   loginHref: string;
   loginLabel: string;
+  /** Desde qué ancho se esconde el botón. La landing lo muestra hasta lg
+   *  porque entre sm y lg su header no tiene lugar para las secciones. */
+  buttonClassName?: string;
 }) {
   const pathname = usePathname();
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -44,7 +48,7 @@ export function StudioMobileMenu({
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Abrir menú"
-        className="inline-flex h-9 w-9 items-center justify-center border border-white/15 bg-white/[0.04] text-white/85 transition hover:bg-white/[0.09] sm:hidden"
+        className={`inline-flex h-9 w-9 shrink-0 items-center justify-center border border-white/15 bg-white/[0.04] text-white/85 transition hover:bg-white/[0.09] ${buttonClassName}`}
       >
         <Menu className="h-4 w-4" />
       </button>
@@ -66,12 +70,7 @@ export function StudioMobileMenu({
           className="ml-auto flex h-full w-[84%] max-w-[300px] flex-col border-l border-white/12 bg-[#0d0d0c]"
         >
           <header className="flex items-center justify-between border-b border-white/8 px-5 py-4">
-            <span className="text-white">
-              <span className="font-pixel text-[13px]">surcodia</span>
-              <span className="ml-2 text-[9px] font-medium uppercase tracking-[0.38em] text-white/45">
-                studio
-              </span>
-            </span>
+            <span className="font-pixel text-[13px] text-white">surcodia</span>
             <button
               type="button"
               onClick={() => setOpen(false)}

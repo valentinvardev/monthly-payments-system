@@ -29,11 +29,11 @@ const silkscreen = Silkscreen({
 
 export const metadata: Metadata = {
   title: {
-    default: "Surcodia Studio",
-    template: "%s · Surcodia",
+    default: "SurCodia",
+    template: "%s · SurCodia",
   },
   description:
-    "Estudio de desarrollo de software: e-commerce, plataformas para fotógrafos y herramientas con IA.",
+    "SurCodia es cómo Valentín Varela entra a tu operación, encuentra dónde se pierde tiempo o plata, y construye la solución.",
 };
 
 export default function RootLayout({

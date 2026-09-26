@@ -107,17 +107,15 @@ export function CruxMark({
   );
 }
 
-// Lockup de marca para headers del studio: monograma + "surcodia" en
-// tipografía pixel (Silkscreen) + "studio" en sans. Server-safe.
+// Lockup de marca para los headers: monograma + "surcodia" en tipografía
+// pixel (Silkscreen). Sin "studio": SurCodia es el servicio, no un estudio.
+// Server-safe.
 export function StudioBrand() {
   return (
     <span className="flex items-center gap-2.5">
       <SMonogram size={22} color="#fafafa" />
       <span className="font-pixel text-[13px] tracking-[0.02em] text-[#fafafa]">
         surcodia
-      </span>
-      <span className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.38em] text-white/45">
-        studio
       </span>
     </span>
   );

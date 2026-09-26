@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getLocale } from "@/lib/studio/i18n";
+import { getOtherProjects } from "@/lib/studio/content";
 import { PixelBackdrop } from "@/components/studio/PixelBackdrop";
 import { TocNav } from "@/components/studio/TocNav";
 import {
@@ -18,14 +19,14 @@ import {
 export const metadata: Metadata = {
   title: "Caso Halley: cobrarle a 2.000 familias sin perseguir a ninguna",
   description:
-    "Cómo resolvimos la cobranza en cuotas de una productora de egresados que opera 27 colegios y cerca de 2.000 estudiantes: imputación derivada, dos pasarelas de pago y entrega condicionada al saldo.",
+    "Cómo construí el sistema de cobranza en cuotas de una productora de egresados que opera 27 colegios y cerca de 2.000 estudiantes: imputación derivada, dos pasarelas de pago y entrega condicionada al saldo.",
 };
 
 // La página está partida en dos mitades. Las secciones 01-03 son para quien
 // tiene el problema (administración, cobranzas) y cierran con el CTA, para
 // que ese lector no tenga que atravesar el detalle técnico para llegar a
-// contactarnos. Las 04-07 son la prueba de profundidad, para quien quiera
-// ver cómo está hecho antes de confiarnos su cobranza.
+// pedir el diagnóstico. Las 04-07 son la prueba de profundidad, para quien
+// quiera ver cómo está hecho antes de confiar su cobranza.
 const SECTIONS: ModelSection[] = [
   { id: "problema", n: "01", label: "El problema" },
   { id: "sistema", n: "02", label: "Qué se construyó" },
@@ -95,7 +96,7 @@ const HALLAZGOS: Benefit[] = [
   },
   {
     title: "Un Content-Type en un GET devuelve HTTP 500",
-    body: "Enviarlo es lo que hace cualquier cliente HTTP por costumbre. Con ese encabezado puesto, ninguna transferencia se habría podido confirmar nunca — y el síntoma habría sido «el sistema no ve los pagos», que se investiga por el lado equivocado durante días.",
+    body: "Enviarlo es lo que hace cualquier cliente HTTP por costumbre. Con ese encabezado puesto, ninguna transferencia se habría podido confirmar nunca, y el síntoma habría sido «el sistema no ve los pagos», que se investiga por el lado equivocado durante días.",
   },
   {
     title: "El campo del monto es el neto, no el bruto",
@@ -167,7 +168,7 @@ function PartDivider() {
 }
 
 export default async function CasoHalleyPage() {
-  const locale = await getLocale();
+  const [locale, others] = await Promise.all([getLocale(), getOtherProjects()]);
 
   return (
     <div className="relative min-h-screen overflow-x-clip bg-[#0a0a0a] text-[#fafafa]">
@@ -179,7 +180,7 @@ export default async function CasoHalleyPage() {
           eyebrow="CASO DE CLIENTE · COBRANZA EN CUOTAS"
           titleA="Cobrarle a 2.000 familias"
           titleB="sin perseguir a ninguna."
-          intro="Halley Audiovisual filma egresados en Córdoba. Su operación son 27 colegios y cerca de 2.000 estudiantes, cada uno con un plan de cuotas mensuales que arranca dos o tres años antes del evento. Construimos el sistema que sostiene ese ciclo entero: de la primera cuota a la entrega del material."
+          intro="Halley Audiovisual filma egresados en Córdoba. Su operación son 27 colegios y cerca de 2.000 estudiantes, cada uno con un plan de cuotas mensuales que arranca dos o tres años antes del evento. Construí el sistema que sostiene ese ciclo entero: de la primera cuota a la entrega del material."
         />
 
         <FactsRow />
@@ -197,7 +198,7 @@ export default async function CasoHalleyPage() {
                   Cada mes hay que decirle a dos mil familias cuánto deben, cobrarles por
                   transferencia, mirar el extracto bancario, cruzar cada depósito contra un
                   apellido, anotarlo en una planilla, avisarle al que pagó, perseguir al que no
-                  y —cuando el plan termina— entregarle el material a la familia correcta y a
+                  y, cuando el plan termina, entregarle el material a la familia correcta y a
                   nadie más.
                 </p>
                 <p>
@@ -237,8 +238,9 @@ export default async function CasoHalleyPage() {
                 </p>
               </Prose>
               <ClosingCta
+                locale={locale}
                 title="¿Cuánto no estás cobrando?"
-                body="Contanos cuántos pagadores tenés, cómo cobrás hoy y qué parte se hace a mano. Con eso te decimos qué se puede automatizar primero y cuánto cuesta, en el día."
+                body="Contame cuántos pagadores tenés, cómo cobrás hoy y qué parte se hace a mano. Con eso preparo el diagnóstico: una reunión y tres mejoras con impacto, empezando por la cobranza. Te respondo en el día."
               />
             </section>
 
@@ -308,8 +310,8 @@ export default async function CasoHalleyPage() {
                   repartidas por el código no lo son.
                 </p>
                 <p>
-                  La misma auditoría destapó, de paso, que la política de seguridad del navegador
-                  —puesta por nosotros unos días antes— estaba bloqueando todas las subidas de
+                  La misma auditoría destapó, de paso, que la política de seguridad del navegador,
+                  puesta por mí unos días antes, estaba bloqueando todas las subidas de
                   archivos. Nadie lo había notado porque el síntoma parecía otro: la vitrina vacía
                   se leía como «todavía no subimos nada».
                 </p>
@@ -345,29 +347,31 @@ export default async function CasoHalleyPage() {
                 Seguir mirando
               </p>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                {others.length > 0 && (
+                  <Link
+                    href="/#proyectos"
+                    className="group flex items-center justify-between gap-4 rounded-lg border border-white/12 bg-[#0f0f0f] p-5 transition-colors hover:border-white/25"
+                  >
+                    <span className="min-w-0">
+                      <span className="block text-[15px] font-semibold tracking-[-0.02em] text-white/95">
+                        Otros productos
+                      </span>
+                      <span className="mt-1 block text-[13px] text-white/50">
+                        Lo que construí de punta a punta
+                      </span>
+                    </span>
+                  </Link>
+                )}
                 <Link
-                  href="/#proyectos"
+                  href="/casos/stealth-seller"
                   className="group flex items-center justify-between gap-4 rounded-lg border border-white/12 bg-[#0f0f0f] p-5 transition-colors hover:border-white/25"
                 >
                   <span className="min-w-0">
                     <span className="block text-[15px] font-semibold tracking-[-0.02em] text-white/95">
-                      Otros proyectos
+                      Caso Stealth Seller
                     </span>
                     <span className="mt-1 block text-[13px] text-white/50">
-                      Lo que construimos hasta ahora
-                    </span>
-                  </span>
-                </Link>
-                <Link
-                  href="/modelo-hibrido"
-                  className="group flex items-center justify-between gap-4 rounded-lg border border-white/12 bg-[#0f0f0f] p-5 transition-colors hover:border-white/25"
-                >
-                  <span className="min-w-0">
-                    <span className="block text-[15px] font-semibold tracking-[-0.02em] text-white/95">
-                      Modelos de negocio
-                    </span>
-                    <span className="mt-1 block text-[13px] text-white/50">
-                      Cómo se arma cada tipo de plataforma
+                      Product engineering para revendedores de Amazon
                     </span>
                   </span>
                 </Link>

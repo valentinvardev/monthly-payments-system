@@ -63,6 +63,15 @@ export async function getAllProjects(): Promise<StudioProject[]> {
   }
 }
 
+// Los proyectos con caso propio en /casos salen arriba en la landing, con
+// más detalle; en "Otros productos" quedarían repetidos. Las páginas de
+// casos usan la misma lista para decidir si linkean a /#proyectos.
+const CASE_SLUGS = new Set(["halley-audiovisual", "stealth-seller"]);
+
+export async function getOtherProjects(): Promise<StudioProject[]> {
+  return (await getAllProjects()).filter((p) => !CASE_SLUGS.has(p.slug));
+}
+
 export { ACCENT_HEX } from "./accents";
 
 // Assets pixel por nicho (generados con scripts/generate-assets.mjs).

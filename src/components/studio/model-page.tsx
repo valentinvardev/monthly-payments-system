@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import type { Locale } from "@/lib/studio/i18n";
+import { t, type Locale } from "@/lib/studio/i18n";
 import { StudioBrand } from "@/components/studio/pixel";
 import { LangToggle } from "@/components/studio/LangToggle";
 import { StudioMobileMenu } from "@/components/studio/StudioMobileMenu";
@@ -19,6 +19,7 @@ export function ModelHeader({
   locale: Locale;
   sections: ModelSection[];
 }) {
+  const s = t(locale);
   return (
     <header className="sticky top-0 z-40 border-b border-white/8 bg-[#0a0a0a] md:bg-[#0a0a0a]/85 md:backdrop-blur-sm">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
@@ -27,25 +28,25 @@ export function ModelHeader({
         </Link>
         <nav className="hidden sm:flex items-center gap-2">
           <Link
-            href="/#modelos"
+            href="/#casos"
             className="font-pixel px-3 py-1.5 text-[10px] text-white/55 transition hover:text-white"
           >
-            Modelos
+            {s.navCases}
           </Link>
           <LangToggle locale={locale} />
           <Link
             href="/contanos"
             className="inline-flex h-8 items-center justify-center gap-1.5 bg-[#0070F3] px-3.5 font-pixel text-[10px] text-white transition hover:bg-[#0060d3]"
           >
-            Contanos tu proyecto
+            {s.heroCta}
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </nav>
         <StudioMobileMenu
-          items={sections.map((s) => ({ href: `#${s.id}`, label: s.label }))}
+          items={sections.map((sec) => ({ href: `#${sec.id}`, label: sec.label }))}
           locale={locale}
           loginHref="/contanos"
-          loginLabel="Contanos tu proyecto"
+          loginLabel={s.heroCta}
         />
       </div>
     </header>
@@ -289,7 +290,15 @@ export function IntegrationsSection({ id = "integraciones", n }: { id?: string; 
   );
 }
 
-export function ClosingCta({ title, body }: { title: string; body: string }) {
+export function ClosingCta({
+  title,
+  body,
+  locale = "es",
+}: {
+  title: string;
+  body: string;
+  locale?: Locale;
+}) {
   return (
     <div className="mt-8 rounded-lg border border-white/12 bg-[#0f0f0f] p-8">
       <h3 className="font-display text-2xl font-medium tracking-[-0.025em]">{title}</h3>
@@ -298,7 +307,7 @@ export function ClosingCta({ title, body }: { title: string; body: string }) {
         href="/contanos"
         className="mt-6 inline-flex h-12 items-center justify-center gap-2 bg-[#0070F3] px-6 font-pixel text-[11px] text-white transition hover:bg-[#0060d3]"
       >
-        Contanos tu proyecto
+        {t(locale).heroCta}
         <ArrowRight className="h-4 w-4" />
       </Link>
     </div>

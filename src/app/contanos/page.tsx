@@ -7,9 +7,9 @@ import { LangToggle } from "@/components/studio/LangToggle";
 import { IntakeForm } from "./_components/IntakeForm";
 
 export const metadata: Metadata = {
-  title: "Contanos tu proyecto — Surcodia Studio",
+  title: "Pedir un diagnóstico",
   description:
-    "Contanos qué querés construir: te respondemos en el día con una propuesta concreta.",
+    "Contame qué proceso te está costando tiempo o plata. Preparo el diagnóstico: una reunión y tres mejoras con impacto.",
 };
 
 export default async function ContanosPage() {

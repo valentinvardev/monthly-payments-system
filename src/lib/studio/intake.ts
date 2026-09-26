@@ -14,22 +14,22 @@ export type IntakeOption = {
 export const NICHE_OPTIONS: IntakeOption[] = [
   { value: "fotografia", es: "Fotografía y eventos", en: "Photography & events", pt: "Fotografia e eventos" },
   { value: "ecommerce", es: "E-commerce", en: "E-commerce", pt: "E-commerce" },
-  { value: "ia", es: "IA y automatización", en: "AI & automation", pt: "IA e automação" },
-  { value: "otro", es: "Otro / no estoy seguro", en: "Other / not sure", pt: "Outro / não sei" },
+  { value: "ia", es: "Tecnología y software", en: "Technology and software", pt: "Tecnologia e software" },
+  { value: "otro", es: "Otro rubro", en: "Another industry", pt: "Outro setor" },
 ];
 
 export const PROJECT_TYPE_OPTIONS: IntakeOption[] = [
-  { value: "nuevo", es: "Un sitio o plataforma nueva", en: "A new site or platform", pt: "Um site ou plataforma nova" },
-  { value: "tienda", es: "Una tienda online", en: "An online store", pt: "Uma loja online" },
+  { value: "nuevo", es: "Una herramienta nueva", en: "A new tool", pt: "Uma ferramenta nova" },
+  { value: "tienda", es: "Vender online", en: "Selling online", pt: "Vender online" },
   { value: "sistema", es: "Un sistema a medida", en: "A custom system", pt: "Um sistema sob medida" },
-  { value: "automatizacion", es: "Automatizar procesos con IA", en: "Automating processes with AI", pt: "Automatizar processos com IA" },
-  { value: "mejora", es: "Mejorar algo que ya tengo", en: "Improving something I already have", pt: "Melhorar algo que já tenho" },
+  { value: "automatizacion", es: "Automatizar un proceso con IA", en: "Automating a process with AI", pt: "Automatizar um processo com IA" },
+  { value: "mejora", es: "Mejorar algo que ya uso", en: "Improving something I already use", pt: "Melhorar algo que já uso" },
 ];
 
 export const CURRENT_STATE_OPTIONS: IntakeOption[] = [
-  { value: "nada", es: "Arranco de cero", en: "Starting from scratch", pt: "Começando do zero" },
-  { value: "redes", es: "Solo redes sociales", en: "Social media only", pt: "Só redes sociais" },
-  { value: "sitio", es: "Tengo un sitio que quiero renovar", en: "I have a site I want to renew", pt: "Tenho um site que quero renovar" },
+  { value: "nada", es: "Nada todavía, todo a mano o en planillas", en: "Nothing yet, all by hand or in spreadsheets", pt: "Nada ainda, tudo à mão ou em planilhas" },
+  { value: "redes", es: "Solo WhatsApp y redes", en: "Just WhatsApp and social media", pt: "Só WhatsApp e redes sociais" },
+  { value: "sitio", es: "Un sitio o tienda online", en: "A website or online store", pt: "Um site ou loja online" },
   { value: "sistema", es: "Tengo un sistema que quiero extender", en: "I have a system I want to extend", pt: "Tenho um sistema que quero estender" },
 ];
 
