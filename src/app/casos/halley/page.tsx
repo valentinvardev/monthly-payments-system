@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getLocale } from "@/lib/studio/i18n";
+import { caseLang, getLocale } from "@/lib/studio/i18n";
 import { getOtherProjects } from "@/lib/studio/content";
 import { PixelBackdrop } from "@/components/studio/PixelBackdrop";
 import { TocNav } from "@/components/studio/TocNav";
@@ -13,132 +13,31 @@ import {
   NumberedList,
   Prose,
   SectionHead,
-  type Benefit,
-  type ModelSection,
 } from "@/components/studio/model-page";
+import { HALLEY, type HalleyCopy } from "./copy";
 
-export const metadata: Metadata = {
-  title: "Caso Halley: cobrarle a 2.000 familias sin perseguir a ninguna",
-  description:
-    "Cómo construí el sistema de cobranza en cuotas de una productora de egresados que opera 27 colegios y cerca de 2.000 estudiantes: imputación derivada, dos pasarelas de pago y entrega condicionada al saldo.",
-};
+// El texto vive en copy.tsx, en español y en inglés. Portugués cae en
+// español (ver caseLang).
+export async function generateMetadata(): Promise<Metadata> {
+  const c = HALLEY[caseLang(await getLocale())];
+  return { title: c.meta.title, description: c.meta.description };
+}
 
-// La página está partida en dos mitades. Las secciones 01-03 son para quien
-// tiene el problema (administración, cobranzas) y cierran con el CTA, para
-// que ese lector no tenga que atravesar el detalle técnico para llegar a
-// pedir el diagnóstico. Las 04-07 son la prueba de profundidad, para quien
-// quiera ver cómo está hecho antes de confiar su cobranza.
-const SECTIONS: ModelSection[] = [
-  { id: "problema", n: "01", label: "El problema" },
-  { id: "sistema", n: "02", label: "Qué se construyó" },
-  { id: "cierre", n: "03", label: "Si tu operación es así" },
-  { id: "decisiones", n: "04", label: "Las decisiones que lo sostienen" },
-  { id: "integracion", n: "05", label: "Lo que aparece integrando" },
-  { id: "seguridad", n: "06", label: "La auditoría de seguridad" },
-  { id: "stack", n: "07", label: "Cómo está construido" },
-];
+const Paragraphs = ({ items }: { items: React.ReactNode[] }) => (
+  <Prose>
+    {items.map((p, i) => (
+      <p key={i}>{p}</p>
+    ))}
+  </Prose>
+);
 
-// Los números de la operación del cliente. Van arriba de todo porque es lo
-// que califica al lector: quien gestiona menos de cien pagadores no tiene
-// este problema, y quien gestiona miles se reconoce en la primera línea.
-const FACTS: { value: string; label: string }[] = [
-  { value: "27", label: "colegios" },
-  { value: "~2.000", label: "estudiantes" },
-  { value: "2", label: "pasarelas de pago" },
-  { value: "2-3", label: "años por plan" },
-];
-
-const SISTEMA: Benefit[] = [
-  {
-    title: "Cobros por grupo",
-    body: "Un grupo por colegio y promoción, cada uno con su plan de N cuotas. Los alumnos se cargan uno por uno o pegando una lista completa, que es como llega el padrón en la vida real.",
-  },
-  {
-    title: "Dos proveedores, ruteo por grupo",
-    body: "Talo, con una transferencia a un CVU propio por alumno, y Mercado Pago con Checkout Pro. Cada grupo se rutea a la cuenta que le corresponde cobrar, sin que nadie tenga que elegir a mano.",
-  },
-  {
-    title: "Una cuenta por socio",
-    body: "Cada socio de la productora tiene su cuenta y la plata de cada evento cae donde corresponde. La cuenta de Mercado Pago se vincula con un botón, sin pasar credenciales por mensaje.",
-  },
-  {
-    title: "El lado de la familia",
-    body: "Un link personal sin login, o registro con email y panel propio. La familia ve su plan cuota por cuota, paga, y le llega la confirmación. Deja de preguntar cuánto debe porque lo tiene delante.",
-  },
-  {
-    title: "Galerías que se abren solas",
-    body: "El material se libera cuando el plan está saldado, con el permiso chequeado en el servidor. No es esconder un botón: es que el archivo no se sirve si la deuda no está en cero.",
-  },
-  {
-    title: "La vitrina pública",
-    body: "La landing de la productora, con el portfolio por categoría y pedido de presupuesto por WhatsApp. El mismo sistema que cobra es el que trae al próximo cliente.",
-  },
-];
-
-const DECISIONES: Benefit[] = [
-  {
-    title: "El estado de las cuotas no se guarda",
-    body: "La tentación es una columna «pagada» por cuota, y es la fuente de todos los desacuerdos: alguien paga de más, alguien paga dos cuotas juntas, alguien transfiere un monto que no coincide con nada, y a partir de ahí el panel dice una cosa y los pagos dicen otra. Acá el estado se deriva: se toma todo lo pagado y se reparte sobre el plan, de la cuota más vieja a la más nueva, con la mora incluida. Un pago parcial, uno de más y dos cuotas juntas se acomodan solos, sin código para cada caso. Y el panel no puede terminar diciendo algo distinto de lo que dicen los pagos, porque no tiene dónde guardarlo.",
-  },
-  {
-    title: "Un cliente particular es un grupo de uno",
-    body: "Halley también cobra bodas y quince: un cliente, una seña, un saldo. No son cuotas mensuales y no son un grupo. Se modelaron igual, como un grupo con un solo alumno. Con eso las bodas heredan gratis la imputación, los pagos, las galerías, el panel de la familia y los avisos. Cero lógica nueva para el segundo tipo de negocio.",
-  },
-  {
-    title: "Un aviso de pago no es un pago",
-    body: "Los webhooks de Talo y de Mercado Pago se tratan como lo que son: un aviso de que algo pasó. Antes de registrar un peso, el sistema vuelve a consultar el pago contra la API del proveedor con su propio token. Un aviso inventado no puede fabricar plata. Y todo es idempotente por referencia de pago, así que un aviso repetido no cobra dos veces.",
-  },
-];
-
-const HALLAZGOS: Benefit[] = [
-  {
-    title: "No hay API key fija",
-    body: "La autenticación es un token de una hora que se intercambia por credenciales. El adaptador escrito contra la documentación habría dejado de funcionar a los sesenta minutos.",
-  },
-  {
-    title: "Un Content-Type en un GET devuelve HTTP 500",
-    body: "Enviarlo es lo que hace cualquier cliente HTTP por costumbre. Con ese encabezado puesto, ninguna transferencia se habría podido confirmar nunca, y el síntoma habría sido «el sistema no ve los pagos», que se investiga por el lado equivocado durante días.",
-  },
-  {
-    title: "El campo del monto es el neto, no el bruto",
-    body: "El campo que parece el monto ya tiene la comisión descontada. Leyéndolo, cada familia habría quedado debiendo la comisión de su propia transferencia: centavos por operación, dos mil familias, y una discusión por cada una.",
-  },
-  {
-    title: "El alias se trunca a 20 caracteres",
-    body: "Talo le antepone un prefijo al alias que uno le manda y corta el resto. Los alias construidos con nombre y apellido terminaban colisionando entre dos alumnos del mismo colegio, en un campo que Talo exige único. Se rehízo con un sufijo aleatorio.",
-  },
-  {
-    title: "El CVU y el alias no vienen donde dice la documentación",
-    body: "Están anidados un nivel más adentro de lo documentado. Es el más inofensivo de los cinco y aun así habría roto el alta de cada alumno.",
-  },
-];
-
-const DEFENSAS: Benefit[] = [
-  {
-    title: "Firma verificada en los webhooks",
-    body: "Los avisos de Mercado Pago se validan contra su firma antes de mirarles el contenido. Sumado a la reconsulta contra la API, hacen falta dos cosas para que un aviso cuente, no una.",
-  },
-  {
-    title: "Las credenciales no salen del servidor",
-    body: "El panel muestra los últimos cuatro caracteres y nada más. No hay pantalla, endpoint ni export que devuelva una credencial completa.",
-  },
-  {
-    title: "Material privado firmado y con vencimiento corto",
-    body: "Las fotos y videos se sirven con URLs firmadas que caducan, y nunca por CDN. Un link filtrado deja de servir solo.",
-  },
-  {
-    title: "Freno de fuerza bruta y bitácora de pagos",
-    body: "El panel corta los intentos repetidos, y cada evento de pago queda registrado. En la primera transferencia real, esa bitácora permitió señalar exactamente dónde se había cortado el flujo.",
-  },
-];
-
-function FactsRow() {
+function FactsRow({ facts }: { facts: HalleyCopy["facts"] }) {
   return (
     <section
       className="reveal mt-10 grid gap-px overflow-hidden rounded-lg border border-white/12 bg-white/10 sm:grid-cols-4"
       style={{ animationDelay: "80ms" }}
     >
-      {FACTS.map((f) => (
+      {facts.map((f) => (
         <div key={f.label} className="bg-[#0f0f0f] p-6">
           <p className="font-display text-3xl font-medium tabular-nums text-[#0070F3]">
             {f.value}
@@ -153,205 +52,97 @@ function FactsRow() {
 // Marca el corte entre la mitad de negocio y la mitad técnica, y le avisa
 // al lector no técnico que ya puede parar. Decirlo explícitamente vale más
 // que dejarlo implícito: el que sigue leyendo, sigue porque quiere.
-function PartDivider() {
+function PartDivider({ copy }: { copy: HalleyCopy["divider"] }) {
   return (
     <section aria-hidden className="border-t border-white/10 pt-10">
       <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#0070F3]">
-        El detalle técnico
+        {copy.eyebrow}
       </p>
-      <p className="mt-3 max-w-[62ch] text-[14.5px] leading-relaxed text-white/55">
-        Hasta acá, qué resuelve el sistema. De acá en adelante, cómo está hecho: las decisiones
-        de diseño que lo sostienen, lo que apareció recién al integrar contra las APIs reales y
-        la auditoría de seguridad. Si no es lo tuyo, ya tenés la película completa.
-      </p>
+      <p className="mt-3 max-w-[62ch] text-[14.5px] leading-relaxed text-white/55">{copy.body}</p>
     </section>
   );
 }
 
 export default async function CasoHalleyPage() {
   const [locale, others] = await Promise.all([getLocale(), getOtherProjects()]);
+  const lang = caseLang(locale);
+  const c = HALLEY[lang];
 
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-[#0a0a0a] text-[#fafafa]">
+    <div lang={lang} className="relative min-h-screen overflow-x-clip bg-[#0a0a0a] text-[#fafafa]">
       <PixelBackdrop />
-      <ModelHeader locale={locale} sections={SECTIONS} />
+      <ModelHeader locale={locale} sections={c.sections} />
 
       <main className="relative z-10 mx-auto max-w-6xl px-5 pb-24 pt-14">
-        <ModelHero
-          eyebrow="CASO DE CLIENTE · COBRANZA EN CUOTAS"
-          titleA="Cobrarle a 2.000 familias"
-          titleB="sin perseguir a ninguna."
-          intro="Halley Audiovisual filma egresados en Córdoba. Su operación son 27 colegios y cerca de 2.000 estudiantes, cada uno con un plan de cuotas mensuales que arranca dos o tres años antes del evento. Construí el sistema que sostiene ese ciclo entero: de la primera cuota a la entrega del material."
-        />
+        <ModelHero {...c.hero} />
 
         <SiteShot
           src="/previews/halley-audiovisual.jpg"
           domain="halleyaudiovisual.com"
           href="https://halleyaudiovisual.com"
+          lang={lang}
         />
 
-        <FactsRow />
+        <FactsRow facts={c.facts} />
 
         <div className="mt-14 grid gap-12 lg:grid-cols-[220px_1fr]">
-          <TocNav sections={SECTIONS} />
+          <TocNav sections={c.sections} label={c.toc} />
 
           <div className="min-w-0 space-y-20">
             {/* ============ MITAD DE NEGOCIO (01-03) ============ */}
 
             <section id="problema" className="scroll-mt-24">
-              <SectionHead n="01" title="El problema" />
-              <Prose>
-                <p>
-                  Cada mes hay que decirle a dos mil familias cuánto deben, cobrarles por
-                  transferencia, mirar el extracto bancario, cruzar cada depósito contra un
-                  apellido, anotarlo en una planilla, avisarle al que pagó, perseguir al que no
-                  y, cuando el plan termina, entregarle el material a la familia correcta y a
-                  nadie más.
-                </p>
-                <p>
-                  <strong className="text-white/85">
-                    Nada de eso es difícil. Todo eso es imposible de sostener a mano sin
-                    equivocarse.
-                  </strong>
-                </p>
-                <p>
-                  Y los errores no son parejos. Cobrarle de menos a una familia es plata perdida.
-                  Cobrarle de más es un problema con un cliente. Y entregarle el material a quien
-                  todavía debe es perder el único instrumento de cobro que queda.
-                </p>
-              </Prose>
+              <SectionHead n="01" title={c.problem.title} />
+              <Paragraphs items={c.problem.body} />
             </section>
 
             <section id="sistema" className="scroll-mt-24">
-              <SectionHead n="02" title="Qué se construyó" />
-              <Prose>
-                <p>
-                  Un sistema que cubre el ciclo entero, de la primera cuota a la entrega del
-                  material. No es un panel de deudores: es la lógica que decide quién debe qué,
-                  qué se cobra cuándo y qué se destraba cuando entra la plata.
-                </p>
-              </Prose>
-              <BenefitGrid benefits={SISTEMA} />
+              <SectionHead n="02" title={c.system.title} />
+              <Paragraphs items={c.system.intro} />
+              <BenefitGrid benefits={c.system.items} />
             </section>
 
             <section id="cierre" className="scroll-mt-24">
-              <SectionHead n="03" title="Si tu operación tiene esta forma" />
-              <Prose>
-                <p>
-                  Colegios, academias, institutos, clubes, escuelas de música o danza, jardines.
-                  Si le cobrás a cientos o miles de familias en cuotas, cruzás transferencias
-                  contra apellidos en una planilla y tenés algo para entregar que podrías
-                  condicionar al pago, el problema es el mismo y la solución también.
-                </p>
-              </Prose>
-              <ClosingCta
-                locale={locale}
-                title="¿Cuánto no estás cobrando?"
-                body="Contame cuántos pagadores tenés, cómo cobrás hoy y qué parte se hace a mano. Con eso preparo el diagnóstico: una reunión y tres mejoras con impacto, empezando por la cobranza. Te respondo en el día."
-              />
+              <SectionHead n="03" title={c.fit.title} />
+              <Paragraphs items={c.fit.body} />
+              <ClosingCta locale={lang} title={c.fit.ctaTitle} body={c.fit.ctaBody} />
             </section>
 
             {/* ============ MITAD TÉCNICA (04-07) ============ */}
 
-            <PartDivider />
+            <PartDivider copy={c.divider} />
 
             <section id="decisiones" className="scroll-mt-24">
-              <SectionHead n="04" title="Las decisiones que lo sostienen" />
-              <Prose>
-                <p>
-                  Tres, y las tres son sobre qué <strong className="text-white/85">no</strong>{" "}
-                  hacer. Son las que hacen que el sistema siga siendo chico cuando la operación
-                  crece.
-                </p>
-              </Prose>
-              <NumberedList items={DECISIONES} />
+              <SectionHead n="04" title={c.decisions.title} />
+              <Paragraphs items={c.decisions.intro} />
+              <NumberedList items={c.decisions.items} />
             </section>
 
             <section id="integracion" className="scroll-mt-24">
-              <SectionHead n="05" title="Lo que sólo aparece integrando de verdad" />
-              <Prose>
-                <p>
-                  La integración con Talo se escribió primero contra la documentación y después se
-                  probó contra la API real. Los dos no coincidían. Cinco hallazgos, todos
-                  silenciosos, todos encontrados antes de que tocaran a una familia.
-                </p>
-              </Prose>
-              <NumberedList items={HALLAZGOS} />
+              <SectionHead n="05" title={c.integration.title} />
+              <Paragraphs items={c.integration.intro} />
+              <NumberedList items={c.integration.items} />
               <div className="mt-8 rounded-lg border border-white/12 bg-[#0f0f0f] p-6">
                 <p className="max-w-[68ch] text-[13.5px] leading-relaxed text-white/65">
-                  Ninguno de los cinco se veía en una prueba con datos falsos. Los cinco se
-                  arreglaron en el día. Esta es la parte del trabajo que no se puede estimar
-                  leyendo una documentación, y la razón por la que conviene integrar temprano, con
-                  la plata todavía a salvo.
+                  {c.integration.note}
                 </p>
               </div>
             </section>
 
             <section id="seguridad" className="scroll-mt-24">
-              <SectionHead n="06" title="La auditoría de seguridad" />
-              <Prose>
-                <p>
-                  Terminado el sistema se hizo una revisión de punta a punta. Encontró dos puertas
-                  abiertas que importaban de verdad, las dos introducidas por herramientas de
-                  demostración que en algún momento fueron útiles.
-                </p>
-                <p>
-                  La primera era{" "}
-                  <strong className="text-white/85">un simulador de pagos alcanzable desde afuera</strong>
-                  , pensado para recorrer el flujo sin plata real y que quedaba habilitado con la
-                  configuración que estaba puesta. Se verificó en vivo: era posible llevar una deuda
-                  a cero sin transferir un peso, y con eso abrir la galería privada de la familia.
-                </p>
-                <p>
-                  La segunda era{" "}
-                  <strong className="text-white/85">
-                    una vía de acceso que se conformaba con el email
-                  </strong>
-                  : según cómo estuviera configurado el entorno, alcanzaba con conocer una
-                  dirección de correo para entrar a la cuenta de una familia.
-                </p>
-                <p>
-                  Las dos se cerraron detrás de una sola función que decide si las herramientas de
-                  demostración están habilitadas, y que en producción responde que no salvo que se
-                  la habilite explícitamente. Una sola puerta es auditable; diez condiciones
-                  repartidas por el código no lo son.
-                </p>
-                <p>
-                  La misma auditoría destapó, de paso, que la política de seguridad del navegador,
-                  puesta por mí unos días antes, estaba bloqueando todas las subidas de
-                  archivos. Nadie lo había notado porque el síntoma parecía otro: la vitrina vacía
-                  se leía como «todavía no subimos nada».
-                </p>
-              </Prose>
-              <BenefitGrid benefits={DEFENSAS} />
+              <SectionHead n="06" title={c.security.title} />
+              <Paragraphs items={c.security.body} />
+              <BenefitGrid benefits={c.security.items} />
             </section>
 
             <section id="stack" className="scroll-mt-24">
-              <SectionHead n="07" title="Cómo está construido" />
-              <Prose>
-                <p>
-                  Next.js con App Router y TypeScript, tRPC entre el panel y el servidor, Prisma
-                  sobre Postgres en Supabase, y el material privado en S3 detrás de CloudFront.
-                  Los cobros entran por Talo y Mercado Pago, los avisos salen por Resend, y todo
-                  corre con PM2 sobre Debian.
-                </p>
-                <p>
-                  El sistema no es difícil por lo que hace. Es difícil por lo que no puede
-                  permitir: que el panel y los pagos digan cosas distintas, que un aviso falso
-                  fabrique plata, que el material salga antes de tiempo, que una comisión se cobre
-                  dos veces.
-                </p>
-                <p>
-                  Casi todo eso se resolvió sacando cosas. Sacando el estado guardado, sacando el
-                  segundo modelo de datos, sacando las condiciones repartidas. Lo que quedó es
-                  chico y se puede leer entero.
-                </p>
-              </Prose>
+              <SectionHead n="07" title={c.stack.title} />
+              <Paragraphs items={c.stack.body} />
             </section>
 
             <section className="mt-20 border-t border-white/10 pt-10">
               <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/40">
-                Seguir mirando
+                {c.seeAlso.heading}
               </p>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 {others.length > 0 && (
@@ -361,10 +152,10 @@ export default async function CasoHalleyPage() {
                   >
                     <span className="min-w-0">
                       <span className="block text-[15px] font-semibold tracking-[-0.02em] text-white/95">
-                        Otros productos
+                        {c.seeAlso.others.title}
                       </span>
                       <span className="mt-1 block text-[13px] text-white/50">
-                        Lo que construí de punta a punta
+                        {c.seeAlso.others.hint}
                       </span>
                     </span>
                   </Link>
@@ -375,10 +166,10 @@ export default async function CasoHalleyPage() {
                 >
                   <span className="min-w-0">
                     <span className="block text-[15px] font-semibold tracking-[-0.02em] text-white/95">
-                      Caso Stealth Seller
+                      {c.seeAlso.sibling.title}
                     </span>
                     <span className="mt-1 block text-[13px] text-white/50">
-                      Product engineering para revendedores de Amazon
+                      {c.seeAlso.sibling.hint}
                     </span>
                   </span>
                 </Link>

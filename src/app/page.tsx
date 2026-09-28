@@ -112,7 +112,14 @@ export default async function StudioLanding() {
     { title: s.step4Title, body: s.step4Body },
   ];
 
-  const cases = [
+  const cases: {
+    href: string;
+    shot: string;
+    tag: string;
+    title: string;
+    body: string;
+    facts: { value: string; label: string }[];
+  }[] = [
     {
       href: "/casos/halley",
       shot: "/previews/halley-audiovisual.jpg",
@@ -131,11 +138,9 @@ export default async function StudioLanding() {
       tag: s.caseSsTag,
       title: s.caseSsTitle,
       body: s.caseSsBody,
-      facts: [
-        { value: "600", label: s.caseSsF1 },
-        { value: s.caseSsV2, label: s.caseSsF2 },
-        { value: s.caseSsV3, label: s.caseSsF3 },
-      ],
+      // Sin datos: las cifras públicas del producto (tiendas vigiladas,
+      // números por publicación) no dicen nada del trabajo.
+      facts: [],
     },
   ];
 
@@ -352,14 +357,16 @@ export default async function StudioLanding() {
                       className="block h-auto w-full transition-transform duration-500 ease-out group-hover:scale-[1.02] motion-reduce:transition-none"
                     />
                   </div>
-                  <div className="grid grid-cols-3 gap-px border-t border-white/12 bg-white/10">
-                    {c.facts.map((f) => (
-                      <div key={f.label} className="bg-[#131313] p-3 sm:p-5">
-                        <p className="font-display text-xl font-medium tabular-nums text-[#0070F3] sm:text-2xl">{f.value}</p>
-                        <p className="mt-1 text-[11px] text-white/45">{f.label}</p>
-                      </div>
-                    ))}
-                  </div>
+                  {c.facts.length > 0 && (
+                    <div className="grid grid-cols-3 gap-px border-t border-white/12 bg-white/10">
+                      {c.facts.map((f) => (
+                        <div key={f.label} className="bg-[#131313] p-3 sm:p-5">
+                          <p className="font-display text-xl font-medium tabular-nums text-[#0070F3] sm:text-2xl">{f.value}</p>
+                          <p className="mt-1 text-[11px] text-white/45">{f.label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </Link>
             ))}

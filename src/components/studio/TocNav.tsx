@@ -6,8 +6,10 @@ import { useEffect, useState } from "react";
 // listeners de scroll) para no costar nada por frame.
 export function TocNav({
   sections,
+  label = "Índice",
 }: {
   sections: { id: string; n: string; label: string }[];
+  label?: string;
 }) {
   const [active, setActive] = useState(sections[0]?.id ?? "");
 
@@ -30,11 +32,11 @@ export function TocNav({
 
   return (
     <nav
-      aria-label="Índice"
+      aria-label={label}
       className="top-24 h-max lg:sticky rounded-lg border border-white/12 bg-[#0f0f0f] p-4 lg:border-0 lg:bg-transparent lg:p-0"
     >
       <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/40">
-        Índice
+        {label}
       </p>
       <ul className="mt-3 space-y-0.5">
         {sections.map((s) => {

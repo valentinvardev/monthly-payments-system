@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { t, type Locale } from "@/lib/studio/i18n";
+import { t, type CaseLang, type Locale } from "@/lib/studio/i18n";
 import { StudioBrand } from "@/components/studio/pixel";
 import { LangToggle } from "@/components/studio/LangToggle";
 import { StudioMobileMenu } from "@/components/studio/StudioMobileMenu";
@@ -105,12 +105,14 @@ export function SiteShot({
   src,
   domain,
   href,
+  lang = "es",
 }: {
   src: string;
   domain: string;
   href?: string;
+  lang?: CaseLang;
 }) {
-  const caption = `Página de inicio de ${domain}`;
+  const caption = lang === "en" ? `${domain} home page` : `Página de inicio de ${domain}`;
   return (
     <figure className="reveal mt-10" style={{ animationDelay: "90ms" }}>
       <div className="overflow-hidden border border-white/12 bg-[#0f0f0f]">

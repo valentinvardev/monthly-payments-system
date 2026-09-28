@@ -2,6 +2,11 @@ import { cookies } from "next/headers";
 
 export type Locale = "es" | "en" | "pt";
 
+// Las páginas de casos están en español e inglés. Portugués lee el español
+// (el link de la landing lo avisa), que le queda más cerca que el inglés.
+export type CaseLang = "es" | "en";
+export const caseLang = (locale: Locale): CaseLang => (locale === "en" ? "en" : "es");
+
 export const LOCALE_COOKIE = "studio_lang";
 
 export async function getLocale(): Promise<Locale> {
@@ -94,11 +99,6 @@ const STRINGS = {
     caseSsTitle: "Un producto que crece al ritmo de lo que piden sus usuarios.",
     caseSsBody:
       "Plataforma de investigación de productos para revendedores de Amazon. Trabajo ahí como product engineer: entiendo cómo decide el vendedor y lo convierto en funciones nuevas en días, con agentes de IA en el desarrollo.",
-    caseSsF1: "tiendas por cuenta, como máximo",
-    caseSsV2: "IA",
-    caseSsF2: "ganancia y ROI",
-    caseSsV3: "Stock",
-    caseSsF3: "en retailers",
 
     projectsEyebrow: "Otros productos",
     projectsTitle: "Productos que construí de punta a punta.",
@@ -187,7 +187,7 @@ const STRINGS = {
 
     casesEyebrow: "Case studies",
     casesTitle: "Two real operations.",
-    caseCta: "Read the case (in Spanish)",
+    caseCta: "Read the case",
     caseHalleyTag: "Halley Audiovisual",
     caseHalleyTitle: "Collecting from 2,000 families without chasing a single one.",
     caseHalleyBody:
@@ -200,11 +200,6 @@ const STRINGS = {
     caseSsTitle: "A product that grows at the pace its users ask for.",
     caseSsBody:
       "A product research platform for Amazon resellers. I work there as a product engineer: I learn how a seller decides and turn it into new features in days, with AI agents in the development workflow.",
-    caseSsF1: "stores per account, at most",
-    caseSsV2: "AI",
-    caseSsF2: "profit and ROI",
-    caseSsV3: "Stock",
-    caseSsF3: "at retailers",
 
     projectsEyebrow: "Other products",
     projectsTitle: "Products I built end to end.",
@@ -306,11 +301,6 @@ const STRINGS = {
     caseSsTitle: "Um produto que cresce no ritmo do que os usuários pedem.",
     caseSsBody:
       "Plataforma de pesquisa de produtos para revendedores da Amazon. Trabalho lá como product engineer: entendo como o vendedor decide e transformo isso em funcionalidades novas em dias, com agentes de IA no desenvolvimento.",
-    caseSsF1: "lojas por conta, no máximo",
-    caseSsV2: "IA",
-    caseSsF2: "lucro e ROI",
-    caseSsV3: "Estoque",
-    caseSsF3: "nos varejistas",
 
     projectsEyebrow: "Outros produtos",
     projectsTitle: "Produtos que construí de ponta a ponta.",
